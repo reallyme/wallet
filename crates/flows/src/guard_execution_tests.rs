@@ -59,6 +59,64 @@ impl FlowExecutionStore for Store {
 fn time(n: i64) -> Result<UnixTimestamp, WalletTypesError> {
     UnixTimestamp::from_seconds(n)
 }
+
+#[test]
+fn accepted_submission_with_failed_confirmation_requires_reconciliation_after_restart(
+) -> Result<(), TestError> {
+    let mut store = Store::default();
+    let record = record()?;
+    let id = record.id.clone();
+    create_flow_execution(&mut store, record)?;
+    let exact_request = vec![0x31, 0x32, 0x33];
+    let reservation = reserve_flow_effect(
+        &mut store,
+        &id,
+        [2; 32],
+        exact_request.clone(),
+        FlowEffectKind::Submission,
+        time(20)?,
+    )?;
+    // Model a remote acceptance followed by failure to durably acknowledge it.
+    // A missing local confirmation is not evidence that the remote effect failed.
+    store.fail = true;
+    assert_eq!(
+        confirm_flow_effect(&mut store, reservation, vec![9], time(21)?)
+            .err()
+            .map(|error| error.reason),
+        Some(ExecutionErrorReason::Storage)
+    );
+    let mut restarted = Store {
+        record: store.record.clone(),
+        generation: store.generation,
+        fail: false,
+    };
+    let persisted = restarted.get_execution(&id)?.into_parts().0;
+    assert_eq!(persisted.snapshot, vec![1]);
+    assert_eq!(persisted.effects.len(), 1);
+    assert_eq!(persisted.effects[0].request_bytes, exact_request);
+    assert_eq!(
+        execution_resume_decision(&persisted, time(22)?)?,
+        ExecutionResumeDecision::ReconcileOnly
+    );
+    assert_eq!(
+        reserve_flow_effect(
+            &mut restarted,
+            &id,
+            [2; 32],
+            exact_request,
+            FlowEffectKind::Submission,
+            time(22)?
+        )
+        .err()
+        .map(|error| error.reason),
+        Some(ExecutionErrorReason::ReconciliationRequired)
+    );
+    assert_eq!(
+        terminate_flow_execution(&mut restarted, &id, FlowDisposition::Failed, time(23)?)?,
+        FlowDisposition::DeliveryUnknown
+    );
+    Ok(())
+}
 fn record() -> Result<FlowExecutionRecord, WalletTypesError> {
     Ok(FlowExecutionRecord {
         id: FlowSnapshotId::new("flow".into())?,

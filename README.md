@@ -14,11 +14,10 @@
 
 </div>
 
-ReallyMe Wallet is the state and policy engine for credential wallets in the
-ReallyMe stack. It manages credential inventory, wallet lifecycle, consent,
-attestation, resumable flows, and transaction records. Rust APIs and versioned
-protobuf contracts let hosts supply storage, keys, networking, and user
-interaction through explicit interfaces.
+ReallyMe Wallet is an embeddable Rust wallet state and authorization engine.
+It manages credential inventory, consent, lifecycle, attestation, and recoverable
+flows. Host applications provide storage, keys, networking, and user interaction.
+ReallyMe Identity supplies application SDKs and platform bindings.
 
 OpenID4VCI handles issuance mechanics, OpenID4VP handles presentation mechanics,
 and SSI supplies credential formats, trust, status, and disclosure policy.

@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+#[path = "receipt_policy_invariant_tests.rs"]
+mod policy_invariants;
+
 use super::{
     bind_receipt_policy, capture_receipt_consent, consent_policy_digest,
     prepare_reader_receipt_consent, ConsentPolicyVerifier, PolicyContextAuthorization,

@@ -33,7 +33,11 @@ pub struct ConsentPolicyChoice {
     /// Exact choice shown to the holder.
     pub accepted: bool,
 }
-/// Exact terms included in the authorization receipt.
+/// Exact asserted terms included in the holder's disclosure approval receipt.
+///
+/// Approval authorizes this disclosure; it does not establish the relying
+/// party's authority to process the data. Policy interpretation belongs to
+/// the injected policy verifier, independently of the holder's decision.
 #[derive(Clone, PartialEq, Eq, ZeroizeOnDrop)]
 pub struct ConsentPolicyContext {
     /// Authenticated purpose identifier; display text remains above Wallet.

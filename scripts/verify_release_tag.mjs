@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 const FULL_SHA = /^[0-9a-f]{40}$/u;
 const VERSION = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/u;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
+const MAX_ANNOTATED_TAG_DEPTH = 8;
 
 export class ReleaseTagError extends Error {
   constructor(code) {
@@ -42,42 +43,61 @@ export const verifyReleaseTag = async ({ env = process.env, request = fetch } = 
     fail("invalid-github-api-url");
   }
   const tag = `reallyme-wallet-v${version}`;
-  const url = new URL(`${apiUrl.pathname.replace(/\/$/u, "")}/repos/${repository}/commits/${tag}`, apiUrl);
-  let response;
-  try {
-    response = await request(url, {
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${token}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-      redirect: "error",
-    });
-  } catch {
-    fail("tag-lookup-failed");
-  }
+  const read = async (path) => {
+    const url = new URL(`${apiUrl.pathname.replace(/\/$/u, "")}/repos/${repository}/${path}`, apiUrl);
+    try {
+      return await request(url, {
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${token}`,
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+        redirect: "error",
+      });
+    } catch {
+      fail("tag-lookup-failed");
+    }
+  };
+  // A missing ref is a documented 404. The commits endpoint instead returns
+  // 422 for an unknown name, which cannot safely be treated as tag absence.
+  const response = await read(`git/ref/tags/${tag}`);
   if (response.status === 404) {
     return tag;
   }
   if (response.status !== 200) {
     fail("tag-lookup-failed");
   }
-  let body;
-  try {
-    body = await response.json();
-  } catch {
+  const decode = async (response) => {
+    if (response.status !== 200) fail("tag-lookup-failed");
+    try {
+      return await response.json();
+    } catch {
+      fail("tag-lookup-failed");
+    }
+  };
+  const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+  const target = (value) => {
+    if (
+      !isRecord(value) || !isRecord(value.object) ||
+      !["commit", "tag"].includes(value.object.type) ||
+      typeof value.object.sha !== "string" || !FULL_SHA.test(value.object.sha)
+    ) fail("tag-lookup-failed");
+    return value.object;
+  };
+  const ref = await decode(response);
+  if (!isRecord(ref) || ref.ref !== `refs/tags/${tag}`) {
     fail("tag-lookup-failed");
   }
-  if (
-    body === null ||
-    typeof body !== "object" ||
-    Array.isArray(body) ||
-    typeof body.sha !== "string" ||
-    !FULL_SHA.test(body.sha)
-  ) {
-    fail("tag-lookup-failed");
+  let object = target(ref);
+  const seen = new Set();
+  for (let depth = 0; object.type === "tag"; depth += 1) {
+    if (depth >= MAX_ANNOTATED_TAG_DEPTH || seen.has(object.sha)) fail("tag-lookup-failed");
+    seen.add(object.sha);
+    const annotation = await decode(await read(`git/tags/${object.sha}`));
+    if (!isRecord(annotation) || annotation.sha !== object.sha) fail("tag-lookup-failed");
+    object = target(annotation);
   }
-  if (body.sha !== releaseSha) {
+  if (object.sha !== releaseSha) {
     fail("tag-conflicts-with-release-commit");
   }
   return tag;
