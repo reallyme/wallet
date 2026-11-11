@@ -128,12 +128,12 @@ jobs:
           --target-dir "$RUNNER_TEMP/buffa-install-target"
 
       - name: Install cargo-deny
-        uses: taiki-e/install-action@41049aa56687c35e0afa74eed4f09cec4f9afabf # v2.85.2
+        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
         with:
           tool: cargo-deny@${{ env.CARGO_DENY_VERSION }}
 
       - name: Install cargo-audit
-        uses: taiki-e/install-action@41049aa56687c35e0afa74eed4f09cec4f9afabf # v2.85.2
+        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
         with:
           tool: cargo-audit@${{ env.CARGO_AUDIT_VERSION }}
 
