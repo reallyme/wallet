@@ -1,0 +1,101 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package identity.did.v1;
+
+import "reallyme/crypto/v1/crypto.proto";
+
+option java_multiple_files = true;
+option java_package = "me.really.identity.did.v1";
+option swift_prefix = "ReallyMeIdentityProto";
+
+// VerificationMethodType identifies the verification-method representation
+// without binding the document to any DID method.
+enum VerificationMethodType {
+  VERIFICATION_METHOD_TYPE_UNSPECIFIED = 0;
+  VERIFICATION_METHOD_TYPE_MULTIKEY = 1;
+  VERIFICATION_METHOD_TYPE_JSON_WEB_KEY = 2;
+}
+
+// VerificationMethod carries public verification material only. Private key
+// material is intentionally outside the protobuf DID boundary.
+message VerificationMethod {
+  string id = 1;
+  VerificationMethodType type = 2;
+  string controller = 3;
+  reallyme.crypto.v1.CryptoAlgorithmIdentifier algorithm = 4;
+
+  oneof public_key {
+    string public_key_multibase = 5;
+    reallyme.crypto.v1.JsonWebKey public_key_jwk = 6;
+  }
+}
+
+// VerificationReference stores an entry from a DID Core relationship array.
+// Inline verification methods are allowed by DID Core, but references should be
+// preferred when a method appears in more than one relationship.
+message VerificationReference {
+  oneof reference {
+    string verification_method_id = 1;
+    VerificationMethod verification_method = 2;
+  }
+}
+
+// VerificationRelationshipSet groups all verification relationships for a DID
+// document without relying on free-form field names at downstream boundaries.
+message VerificationRelationshipSet {
+  repeated VerificationReference authentication = 1;
+  repeated VerificationReference assertion_method = 2;
+  repeated VerificationReference key_agreement = 3;
+  repeated VerificationReference capability_invocation = 4;
+  repeated VerificationReference capability_delegation = 5;
+}
+
+// ServiceEndpoint stores the canonical JSON encoding of a DID Core service
+// endpoint. DID Core permits a URI string, object, or array, so bytes preserve
+// the exact validated JSON form without widening the schema to arbitrary maps.
+message ServiceEndpoint {
+  bytes canonical_json = 1;
+}
+
+// Service represents a generic DID Core service entry.
+message Service {
+  string id = 1;
+  repeated string type = 2;
+  ServiceEndpoint service_endpoint = 3;
+}
+
+// DataIntegrityProof carries a proof object attached to a DID document. The
+// exact cryptosuite rules are validated by higher-level envelope crates.
+message DataIntegrityProof {
+  string type = 1;
+  string cryptosuite = 2;
+  string verification_method = 3;
+  string created = 4;
+  string proof_purpose = 5;
+  string proof_value = 6;
+  string jws = 7;
+}
+
+// DidDocument is a method-neutral protobuf representation of the DID Core
+// document shape used by ReallyMe identity components.
+message DidDocument {
+  string id = 1;
+
+  // JSON-LD context entries are represented as string IRIs only. This preserves
+  // the canonical did:me default profile tuple without turning the protobuf
+  // boundary into arbitrary JSON. Inline JSON-LD object contexts permitted by
+  // DID Core and did:me Section 10 cannot round-trip through this projection;
+  // adapters must preserve them outside this message or reject them explicitly.
+  repeated string context = 2;
+
+  repeated string controller = 3;
+  repeated string also_known_as = 4;
+  repeated VerificationMethod verification_method = 5;
+  VerificationRelationshipSet verification_relationship = 6;
+  repeated Service service = 7;
+  repeated DataIntegrityProof proof = 8;
+}

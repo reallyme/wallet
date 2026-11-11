@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "source_lock": "conformance/sources.lock",
+  "reference_implementation_lock": "conformance/eudi/reference-implementation.lock",
+  "minimums": [
+    {
+      "id": "minimum.source-baseline",
+      "status": "implemented",
+      "summary": "Pin the legal, ARF, FCAF, standards-tracking, and EUDI reference implementation sources used for wallet conformance evidence.",
+      "source_ids": [
+        "eidas-2024-1183",
+        "eudi-arf",
+        "eudi-fcaf",
+        "eudi-standards-tracking"
+      ],
+      "evidence": [
+        "conformance/sources.lock",
+        "conformance/eudi/reference-implementation.lock",
+        "conformance/README.md"
+      ],
+      "test_evidence": [
+        "conformance/tests/conformance_structure_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.runtime.sdk-contract"
+      ],
+      "limitations": []
+    },
+    {
+      "id": "minimum.pid-eaa-issuance-storage",
+      "status": "partial",
+      "summary": "Support request, receipt, validation, storage, deletion, and later presentation of PID and attestation records through wallet-owned flows and inventory boundaries.",
+      "source_ids": [
+        "eidas-2024-1183",
+        "eudi-arf",
+        "eudi-fcaf"
+      ],
+      "evidence": [
+        "crates/flows/src/issue.rs",
+        "crates/inventory/src/import.rs",
+        "crates/inventory/src/delete.rs",
+        "crates/storage/src/store.rs"
+      ],
+      "test_evidence": [
+        "conformance/tests/issuance_flow_tests.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.issuance.wua-required",
+        "wallet-core.issuance.deferred-resume",
+        "wallet-core.reference-wallet.issuance"
+      ],
+      "limitations": [
+        "Credential records carry format, issuer, and holder key but no attestation type or PID, QEAA, PuB-EAA, or EAA category; see credential-classification in the scope ownership contract.",
+        "Raw credential writes are refused at the runtime boundary; records enter inventory only through receipt-validated import."
+      ]
+    },
+    {
+      "id": "minimum.presentation-selective-disclosure-consent",
+      "status": "implemented",
+      "summary": "Select credentials, evaluate disclosure or derivation plans, capture consent, and fail closed for unsupported presentation formats before response generation.",
+      "source_ids": [
+        "eidas-2024-1183",
+        "eudi-arf",
+        "eudi-fcaf"
+      ],
+      "evidence": [
+        "crates/consent/src/evaluate.rs",
+        "crates/consent/src/capture.rs",
+        "crates/consent/src/plan_actions.rs",
+        "crates/flows/src/prepare_presentation_consent.rs",
+        "crates/wallet-zk/src/prove_presentation_derivation.rs"
+      ],
+      "test_evidence": [
+        "conformance/tests/presentation_zk_tests.rs",
+        "conformance/tests/relying_party_entitlement_tests.rs",
+        "conformance/tests/sdk_contract_tests.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.presentation.zk-unsupported-fails-closed",
+        "wallet-core.presentation.request-uri-wallet-nonce-mismatch",
+        "wallet-core.consent.rp-entitlement-registration",
+        "wallet-core.reference-wallet.same-device-presentation",
+        "wallet-core.reference-wallet.cross-device-presentation"
+      ],
+      "limitations": []
+    },
+    {
+      "id": "minimum.relying-party-entitlement-registration",
+      "status": "partial",
+      "summary": "Validate relying-party registration and entitlement evidence before allowing requested disclosures to reach user consent.",
+      "source_ids": [
+        "eidas-2024-1183",
+        "eudi-arf",
+        "eudi-fcaf"
+      ],
+      "evidence": [
+        "crates/consent/src/validate_registration_certificate.rs",
+        "crates/consent/src/evaluate.rs",
+        "crates/consent/src/capture.rs"
+      ],
+      "test_evidence": [
+        "conformance/tests/relying_party_entitlement_tests.rs",
+        "conformance/tests/sdk_contract_tests.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.consent.rp-entitlement-registration",
+        "wallet-core.runtime.sdk-contract"
+      ],
+      "limitations": [
+        "Entitlement evaluation is available through the Rust consent API; the v1 EvaluateVerifierEntitlement wire operation is unsupported because a request cannot carry the certificate verifier.",
+        "Requested attributes outside the registration are reported for a user warning, and the Wallet Provider's policy allows all of them, keeps registered attributes only, or rejects the request (ARF EW-DM-44-027, legacy RPRC_21). Intended use and relying-party intermediaries are not modelled."
+      ]
+    },
+    {
+      "id": "minimum.transaction-log-and-qtsp-decisions",
+      "status": "partial",
+      "summary": "Record user-visible transaction log entries and QTSP decision records for wallet actions that disclose or sign data.",
+      "source_ids": [
+        "eidas-2024-1183",
+        "eudi-arf"
+      ],
+      "evidence": [
+        "crates/log/src/append.rs",
+        "crates/log/src/validate.rs",
+        "crates/types/src/log.rs"
+      ],
+      "test_evidence": [
+        "crates/log/src/validate.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.log.qtsp-decision"
+      ],
+      "limitations": [
+        "The v1 transaction log records purpose, relying party, disclosed attribute names, and time; attestation type, relying-party trade name, and intended use are not recorded.",
+        "Retention limits and user-initiated deletion of log entries are not yet defined; see transaction-log-retention-policy in the scope ownership contract.",
+        "QTSP decision records are append-only and duplicate-protected by the storage contract but are not hash-linked."
+      ]
+    },
+    {
+      "id": "minimum.wallet-unit-attestation",
+      "status": "partial",
+      "summary": "Obtain, validate, bind, present, and rotate Wallet Unit Attestation evidence used during issuance and wallet lifecycle operations.",
+      "source_ids": [
+        "eudi-arf",
+        "eudi-fcaf"
+      ],
+      "evidence": [
+        "crates/attestation/src/obtain.rs",
+        "crates/attestation/src/rotate.rs",
+        "crates/attestation/src/validate.rs",
+        "crates/flows/src/issue.rs"
+      ],
+      "test_evidence": [
+        "conformance/tests/wallet_unit_attestation_tests.rs",
+        "conformance/tests/issuance_flow_tests.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.attestation.obtain-rotate",
+        "wallet-core.issuance.wua-required"
+      ],
+      "limitations": [
+        "Wallet verifies, binds, and rotates Wallet Unit Attestations through injected providers; acquiring Wallet Instance and key attestations from the Wallet Provider is owned by Identity and the wallet provider.",
+        "Wallet Unit and WSCD revocation state is not yet represented; see wallet-unit-revocation-state in the scope ownership contract.",
+        "Attestation lifetime is capped at 24 hours by Wallet policy."
+      ]
+    },
+    {
+      "id": "minimum.key-custody-no-key-bytes",
+      "status": "implemented",
+      "summary": "Keep wallet-core on opaque, type-distinct, bounded key handles and attestation evidence only; reject malformed handles at the protobuf boundary, while private key bytes stay behind injected WSCD or vault backends.",
+      "source_ids": [
+        "eidas-2024-1183",
+        "eudi-arf"
+      ],
+      "evidence": [
+        "crates/types/src/identifiers.rs",
+        "crates/types/src/error.rs",
+        "crates/proto/proto/reallyme/wallet/v1/errors.proto",
+        "crates/keystore/src/model.rs",
+        "crates/keystore/src/sign.rs",
+        "crates/keystore/src/validate_boundary.rs",
+        "crates/proto-codec/src/convert.rs"
+      ],
+      "test_evidence": [
+        "crates/types/src/identifiers_tests.rs",
+        "crates/keystore/src/validate_boundary.rs",
+        "crates/proto-codec/tests/convert_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.runtime.sdk-contract"
+      ],
+      "limitations": []
+    },
+    {
+      "id": "minimum.status-revocation-lifecycle",
+      "status": "operational_required",
+      "summary": "Local inventory status transitions are implemented. The public status-evidence operation rejects unauthenticated claims; the Wallet boundary does not provide interoperable JWT/CWT status-list verification or a public issuer-refresh API.",
+      "source_ids": [
+        "eidas-2024-1183",
+        "eudi-arf",
+        "eudi-fcaf"
+      ],
+      "evidence": [
+        "crates/inventory/src/check_status_list.rs",
+        "crates/inventory/src/update_status.rs",
+        "crates/inventory/src/refresh.rs",
+        "crates/inventory/src/reissue.rs",
+        "crates/inventory/src/delete.rs"
+      ],
+      "test_evidence": [
+        "conformance/tests/status_refresh_evidence_tests.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.inventory.status-evidence",
+        "wallet-core.inventory.status-refresh"
+      ],
+      "limitations": [
+        "The Wallet public update boundary does not authenticate a URI-bound IETF Token Status List JWT/CWT and its credential binding.",
+        "The public status-evidence operation rejects requests without an authenticated verifier capability.",
+        "Public issuer refresh is unavailable because the boundary has no authenticated issuer response."
+      ]
+    },
+    {
+      "id": "minimum.presentation-delivery-online-cross-device",
+      "status": "implemented",
+      "summary": "Support online, same-device, and cross-device wallet presentation launch paths through transport-neutral QR, link, and OIDF harness boundaries.",
+      "source_ids": [
+        "eudi-arf",
+        "eudi-fcaf"
+      ],
+      "evidence": [
+        "crates/render/src/web.rs",
+        "crates/http/src/serve_oidf_wallet_harness.rs",
+        "conformance/scripts/serve_oidf_wallet_harness.sh"
+      ],
+      "test_evidence": [
+        "crates/render/tests/web_tests.rs",
+        "crates/http/tests/serve_tests.rs",
+        "crates/flows/tests/contact_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.delivery.contact-round-trip",
+        "wallet-core.reference-wallet.cross-device-presentation",
+        "wallet-core.reference-wallet.same-device-presentation",
+        "wallet-core.reference-wallet.presentation-negative-nonce"
+      ],
+      "limitations": []
+    },
+    {
+      "id": "minimum.proximity-offline-mdoc-boundary",
+      "status": "delegated",
+      "summary": "Keep proximity and offline mdoc wallet behavior represented through wallet contact delivery, mdoc fixture ownership, and SSI-owned envelope parsing boundaries.",
+      "source_ids": [
+        "eudi-arf",
+        "eudi-fcaf"
+      ],
+      "evidence": [
+        "crates/flows/src/fragment_contact.rs",
+        "crates/flows/src/reassemble_contact.rs",
+        "crates/flows/src/validate_contact.rs",
+        "conformance/tests/mdoc_boundary_tests.rs"
+      ],
+      "test_evidence": [
+        "crates/flows/tests/contact_tests.rs",
+        "conformance/tests/mdoc_boundary_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.delivery.contact-round-trip",
+        "wallet-core.reference-wallet.proximity-presentation",
+        "wallet-core.reference-wallet.offline-presentation"
+      ],
+      "limitations": [
+        "ISO/IEC 18013-5 transports and Digital Credentials API integration are owned by Identity and the wallet provider.",
+        "Wallet supplies reader-session consent receipts and contact-delivery framing only; no proximity or offline run evidence is retained in this repository."
+      ]
+    },
+    {
+      "id": "minimum.lifecycle-portability-withdrawal",
+      "status": "partial",
+      "summary": "Represent wallet lifecycle evidence for backup, restore, migration, portability, withdrawal, deletion, suspension, and reactivation without platform storage leakage.",
+      "source_ids": [
+        "eidas-2024-1183",
+        "eudi-arf"
+      ],
+      "evidence": [
+        "crates/lifecycle/src/model.rs",
+        "crates/lifecycle/src/transition.rs",
+        "crates/lifecycle/src/validate_evidence.rs",
+        "crates/runtime/src/handle.rs",
+        "crates/lifecycle/src/reconcile_retry.rs",
+        "crates/runtime/src/apply_lifecycle_event.rs",
+        "crates/provider/src/reconcile_lifecycle_retry.rs"
+      ],
+      "test_evidence": [
+        "crates/lifecycle/src/transition.rs",
+        "crates/lifecycle/src/validate_evidence.rs",
+        "crates/runtime/src/handle_tests.rs",
+        "crates/lifecycle/src/retry_tests.rs",
+        "crates/runtime/src/handle_retry_tests.rs",
+        "crates/provider/tests/provider_trust/retry_rpc.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.proto.imports-sibling-contracts",
+        "wallet-core.runtime.sdk-contract"
+      ],
+      "limitations": [
+        "Lifecycle states and evidence for backup, restore, export, and migration are implemented; the migration package content policy is not yet defined.",
+        "Storage mechanics for authorized backup and migration are owned by VaultWallet.",
+        "Failed recovery and migration retries require authenticated fresh evidence and provider reconciliation; an absent or inconclusive provider refuses retry."
+      ]
+    },
+    {
+      "id": "minimum.proto-connect-boundary",
+      "status": "implemented",
+      "summary": "Expose wallet runtime service contracts through generated protobuf and Buffa DTO boundaries, importing sibling protocol protos instead of recreating them.",
+      "source_ids": [
+        "eudi-arf",
+        "eudi-fcaf"
+      ],
+      "evidence": [
+        "crates/proto/proto/reallyme/wallet/v1/wallet.proto",
+        "crates/proto/src/generated/buffa/reallyme.wallet.v1.wallet.rs",
+        "crates/http/src/serve.rs"
+      ],
+      "test_evidence": [
+        "conformance/tests/proto_contract_tests.rs",
+        "crates/proto/tests/generated_tests.rs",
+        "crates/http/tests/serve_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.runtime.sdk-contract"
+      ],
+      "limitations": []
+    },
+    {
+      "id": "minimum.reference-wallet-interop",
+      "status": "fixture_seeded",
+      "summary": "Pinned EUDI reference targets and synthetic fixtures cover issuance, same-device, cross-device, proximity, offline, and negative test specifications. Executed interoperability results are not attached.",
+      "source_ids": [
+        "eudi-arf",
+        "eudi-fcaf",
+        "eudi-standards-tracking"
+      ],
+      "evidence": [
+        "conformance/eudi/reference-implementation.lock",
+        "conformance/eudi/reference-fixture-hashes.json",
+        "conformance/eudi/test-cases.json",
+        "conformance/fixtures/eudi-reference/README.md"
+      ],
+      "test_evidence": [
+        "conformance/tests/conformance_structure_tests.rs",
+        "conformance/tests/eudi_minimum_wallet_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.reference-wallet.issuance",
+        "wallet-core.reference-wallet.cross-device-presentation",
+        "wallet-core.reference-wallet.same-device-presentation",
+        "wallet-core.reference-wallet.presentation-negative-nonce",
+        "wallet-core.reference-wallet.proximity-presentation",
+        "wallet-core.reference-wallet.offline-presentation"
+      ],
+      "limitations": [
+        "No executed reference-wallet suite outputs or assessment artifacts establish interoperability or certification."
+      ]
+    },
+    {
+      "id": "minimum.qes-qseal-support-boundary",
+      "status": "implemented",
+      "summary": "Represent QES and QSeal decisions through consent, transaction logging, and key-handle boundaries while platform QSCD/QTSP providers remain injected by the SDK layer.",
+      "source_ids": [
+        "eidas-2024-1183",
+        "eudi-arf"
+      ],
+      "evidence": [
+        "crates/types/src/consent.rs",
+        "crates/types/src/log.rs",
+        "crates/log/src/validate.rs",
+        "crates/keystore/src/validate_boundary.rs"
+      ],
+      "test_evidence": [
+        "crates/consent/src/capture.rs",
+        "crates/log/src/validate.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ],
+      "conformance_case_ids": [
+        "wallet-core.log.qtsp-decision"
+      ],
+      "limitations": []
+    }
+  ]
+}

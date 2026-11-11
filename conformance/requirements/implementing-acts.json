@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "source": "eidas-2024-1183",
+  "source_version": "2024/1183",
+  "source_url": "https://eur-lex.europa.eu/eli/reg/2024/1183/oj/eng",
+  "status": "requires_official_source_inventory",
+  "requirements": [],
+  "rule": "Official implementing-act obligations are not inventoried in this manifest. An empty requirement list does not establish compliance."
+}

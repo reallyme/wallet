@@ -1,0 +1,17 @@
+SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+
+ReallyMe Wallet Core
+Copyright © 2026 ReallyMe Technologies Limited. All rights reserved.
+
+This product includes software developed by ReallyMe Technologies Limited and distributed under
+either the MIT License or the Apache License, Version 2.0, at your option.
+
+ReallyMe Wallet Core defines wallet lifecycle, inventory, consent, attestation,
+transaction-log, protobuf DTO, and runtime wiring surfaces for EUDI wallet
+implementations. Dependency license terms are recorded in the package manifests
+and enforced by the repository dependency policy.
+
+This NOTICE file is informational and does not modify the license terms in
+LICENSE-MIT, LICENSE-APACHE, or any third-party dependency license.

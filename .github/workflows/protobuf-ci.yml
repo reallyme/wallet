@@ -1,0 +1,109 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: Protobuf Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/protobuf-ci.yml"
+      - "buf.yaml"
+      - "buf.gen.yaml"
+      - "crates/proto/**"
+      - "fuzz/corpus/wallet_proto_json/**"
+      - "vectors/**"
+      - "crates/proto/baselines/**"
+      - "scripts/check-proto-first-boundaries.mjs"
+      - "scripts/check-proto-hardening-concurrency.mjs"
+      - "scripts/check_schema_source_lock.mjs"
+      - "scripts/check_wallet_schema_breaking.mjs"
+      - "scripts/harden-generated-wallet-proto.mjs"
+      - "scripts/proto-hardening/**"
+      - "!**/*.md"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/protobuf-ci.yml"
+      - "buf.yaml"
+      - "buf.gen.yaml"
+      - "crates/proto/**"
+      - "fuzz/corpus/wallet_proto_json/**"
+      - "vectors/**"
+      - "crates/proto/baselines/**"
+      - "scripts/check-proto-first-boundaries.mjs"
+      - "scripts/check-proto-hardening-concurrency.mjs"
+      - "scripts/check_schema_source_lock.mjs"
+      - "scripts/check_wallet_schema_breaking.mjs"
+      - "scripts/harden-generated-wallet-proto.mjs"
+      - "scripts/proto-hardening/**"
+      - "!**/*.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: protobuf-ci-${{ github.event_name }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+env:
+  BUF_VERSION: 1.73.0
+  BUFFA_VERSION: 0.9.2
+
+jobs:
+  protobuf:
+    name: schema, generation, hardening
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout wallet
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: wallet
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
+        with:
+          toolchain: 1.99.0
+          components: rustfmt
+
+      - name: Install Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "26"
+
+      - name: Install Buf
+        uses: bufbuild/buf-setup-action@a47c93e0b1648d5651a065437926377d060baa99 # v1.50.0
+        with:
+          version: ${{ env.BUF_VERSION }}
+
+      - name: Install pinned Buffa generators
+        run: >-
+          cargo install
+          "protoc-gen-buffa@$BUFFA_VERSION"
+          "protoc-gen-buffa-packaging@$BUFFA_VERSION"
+          --locked
+          --target-dir "$RUNNER_TEMP/buffa-install-target"
+
+      - name: Validate schema and locked sources
+        working-directory: wallet
+        run: |
+          cargo fetch --locked
+          node scripts/check_schema_source_lock.mjs
+          buf lint
+          node scripts/check_wallet_schema_breaking.mjs
+
+      - name: Check generated protobuf freshness and hardening
+        working-directory: wallet
+        run: |
+          buf generate
+          node scripts/harden-generated-wallet-proto.mjs
+          cargo fmt --package reallyme-wallet-proto
+          node scripts/harden-generated-wallet-proto.mjs --check-idempotent
+          node scripts/check-proto-hardening-concurrency.mjs
+          node scripts/check-proto-first-boundaries.mjs
+          git diff --exit-code -- crates/proto/proto crates/proto/src/generated
+          test -z "$(git status --porcelain -- crates/proto/proto crates/proto/src/generated)"

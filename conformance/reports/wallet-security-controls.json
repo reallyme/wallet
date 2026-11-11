@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "status": "implemented_local_controls",
+  "covered_controls": [
+    "No key bytes in wallet-core keystore traits.",
+    "WSCD and WSCA platform or vault-service backends are represented as injected key-handle boundaries.",
+    "Typed unsupported behavior for missing zk verifier or prover backends.",
+    "WUA expiry and binding checks in issuance flow state.",
+    "Bounded contact-fragment parsing.",
+    "Bounded QR, deep-link, contact, and runtime request parsing with typed errors.",
+    "Delegation evidence for OpenID4VP ZK format-layer binding and backend-bb artifact-backed proof injection is tracked separately from wallet-core prover injection."
+  ],
+  "evidence_paths": [
+    "crates/keystore/src/model.rs",
+    "crates/keystore/src/validate_boundary.rs",
+    "crates/flows/src/fragment_contact.rs",
+    "crates/flows/src/reassemble_contact.rs",
+    "crates/flows/tests/contact_tests.rs",
+    "crates/render/tests/web_tests.rs",
+    "crates/runtime/src/handle_tests.rs",
+    "conformance/tests/presentation_zk_tests.rs",
+    "conformance/tests/wallet_unit_attestation_tests.rs",
+    "conformance/reports/external-readiness.json"
+  ]
+}

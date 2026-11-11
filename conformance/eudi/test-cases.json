@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "source_lock": "conformance/sources.lock",
+  "test_cases": [
+    {
+      "id": "wallet-core.issuance.wua-required",
+      "status": "unit_covered",
+      "source": "conformance/tests/issuance_flow_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/wallets/wua-valid.json",
+        "conformance/fixtures/issuers/openid4vci-issuer-metadata.json",
+        "conformance/fixtures/issuers/openid4vci-offers.json"
+      ],
+      "test_function": "eudi_issuance_requires_wua_before_credential_request"
+    },
+    {
+      "id": "wallet-core.issuance.deferred-resume",
+      "status": "unit_covered",
+      "source": "conformance/tests/issuance_flow_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/lifecycle/credential-lifecycle.json",
+        "conformance/fixtures/credentials/pid-sd-jwt-record.json"
+      ],
+      "test_function": "deferred_issuance_restores_and_resumes_polling"
+    },
+    {
+      "id": "wallet-core.presentation.zk-unsupported-fails-closed",
+      "status": "unit_covered",
+      "source": "conformance/tests/presentation_zk_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/relying-parties/rp-entitlement-pid-age.json",
+        "conformance/fixtures/credentials/pid-sd-jwt-record.json"
+      ],
+      "test_function": "zk_presentation_fails_closed_without_backend"
+    },
+    {
+      "id": "wallet-core.presentation.request-uri-wallet-nonce-mismatch",
+      "status": "fixture_available",
+      "source": "conformance/fixtures/relying-parties/openid4vp-post-request-uri.json",
+      "fixtures": [
+        "conformance/fixtures/relying-parties/openid4vp-post-request-uri.json"
+      ]
+    },
+    {
+      "id": "wallet-core.consent.rp-entitlement-registration",
+      "status": "unit_covered",
+      "source": "conformance/tests/relying_party_entitlement_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/relying-parties/rp-entitlement-pid-age.json"
+      ],
+      "test_function": "eudi_rp_registration_and_entitlement_allow_requested_scope"
+    },
+    {
+      "id": "wallet-core.attestation.obtain-rotate",
+      "status": "unit_covered",
+      "source": "conformance/tests/wallet_unit_attestation_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/wallets/wua-valid.json",
+        "conformance/fixtures/lifecycle/wallet-unit-lifecycle-evidence.json"
+      ],
+      "test_function": "eudi_wua_obtains_validates_and_rotates_through_injected_provider"
+    },
+    {
+      "id": "wallet-core.delivery.contact-round-trip",
+      "status": "unit_covered",
+      "source": "crates/flows/tests/contact_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/lifecycle/contact-delivery.json"
+      ],
+      "test_function": "contact_fragmentation_round_trips_payload"
+    },
+    {
+      "id": "wallet-core.inventory.status-evidence",
+      "status": "unit_covered",
+      "source": "conformance/tests/status_refresh_evidence_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/trust/status-list-revocation.json"
+      ],
+      "test_function": "eudi_inventory_accepts_authenticated_status_list"
+    },
+    {
+      "id": "wallet-core.inventory.status-refresh",
+      "status": "fixture_available",
+      "source": "conformance/fixtures/credentials/pid-sd-jwt-record.json",
+      "fixtures": [
+        "conformance/fixtures/trust/status-list-revocation.json",
+        "conformance/fixtures/credentials/pid-sd-jwt-record.json"
+      ]
+    },
+    {
+      "id": "wallet-core.log.qtsp-decision",
+      "status": "unit_covered",
+      "source": "crates/runtime/src/handle_domain_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/trust/qtsp-decision-inputs.json"
+      ],
+      "test_function": "qtsp_decision_handler_rejects_missing_digest"
+    },
+    {
+      "id": "wallet-core.runtime.sdk-contract",
+      "status": "implemented",
+      "source": "conformance/tests/sdk_contract_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/wallets/wallet-core-sdk-boundary.json"
+      ],
+      "test_function": "sdk_boundary_fixture_names_only_the_canonical_operation_protocol"
+    },
+    {
+      "id": "wallet-core.proto.imports-sibling-contracts",
+      "status": "unit_covered",
+      "source": "conformance/tests/proto_contract_tests.rs",
+      "fixtures": [
+        "conformance/fixtures/wallets/wallet-core-sdk-boundary.json"
+      ],
+      "test_function": "wallet_proto_imports_sibling_contracts_instead_of_redeclaring_them"
+    },
+    {
+      "id": "wallet-core.reference-wallet.issuance",
+      "status": "fixture_seeded",
+      "source": "conformance/fixtures/eudi-reference/README.md",
+      "fixtures": [
+        "conformance/fixtures/eudi-reference/issuance-offer-to-storage.json"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.cross-device-presentation",
+      "status": "fixture_seeded",
+      "source": "conformance/fixtures/eudi-reference/README.md",
+      "fixtures": [
+        "conformance/fixtures/eudi-reference/cross-device-presentation.json",
+        "conformance/fixtures/eudi-reference/qr-deep-link-handoff.json"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.same-device-presentation",
+      "status": "fixture_seeded",
+      "source": "conformance/fixtures/eudi-reference/README.md",
+      "fixtures": [
+        "conformance/fixtures/eudi-reference/same-device-presentation.json"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.presentation-negative-nonce",
+      "status": "fixture_seeded",
+      "source": "conformance/fixtures/eudi-reference/README.md",
+      "fixtures": [
+        "conformance/fixtures/eudi-reference/presentation-nonce-mismatch.json"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.proximity-presentation",
+      "status": "fixture_seeded",
+      "source": "conformance/fixtures/eudi-reference/README.md",
+      "fixtures": [
+        "conformance/fixtures/eudi-reference/proximity-presentation.json",
+        "conformance/fixtures/credentials/pid-mdoc-record.json"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.offline-presentation",
+      "status": "fixture_seeded",
+      "source": "conformance/fixtures/eudi-reference/README.md",
+      "fixtures": [
+        "conformance/fixtures/eudi-reference/offline-presentation.json",
+        "conformance/fixtures/credentials/pid-mdoc-record.json"
+      ]
+    }
+  ]
+}

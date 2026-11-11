@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet-storage"
+version = "0.1.0"
+description = "Storage traits and encrypted record boundaries for ReallyMe wallet core."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/Cargo.toml"]
+
+[features]
+default = ["native"]
+zk = ["dep:reallyme-wallet-zk", "reallyme-wallet-proto-codec/zk"]
+native = ["reallyme-wallet-lifecycle/native", "reallyme-wallet-proto-codec/native"]
+wasm = ["reallyme-wallet-lifecycle/wasm", "reallyme-wallet-proto-codec/wasm"]
+
+[dependencies]
+reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.0", default-features = false }
+reallyme-wallet-proto-codec = { path = "../proto-codec", version = "0.1.0", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+reallyme-wallet-zk = { path = "../wallet-zk", version = "0.1.0", optional = true }
+thiserror = { workspace = true }
+zeroize = { workspace = true }
+
+[lints]
+workspace = true

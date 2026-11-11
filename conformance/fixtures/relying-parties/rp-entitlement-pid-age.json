@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "fixture_id": "rp.entitlement.pid-age.v1",
+  "relying_party_id": "https://verifier.example",
+  "registration_certificate_id": "rp-cert-0001",
+  "authorized_attributes": [
+    "age_over_18"
+  ],
+  "unauthorized_attributes": [
+    "birth_date",
+    "family_name"
+  ],
+  "satisfaction": {
+    "type": "derive",
+    "circuit_id": "reallyme.pid.age_over_18.v1",
+    "statement": "Prove over-18 without disclosing birth date."
+  },
+  "expires_at_unix": 1700007200
+}

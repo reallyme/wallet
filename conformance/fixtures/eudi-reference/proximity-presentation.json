@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "fixture_id": "eudi.reference.presentation.proximity.v1",
+  "status": "fixture_seeded",
+  "reference_lock": "conformance/eudi/reference-implementation.lock",
+  "flow": "iso18013_5_proximity_presentation",
+  "mode": "proximity",
+  "wallet_core_evidence": [
+    "conformance/fixtures/lifecycle/contact-delivery.json",
+    "conformance/fixtures/credentials/pid-mdoc-record.json",
+    "conformance/fixtures/relying-parties/rp-entitlement-pid-age.json"
+  ],
+  "required_wallet_core_checks": [
+    "validate_contact_session_transcript_binding",
+    "enforce_contact_fragment_bounds",
+    "reject_duplicate_or_missing_contact_frames",
+    "evaluate_verifier_entitlement_before_consent",
+    "allocate_once_only_presentation_copy",
+    "record_user_visible_transaction_log"
+  ],
+  "delegated_checks": [
+    "iso18013_5_device_engagement_encoding",
+    "openid4vp_mdoc_presentation_format_verification",
+    "openid4vp_iso18013_7_session_transcript_handover",
+    "identity_mdoc_device_request_parsing",
+    "identity_mdoc_device_response_assembly",
+    "reader_authentication_validation",
+    "ble_or_nfc_platform_transport"
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "algorithm": "sha2-256",
+  "source_lock": "conformance/sources.lock",
+  "reference_implementation_lock": "conformance/eudi/reference-implementation.lock",
+  "rule": "These hashes pin synthetic Wallet test specifications and their dependent inputs. They establish fixture integrity, not executed interoperability or certification.",
+  "fixtures": [
+    {
+      "path": "conformance/fixtures/eudi-reference/cross-device-presentation.json",
+      "sha2_256": "8be07b28989668d62ac745f75cc35a918c5f1f3fe7b41962df9bcec7e50ef975"
+    },
+    {
+      "path": "conformance/fixtures/eudi-reference/issuance-offer-to-storage.json",
+      "sha2_256": "b89e24b704896b319aed9673643e09676adb98894c98f6df328367218410d084"
+    },
+    {
+      "path": "conformance/fixtures/eudi-reference/offline-presentation.json",
+      "sha2_256": "ff16b39aa41394a3465e8128fe8f0a85921872e3ce2a49555d773ec3e723d251"
+    },
+    {
+      "path": "conformance/fixtures/eudi-reference/presentation-nonce-mismatch.json",
+      "sha2_256": "ad6d04735664c04897226dab33af9c3312881f8296b7683a4cfddd253e95dbca"
+    },
+    {
+      "path": "conformance/fixtures/eudi-reference/proximity-presentation.json",
+      "sha2_256": "6024699729b343619bed2b9b0159f3c01bdfa74f65e4c4615c2ddbc763e47e21"
+    },
+    {
+      "path": "conformance/fixtures/eudi-reference/qr-deep-link-handoff.json",
+      "sha2_256": "6d1a9e1244ea23ec4c61e884d2fe6a36badd41b7c4c4b8c85adfe976ce939bc7"
+    },
+    {
+      "path": "conformance/fixtures/eudi-reference/same-device-presentation.json",
+      "sha2_256": "a415d3f8c27fe57a1a88fc509bbc7109f25f0c548b062c044362bd3e05f13157"
+    },
+    {
+      "path": "conformance/fixtures/credentials/pid-mdoc-record.json",
+      "sha2_256": "bde24b3caa12ac66a809c3e6ec83f66f04c8413a14c1e19a752726db68326878"
+    },
+    {
+      "path": "conformance/fixtures/credentials/pid-sd-jwt-record.json",
+      "sha2_256": "87d23dbcd1ae0a4b87beada90253059fe38fc6f9918f40b90eca95606efa97b0"
+    },
+    {
+      "path": "conformance/fixtures/issuers/openid4vci-issuer-metadata.json",
+      "sha2_256": "59605411ec896cebd67c1995ba47c9b2176f4035a1b58c1736e3ecce191899ca"
+    },
+    {
+      "path": "conformance/fixtures/issuers/openid4vci-offers.json",
+      "sha2_256": "26fb8caca3f57605716971116aa35f0e6b6874a2303c9d4c0a00ee8a666e9c3c"
+    },
+    {
+      "path": "conformance/fixtures/lifecycle/contact-delivery.json",
+      "sha2_256": "09420e63bd403b368c612b526c4da5c6bdcbf7306b22f8802461ed1d7f8046f9"
+    },
+    {
+      "path": "conformance/fixtures/relying-parties/openid4vp-post-request-uri.json",
+      "sha2_256": "26ecb9f92306bd6d7e80e540b6256b7c03630b27ba63187cd0d28d3b56290726"
+    },
+    {
+      "path": "conformance/fixtures/relying-parties/rp-entitlement-pid-age.json",
+      "sha2_256": "a01e0dd923ceb390eac7e4be4d4686f57b2b61aa424d716f417f3c97df09d856"
+    },
+    {
+      "path": "conformance/fixtures/wallets/wua-valid.json",
+      "sha2_256": "ce00ce40b9f5f2dabf7511c14422f4c435e3e06aa3541ffe5e71aba69b45d23c"
+    },
+    {
+      "path": "conformance/fixtures/trust/status-list-revocation.json",
+      "sha2_256": "1757dc75d6419f8f33b4b12d90ab1207f12469e43e25ac7b6535fc1aeb4844c9"
+    },
+    {
+      "path": "conformance/fixtures/trust/qtsp-decision-inputs.json",
+      "sha2_256": "8680595d4ef64334b475828dbac3d4f63f8e016a8930a325223a65494422d215"
+    }
+  ]
+}

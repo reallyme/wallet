@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "fixture_id": "eudi.reference.presentation.negative-nonce-mismatch.v1",
+  "status": "fixture_seeded",
+  "reference_lock": "conformance/eudi/reference-implementation.lock",
+  "flow": "openid4vp_presentation",
+  "mode": "negative",
+  "wallet_core_evidence": [
+    "conformance/fixtures/relying-parties/openid4vp-post-request-uri.json",
+    "conformance/fixtures/credentials/pid-sd-jwt-record.json"
+  ],
+  "required_wallet_core_checks": [
+    "carry_session_nonce_into_presentation_context",
+    "fail_closed_when_zk_backend_is_absent_for_zk_presentation",
+    "record_no_successful_presentation_when_binding_fails"
+  ],
+  "delegated_checks": [
+    "nonce_hash_public_input_check_in_openid4vp_format_layer",
+    "audience_hash_public_input_check_in_openid4vp_format_layer",
+    "transaction_data_hash_public_input_check_in_openid4vp_format_layer"
+  ],
+  "expected_result": "typed_binding_failure_before_transaction_success"
+}

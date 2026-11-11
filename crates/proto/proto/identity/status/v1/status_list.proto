@@ -1,0 +1,37 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package identity.status.v1;
+
+import "google/protobuf/timestamp.proto";
+import "identity/credential/v1/credential.proto";
+
+option java_multiple_files = true;
+option java_package = "me.really.identity.status.v1";
+option swift_prefix = "ReallyMeIdentityProto";
+
+// StatusList carries a signed revocation or suspension status bitstring.
+message StatusList {
+  string issuer_did = 1 [debug_redact = true];
+  identity.credential.v1.StatusPurpose purpose = 2;
+
+  google.protobuf.Timestamp issued_at = 3 [debug_redact = true];
+  google.protobuf.Timestamp next_update = 4 [debug_redact = true];
+
+  bytes encoded_list = 5 [debug_redact = true];
+  uint64 length = 6 [debug_redact = true];
+
+  bytes list_id = 7 [debug_redact = true]; // OPTIONAL: sha256(canonical list bytes or issuer-defined id)
+
+  StatusListSignature signature = 8 [debug_redact = true];
+}
+
+// StatusListSignature carries the algorithm and signature bytes. The verifier
+// resolves the authoritative verification key from the list issuer and policy.
+message StatusListSignature {
+  identity.credential.v1.Algorithm alg = 1;
+  bytes sig_bytes = 2 [debug_redact = true];
+}

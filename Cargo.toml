@@ -1,0 +1,97 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/wallet",
+    "crates/types",
+    "crates/storage",
+    "crates/keystore",
+    "crates/lifecycle",
+    "crates/inventory",
+    "crates/flows",
+    "crates/consent",
+    "crates/attestation",
+    "crates/log",
+    "crates/render",
+    "crates/proto",
+    "crates/proto-codec",
+    "crates/provider",
+    "crates/runtime",
+    "crates/http",
+    "crates/wallet-zk",
+    "conformance",
+]
+exclude = ["fuzz"]
+
+[workspace.package]
+edition = "2021"
+rust-version = "1.99"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/reallyme/wallet"
+publish = false
+
+[workspace.dependencies]
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "tokio"] }
+buffa = { version = "0.9.2", features = ["json"] }
+buffa-types = { version = "0.9.2", features = ["json"] }
+compression_brotli = { package = "reallyme-compression-brotli", version = "=0.6.1" }
+crypto_core = { package = "reallyme-crypto-core", version = "=0.3.17", default-features = false }
+crypto_hmac = { package = "reallyme-crypto-hmac", version = "=0.3.17", default-features = false }
+crypto_sha2_256 = { package = "reallyme-crypto-sha2-256", version = "=0.3.17", default-features = false }
+crypto-csprng = { package = "reallyme-crypto-csprng", version = "=0.3.17", default-features = false }
+reallyme-crypto-proto = { version = "=0.3.17", default-features = false }
+reallyme-codec = { version = "=0.3.2", default-features = false, features = ["base64url"] }
+reallyme-credential = { version = "=0.6.1", default-features = false }
+secrecy = "0.10.3"
+subtle = "2.6.1"
+serde = "1.0"
+serde_json = "1.0"
+thiserror = "2.0"
+time = "0.3"
+tokio = "1.53"
+tower = "0.5"
+url = "2.5"
+zeroize = { version = "1.9", features = ["derive"] }
+reallyme-openid-oauth = { version = "=0.6.1", default-features = false }
+reallyme-disclosure-policy = { version = "=0.6.1" }
+reallyme-credential-status = { version = "=0.6.1", default-features = false }
+reallyme-vp-core = { version = "=0.6.1" }
+reallyme-ssi-proto = { version = "=0.6.1", default-features = false }
+reallyme-etsi-eaa-conformance = { version = "=0.6.1", default-features = false }
+reallyme-trust-x509 = { version = "=0.6.1", default-features = false }
+reallyme-openid4vci-wallet = { version = "=0.3.0", default-features = false }
+openid4vci-proto = { package = "reallyme-openid4vci-proto", version = "=0.3.0", default-features = false }
+openid4vci-profiles = { version = "=0.3.0", default-features = false }
+reallyme-crypto-p256 = { version = "=0.3.17", default-features = false }
+openid4vci-types = { package = "reallyme-openid4vci-types", version = "=0.3.0", default-features = false }
+reallyme-openid4vp-proto = { version = "=0.3.0", default-features = false }
+reallyme-openid4vp-dcql = { version = "=0.3.0", default-features = false }
+reallyme-openid4vp-types = { version = "=0.3.0", default-features = false }
+reallyme-openid4vp-wallet = { version = "=0.3.0", default-features = false }
+reallyme-zk-api = { version = "=0.3.0" }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[workspace.lints.rust]
+deprecated = "deny"
+unsafe_code = "deny"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+dbg_macro = "deny"
+expect_used = "deny"
+large_include_file = "deny"
+panic = "deny"
+print_stderr = "deny"
+print_stdout = "deny"
+todo = "deny"
+unimplemented = "deny"
+unreachable = "deny"
+unwrap_used = "deny"
+wildcard_imports = "deny"

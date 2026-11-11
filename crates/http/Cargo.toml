@@ -1,0 +1,68 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet-http"
+version = "0.1.0"
+description = "Native HTTP adapters for the ReallyMe Wallet protobuf runtime."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/Cargo.toml", "/README.md", "/NOTICE"]
+
+[features]
+default = ["native"]
+native = [
+    "reallyme-openid4vp-wallet?/native",
+    "reallyme-wallet-proto-codec/native",
+    "reallyme-wallet-runtime/native",
+]
+# The OIDF control plane is test infrastructure and is deliberately excluded
+# from default published artifacts, together with the dependencies only it
+# uses. Deployments must opt in explicitly.
+oidf-conformance-harness = [
+    "dep:crypto_sha2_256",
+    "dep:reallyme-codec",
+    "dep:reallyme-openid4vp-types",
+    "dep:reallyme-openid4vp-wallet",
+    "dep:serde",
+    "dep:serde_json",
+    "dep:subtle",
+    "dep:url",
+]
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+axum = { workspace = true }
+compression_brotli = { workspace = true }
+crypto_sha2_256 = { workspace = true, optional = true }
+reallyme-codec = { workspace = true, optional = true }
+reallyme-openid4vp-types = { workspace = true, optional = true }
+reallyme-openid4vp-wallet = { workspace = true, optional = true }
+reallyme-wallet-proto = { path = "../proto", version = "0.1.0", default-features = false, features = ["generated"] }
+reallyme-wallet-proto-codec = { path = "../proto-codec", version = "0.1.0", default-features = false }
+reallyme-wallet-runtime = { path = "../runtime", version = "0.1.0", default-features = false }
+serde = { workspace = true, features = ["derive"], optional = true }
+serde_json = { workspace = true, optional = true }
+subtle = { workspace = true, optional = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["rt", "sync", "time"] }
+url = { workspace = true, optional = true }
+zeroize = { workspace = true }
+
+[dev-dependencies]
+buffa = { workspace = true }
+reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.0", default-features = false, features = ["native"] }
+reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false, features = ["native"] }
+tokio = { workspace = true, features = ["macros", "net", "rt-multi-thread"] }
+tower = { workspace = true, features = ["util"] }
+
+[[example]]
+name = "serve_oidf_wallet_harness"
+path = "examples/serve_oidf_wallet_harness.rs"
+required-features = ["native", "oidf-conformance-harness"]
+
+[lints]
+workspace = true

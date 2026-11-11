@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet-log"
+version = "0.1.0"
+description = "User-visible transaction and QTSP decision log for ReallyMe wallet core."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/Cargo.toml"]
+
+[features]
+default = ["native"]
+native = ["reallyme-wallet-storage/native", ]
+wasm = ["reallyme-wallet-storage/wasm"]
+
+[dependencies]
+reallyme-wallet-storage = { path = "../storage", version = "0.1.0", default-features = false }
+crypto_sha2_256 = { workspace = true }
+reallyme-codec = { workspace = true }
+reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+thiserror = { workspace = true }
+zeroize = { workspace = true }
+
+[lints]
+workspace = true

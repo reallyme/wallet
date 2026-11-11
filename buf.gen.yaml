@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+version: v2
+clean: true
+plugins:
+  # Wallet generates Rust messages only. Swift, Kotlin/Android, TypeScript,
+  # Connect clients, and their packaging are generated in reallyme/identity.
+  - local: protoc-gen-buffa
+    out: crates/proto/src/generated/buffa
+    strategy: all
+    opt:
+      - views=false
+      - json=true
+      - extern_path=.identity.audit.v1=::reallyme_ssi_proto::generated::proto::identity::audit::v1
+      - extern_path=.identity.credential.v1=::reallyme_ssi_proto::generated::proto::identity::credential::v1
+      - extern_path=.identity.did.v1=::reallyme_ssi_proto::generated::proto::identity::did::v1
+      - extern_path=.identity.presentation.v1=::reallyme_ssi_proto::generated::proto::identity::presentation::v1
+      - extern_path=.identity.status.v1=::reallyme_ssi_proto::generated::proto::identity::status::v1
+      - extern_path=.reallyme.crypto.v1=::reallyme_crypto_proto::generated::proto::reallyme::crypto::v1
+      - extern_path=.reallyme.identity.common.v1=::reallyme_ssi_proto::generated::proto::reallyme::identity::common::v1
+      - extern_path=.reallyme.openid4vci.v1=::openid4vci_proto::generated::proto::reallyme::openid4vci::v1
+      - extern_path=.reallyme.openid4vp.v1=::reallyme_openid4vp_proto::generated::proto::reallyme::openid4vp::v1
+      - exclude_package=.identity.audit.v1
+      - exclude_package=.identity.credential.v1
+      - exclude_package=.identity.did.v1
+      - exclude_package=.identity.presentation.v1
+      - exclude_package=.identity.status.v1
+      - exclude_package=.reallyme.crypto.v1
+      - exclude_package=.reallyme.identity.common.v1
+      - exclude_package=.reallyme.openid4vci.v1
+      - exclude_package=.reallyme.openid4vp.v1
+  - local: protoc-gen-buffa-packaging
+    out: crates/proto/src/generated/buffa
+    strategy: all
+    opt:
+      - exclude_package=.identity.audit.v1
+      - exclude_package=.identity.credential.v1
+      - exclude_package=.identity.did.v1
+      - exclude_package=.identity.presentation.v1
+      - exclude_package=.identity.status.v1
+      - exclude_package=.reallyme.crypto.v1
+      - exclude_package=.reallyme.identity.common.v1
+      - exclude_package=.reallyme.openid4vci.v1
+      - exclude_package=.reallyme.openid4vp.v1

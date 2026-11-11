@@ -1,0 +1,64 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[graph]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "wasm32-unknown-unknown",
+    "aarch64-apple-ios",
+    "aarch64-linux-android",
+]
+all-features = true
+no-default-features = false
+
+[output]
+feature-depth = 1
+
+[advisories]
+ignore = []
+
+[licenses]
+confidence-threshold = 0.93
+allow = [
+    "Apache-2.0",
+    # `subtle` enters through the audited P-256 implementation and uses the
+    # same OSI-approved license already accepted by the main workspace policy.
+    "BSD-3-Clause",
+    "MIT",
+    "Unicode-3.0",
+    "Zlib",
+]
+exceptions = [
+    # `libfuzzer-sys` is fuzzing-only tooling and is distributed under NCSA.
+    { allow = ["NCSA"], crate = "libfuzzer-sys" },
+]
+
+[licenses.private]
+ignore = true
+registries = []
+
+[bans]
+multiple-versions = "deny"
+wildcards = "deny"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+deny = []
+skip = [
+    { crate = "base64@0.22.1", reason = "buffa still requires the earlier base64 line" },
+    { crate = "syn@2.0.119", reason = "older derive macros still require the syn 2 line" },
+]
+skip-tree = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
+
+[sources.allow-org]
+github = []
+gitlab = []
+bitbucket = []

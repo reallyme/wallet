@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "scope": "Wallet Rust policy and durable state contracts; no new public SDK, platform facade, wire operation, hardware capability or certification claim.",
+  "runtime_operation_union_changed": false,
+  "certification_evidence": false,
+  "storage_ports_path": "crates/storage/src/policy.rs",
+  "protobuf_paths": [
+    "crates/proto/proto/reallyme/wallet/v1/wallet_policy.proto",
+    "crates/proto/proto/reallyme/wallet/v1/wallet.proto",
+    "crates/proto/proto/reallyme/wallet/v1/wallet_provider.proto"
+  ],
+  "codec_path": "crates/proto-codec/src/policy_records.rs",
+  "history_vector": "conformance/fixtures/transaction-history-v2.json",
+  "areas": [
+    {
+      "id": "credential-reuse-enforcement",
+      "owner": "reallyme/wallet",
+      "status": "implemented_core_provider_contract",
+      "source": "crates/inventory/src/enforce_reuse.rs",
+      "tests": "crates/inventory/src/enforce_reuse_tests.rs",
+      "symbols": [
+        "claim_credential_use",
+        "request_replenishment",
+        "fulfill_replenishment"
+      ],
+      "required_provider": "CredentialReuseStore",
+      "composed_evidence_owner": "reallyme/identity-conformance"
+    },
+    {
+      "id": "transaction-history-model",
+      "owner": "reallyme/wallet",
+      "status": "implemented_core_provider_contract",
+      "source": "crates/log/src/history.rs",
+      "tests": "crates/log/src/history_tests.rs",
+      "symbols": [
+        "append_history_record",
+        "export_history_page"
+      ],
+      "required_provider": "TransactionHistoryStore",
+      "composed_evidence_owner": "reallyme/identity-conformance"
+    },
+    {
+      "id": "proximity-reader-consent",
+      "owner": "reallyme/wallet",
+      "status": "implemented_core_provider_contract",
+      "source": "crates/consent/src/receipt.rs",
+      "tests": "crates/consent/src/receipt_tests.rs",
+      "symbols": [
+        "prepare_reader_receipt_consent",
+        "capture_receipt_consent"
+      ],
+      "required_provider": "ConsentCaptureStore",
+      "composed_evidence_owner": "reallyme/identity-conformance"
+    },
+    {
+      "id": "consent-policy-context",
+      "owner": "reallyme/wallet",
+      "status": "implemented_core_provider_contract",
+      "source": "crates/consent/src/receipt.rs",
+      "tests": "crates/consent/src/receipt_tests.rs",
+      "symbols": [
+        "bind_receipt_policy",
+        "consent_policy_digest"
+      ],
+      "required_provider": "ConsentCaptureStore",
+      "composed_evidence_owner": "reallyme/identity-conformance"
+    },
+    {
+      "id": "flow-terminal-dispositions",
+      "owner": "reallyme/wallet",
+      "status": "implemented_core_provider_contract",
+      "source": "crates/flows/src/guard_execution.rs",
+      "tests": "crates/flows/src/guard_execution_tests.rs",
+      "symbols": [
+        "reserve_flow_effect",
+        "terminate_flow_execution",
+        "execution_resume_decision"
+      ],
+      "required_provider": "FlowExecutionStore",
+      "composed_evidence_owner": "reallyme/identity-conformance"
+    },
+    {
+      "id": "taxonomy-producer-evidence",
+      "owner": "reallyme/wallet",
+      "status": "implemented_core_provider_contract",
+      "source": "scripts/generate_wallet_taxonomy_evidence.mjs",
+      "tests": "scripts/generate_wallet_taxonomy_evidence.test.mjs",
+      "symbols": [
+        "buildWalletLedger"
+      ],
+      "required_provider": null,
+      "composed_evidence_owner": "reallyme/identity-conformance"
+    },
+    {
+      "id": "issuance-orchestration",
+      "owner": "reallyme/wallet",
+      "status": "implemented_core_provider_contract",
+      "source": "crates/flows/src/bind_issuer_nonce.rs",
+      "tests": "crates/flows/src/submit_credential_request_tests.rs",
+      "symbols": [
+        "bind_openid4vci_issuer_nonce",
+        "issuer_nonce_session_digest"
+      ],
+      "required_provider": null,
+      "composed_evidence_owner": "reallyme/identity-conformance"
+    },
+    {
+      "id": "verified-request-consent",
+      "owner": "reallyme/wallet",
+      "status": "implemented_core_provider_contract",
+      "source": "crates/consent/src/capture.rs",
+      "tests": "crates/consent/src/signed_request_tests.rs",
+      "symbols": [
+        "prepare_consent_request",
+        "capture_prepared_consent"
+      ],
+      "required_provider": "ConsentCaptureStore",
+      "composed_evidence_owner": "reallyme/identity-conformance"
+    },
+    {
+      "id": "reconciled-lifecycle-retries",
+      "owner": "reallyme/wallet",
+      "status": "implemented_core_provider_contract",
+      "source": "crates/lifecycle/src/transition.rs",
+      "tests": "crates/lifecycle/src/retry_tests.rs",
+      "symbols": [
+        "apply_reconciled_wallet_lifecycle_retry",
+        "validate_wallet_lifecycle_successor"
+      ],
+      "required_provider": "WalletLifecycleAuthorityVerifier",
+      "composed_evidence_owner": "reallyme/identity-conformance"
+    }
+  ],
+  "limits": {
+    "reuse_instances": 128,
+    "reuse_claims": 512,
+    "history_page_size": 128,
+    "consent_policies": 16,
+    "flow_effects": 32,
+    "nonce_age_seconds": 300,
+    "execution_snapshot_bytes": 1048576,
+    "flow_effect_bytes": 1048576,
+    "flow_effect_total_bytes": 2097152,
+    "policy_record_bytes": 4194304
+  },
+  "deployment_requirements": [
+    "Host providers must implement the atomic storage ports before advertising the corresponding restricted capability.",
+    "Persist reservations and exact request bytes before external effects; uncertain delivery never releases copies or permits blind resend.",
+    "Metadata negotiation, credential/reader authentication and policy semantics remain with OpenID and SSI; Identity wires those providers.",
+    "Raw rights-request records and issuer failure/deletion notifications remain explicit product scope decisions."
+  ]
+}

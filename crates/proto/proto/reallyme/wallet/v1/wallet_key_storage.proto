@@ -1,0 +1,98 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.wallet.v1;
+
+import "identity/credential/v1/credential.proto";
+import "identity/did/v1/did.proto";
+import "reallyme/crypto/v1/crypto.proto";
+import "reallyme/openid4vci/v1/openid4vci.proto";
+import "reallyme/wallet/v1/wallet.proto";
+
+option java_multiple_files = true;
+option java_package = "me.really.wallet.v1";
+option swift_prefix = "ReallyMeWalletProto";
+
+// WalletKeyCustody identifies the component that can exercise private-key
+// authority. It does not claim that requested hardware residency was achieved.
+enum WalletKeyCustody {
+  WALLET_KEY_CUSTODY_UNSPECIFIED = 0;
+  WALLET_KEY_CUSTODY_WALLET_SOFTWARE = 1;
+  WALLET_KEY_CUSTODY_PLATFORM_HARDWARE = 2;
+  WALLET_KEY_CUSTODY_WSCD = 3;
+}
+
+// WalletKeyExportability states whether private authority may be moved to a
+// new installation. Hardware and WSCD private keys are always non-exportable.
+enum WalletKeyExportability {
+  WALLET_KEY_EXPORTABILITY_UNSPECIFIED = 0;
+  WALLET_KEY_EXPORTABILITY_PORTABLE = 1;
+  WALLET_KEY_EXPORTABILITY_NON_EXPORTABLE = 2;
+}
+
+// WalletKeyProtection identifies the protection already applied to the key
+// authority before this record reaches VaultWallet's independent protection.
+enum WalletKeyProtection {
+  WALLET_KEY_PROTECTION_UNSPECIFIED = 0;
+  WALLET_KEY_PROTECTION_WRAPPED_IDENTITY_KEY_SET = 1;
+  WALLET_KEY_PROTECTION_PLATFORM_HARDWARE_BOUND = 2;
+  WALLET_KEY_PROTECTION_WSCD_BOUND = 3;
+}
+
+// DidStorageRecord is the Wallet-owned durable DID projection. Identity owns
+// DID semantics and validation; Wallet owns record identity and persistence.
+// reallyme.security: sensitive-owner
+message DidStorageRecord {
+  string record_id = 1 [debug_redact = true];
+  identity.did.v1.DidDocument document = 2 [debug_redact = true];
+  UnixTimestamp updated_at = 3 [debug_redact = true];
+}
+
+// PortableKeyStorageRecord contains only an already-wrapped Identity key-set
+// export. The field must never contain plaintext private-key bytes. Wallet Store
+// accepts this family for replication only when custody, exportability, and
+// protection have the exact portable tuple declared below.
+// reallyme.security: sensitive-owner
+message PortableKeyStorageRecord {
+  string record_id = 1 [debug_redact = true];
+  string did_record_id = 2 [debug_redact = true];
+  identity.did.v1.VerificationMethod verification_method = 3 [debug_redact = true];
+  identity.credential.v1.PublicKeyRef credential_subject_key = 4 [debug_redact = true];
+  reallyme.crypto.v1.PlatformKeyPurpose purpose = 5;
+  WalletKeyCustody custody = 6;
+  WalletKeyExportability exportability = 7;
+  WalletKeyProtection protection = 8;
+  repeated reallyme.openid4vci.v1.CredentialFormat credential_formats = 9;
+  // Canonical ciphertext of an Identity-owned ExportedKeySet. Wallet defines
+  // the wrapping transcript and serialization profile; this field never
+  // carries the wrapping key or plaintext Identity private-key material.
+  bytes wrapped_identity_key_set = 10 [debug_redact = true];
+  UnixTimestamp created_at = 11 [debug_redact = true];
+  reallyme.crypto.v1.CryptoAlgorithmIdentifier wrapping_algorithm = 12;
+}
+
+// HardwareKeyBindingRecord stores an installation-bound private-key reference.
+// Platform and WSCD variants are mutually exclusive, non-exportable, and never
+// eligible for a VaultWallet replicated record or portable checkpoint.
+// reallyme.security: sensitive-owner
+message HardwareKeyBindingRecord {
+  string record_id = 1 [debug_redact = true];
+  string did_record_id = 2 [debug_redact = true];
+  identity.did.v1.VerificationMethod verification_method = 3 [debug_redact = true];
+  identity.credential.v1.PublicKeyRef credential_subject_key = 4 [debug_redact = true];
+  reallyme.crypto.v1.PlatformKeyPurpose purpose = 5;
+  WalletKeyCustody custody = 6;
+  WalletKeyExportability exportability = 7;
+  WalletKeyProtection protection = 8;
+  repeated reallyme.openid4vci.v1.CredentialFormat credential_formats = 9;
+
+  oneof binding {
+    reallyme.crypto.v1.CryptoPlatformPrivateKeyHandle platform_private_key = 10 [debug_redact = true];
+    bytes wscd_opaque_handle = 11 [debug_redact = true];
+  }
+
+  UnixTimestamp created_at = 12 [debug_redact = true];
+}

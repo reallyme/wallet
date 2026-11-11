@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "contract": "reallyme.wallet.v1.WalletOperationRequest",
+  "entrypoint": "execute_wallet_operation_v1",
+  "provider_policy": {
+    "runtime_handle_required": true,
+    "injected_backend_required": true,
+    "ambient_provider_fallback": false,
+    "caller_owns_request_bytes": true,
+    "response_bytes_zeroize_on_drop": true
+  },
+  "provider_contract": {
+    "schema_version": 1,
+    "request": "reallyme.wallet.v1.WalletProviderRequest",
+    "response": "reallyme.wallet.v1.WalletProviderResponse",
+    "descriptor": "reallyme.wallet.v1.WalletProviderDescriptor",
+    "required_capabilities": 25,
+    "correlation": "executor_id_and_request_id",
+    "result_pairing": "exact_field_number",
+    "invocation_modes": [
+      "synchronous_native",
+      "asynchronous_host"
+    ]
+  },
+  "idempotency_policy": {
+    "key_bytes": 32,
+    "mutating_operations": "required",
+    "read_only_operations": "forbidden",
+    "response_replay": "exact_canonical_bytes",
+    "in_progress_expiry": "never_implicit"
+  },
+  "lane_policy": {
+    "supported_runtime_lanes": [
+      "native",
+      "wasm"
+    ],
+    "platform_binding_owner": "reallyme/identity",
+    "generic_client_substrate_owner": "reallyme/vaultkit",
+    "opaque_storage_surface_owner": "reallyme/vaultwallet",
+    "final_artifact_composition_owner": "top-level-sdk-or-application",
+    "wallet_repository_platform_adapters": [],
+    "missing_adapter_behavior": "fail_closed"
+  },
+  "operations": [
+    {
+      "name": "put_wallet_lifecycle_record",
+      "field_number": 1001,
+      "domain": "lifecycle",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "atomic_create",
+      "provider_calls": [
+        "trusted_now",
+        "create_wallet_lifecycle_record"
+      ],
+      "security_class": "privacy_sensitive"
+    },
+    {
+      "name": "get_wallet_lifecycle_record",
+      "field_number": 1002,
+      "domain": "lifecycle",
+      "mutability": "read_only",
+      "idempotency": "forbidden",
+      "atomicity": "read",
+      "provider_calls": [
+        "get_wallet_lifecycle_record"
+      ],
+      "security_class": "privacy_sensitive"
+    },
+    {
+      "name": "apply_wallet_lifecycle_event",
+      "field_number": 1003,
+      "domain": "lifecycle",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "atomic_state_and_evidence_compare_and_swap",
+      "provider_calls": [
+        "trusted_now",
+        "get_wallet_lifecycle_record",
+        "verify_wallet_lifecycle_authority",
+        "reconcile_wallet_lifecycle_retry",
+        "compare_and_swap_wallet_lifecycle_record"
+      ],
+      "security_class": "privacy_sensitive"
+    },
+    {
+      "name": "append_wallet_lifecycle_evidence",
+      "field_number": 1004,
+      "domain": "lifecycle",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "none",
+      "authority": "disabled_pending_atomic_transition",
+      "provider_calls": [],
+      "security_class": "privacy_sensitive"
+    },
+    {
+      "name": "put_credential_record",
+      "field_number": 2001,
+      "authority": "disabled_pending_verified_credential_receipt",
+      "domain": "inventory",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "none",
+      "provider_calls": [],
+      "security_class": "secret_bearing"
+    },
+    {
+      "name": "get_credential_record",
+      "field_number": 2002,
+      "domain": "inventory",
+      "mutability": "read_only",
+      "idempotency": "forbidden",
+      "atomicity": "read",
+      "provider_calls": [
+        "get_credential_record"
+      ],
+      "security_class": "secret_bearing"
+    },
+    {
+      "name": "apply_credential_status_evidence",
+      "field_number": 2003,
+      "authority": "disabled_pending_status_verifier",
+      "domain": "inventory",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "none",
+      "provider_calls": [],
+      "security_class": "secret_bearing"
+    },
+    {
+      "name": "delete_credential_record",
+      "field_number": 2004,
+      "domain": "inventory",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "atomic_delete_or_tombstone",
+      "provider_calls": [
+        "get_credential_record",
+        "delete_credential_record"
+      ],
+      "security_class": "privacy_sensitive"
+    },
+    {
+      "name": "claim_presentation_copy",
+      "field_number": 2005,
+      "domain": "inventory",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "atomic_once_only_claim",
+      "provider_calls": [
+        "get_credential_record",
+        "claim_presentation_copy"
+      ],
+      "security_class": "secret_bearing"
+    },
+    {
+      "name": "evaluate_verifier_entitlement",
+      "field_number": 3001,
+      "authority": "disabled_pending_certificate_verifier",
+      "domain": "consent",
+      "mutability": "pure",
+      "idempotency": "forbidden",
+      "atomicity": "none",
+      "provider_calls": [],
+      "security_class": "privacy_sensitive"
+    },
+    {
+      "name": "save_flow_snapshot",
+      "field_number": 5001,
+      "domain": "flows",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "compare_and_swap_create",
+      "provider_calls": [
+        "save_flow_snapshot"
+      ],
+      "security_class": "secret_bearing"
+    },
+    {
+      "name": "get_flow_snapshot",
+      "field_number": 5002,
+      "domain": "flows",
+      "mutability": "read_only",
+      "idempotency": "forbidden",
+      "atomicity": "read",
+      "provider_calls": [
+        "get_flow_snapshot"
+      ],
+      "security_class": "secret_bearing"
+    },
+    {
+      "name": "append_transaction_log",
+      "field_number": 6001,
+      "domain": "log",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "atomic_append",
+      "provider_calls": [
+        "trusted_now",
+        "append_transaction_log"
+      ],
+      "security_class": "privacy_sensitive"
+    },
+    {
+      "name": "append_qtsp_decision",
+      "field_number": 6002,
+      "domain": "log",
+      "mutability": "mutating",
+      "idempotency": "required",
+      "atomicity": "atomic_append",
+      "provider_calls": [
+        "trusted_now",
+        "append_qtsp_decision"
+      ],
+      "security_class": "privacy_sensitive"
+    }
+  ]
+}

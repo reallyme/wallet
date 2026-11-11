@@ -1,0 +1,182 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[[requirement]]
+id = "EIDAS-2024-1183-ART-5A-05-A-I"
+source = "Regulation (EU) 2024/1183, Article 5a(5)(a)(i)"
+summary = "The wallet supports requesting, obtaining, selecting, combining, storing, deleting, sharing, and presenting person identification data and electronic attestations of attributes."
+owner_crate = "crates/flows"
+status = "partial"
+evidence = ["SPEC_MAP.md", "conformance/fixtures/README.md", "conformance/eudi/test-cases.json"]
+test_evidence = ["conformance/tests/issuance_flow_tests.rs", "conformance/tests/presentation_zk_tests.rs"]
+
+[[requirement]]
+id = "EIDAS-2024-1183-ART-5A-05-A-II"
+source = "Regulation (EU) 2024/1183, Article 5a(5)(a)(ii)"
+summary = "The wallet can generate pseudonyms and store them encrypted locally in the wallet."
+owner_crate = "crates/keystore"
+status = "not_implemented"
+evidence = ["crates/keystore/src"]
+
+[[requirement]]
+id = "EIDAS-2024-1183-ART-5A-05-A-III"
+source = "Regulation (EU) 2024/1183, Article 5a(5)(a)(iii)"
+summary = "The wallet authenticates securely to public and private online services."
+owner_crate = "crates/flows"
+status = "not_implemented"
+evidence = ["crates/flows/src"]
+
+[[requirement]]
+id = "EIDAS-2024-1183-ART-5A-05-A-IV"
+source = "Regulation (EU) 2024/1183, Article 5a(5)(a)(iv)"
+summary = "Relying parties can request and validate person identification data and electronic attestations of attributes."
+owner_crate = "crates/consent"
+status = "partial"
+evidence = ["crates/consent/src", "crates/consent/src/validate_registration_certificate.rs", "crates/runtime/src/handle.rs"]
+test_evidence = ["crates/consent/src/evaluate.rs", "crates/consent/src/validate_registration_certificate.rs", "crates/runtime/src/handle_tests.rs"]
+
+[[requirement]]
+id = "EIDAS-2024-1183-ART-5A-05-A-V"
+source = "Regulation (EU) 2024/1183, Article 5a(5)(a)(v)"
+summary = "The wallet supports selective disclosure limited to what the relying party needs."
+owner_crate = "crates/consent"
+status = "partial"
+evidence = ["crates/consent/src", "crates/types/src/consent.rs"]
+test_evidence = ["crates/consent/src/capture.rs", "crates/consent/src/evaluate.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-CONSENT-CAPTURE-001"
+source = "EUDI ARF relying-party authorization and consent duty"
+reference_sections = ["eudi-arf:v3.0.0:relying-party-registration-and-authorization", "eudi-arf:v3.0.0:user-consent-and-attribute-disclosure"]
+summary = "Wallet-core prepares disclosure and derivation consent options for identity, validates entitlement expiry, reports requested attributes outside the registration and applies the Wallet Provider's policy for them (allow after a warning, registered attributes only, or refuse), and captures only matching approved consent records."
+owner_crate = "crates/consent"
+status = "partial"
+evidence = ["crates/types/src/consent.rs", "crates/consent/src/capture.rs", "crates/consent/src/evaluate.rs", "crates/consent/src/validate_registration_certificate.rs", "crates/proto/proto/reallyme/wallet/v1/wallet.proto"]
+test_evidence = ["crates/consent/src/capture.rs", "crates/consent/src/evaluate.rs", "crates/consent/src/validate_registration_certificate.rs", "crates/proto-codec/tests/convert_tests.rs", "crates/proto-codec/tests/codec_tests.rs"]
+
+[[requirement]]
+id = "EIDAS-2024-1183-ART-5A-05-A-VI"
+source = "Regulation (EU) 2024/1183, Article 5a(5)(a)(vi)"
+summary = "The wallet supports qualified electronic signatures and seals."
+owner_crate = "crates/keystore"
+status = "partial"
+evidence = ["crates/keystore/src", "crates/log/src"]
+test_evidence = ["crates/keystore/src/validate_boundary.rs", "crates/log/src/validate.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-KEY-CUSTODY-BOUNDARY-001"
+source = "EUDI ARF WSCD/WSCA key custody boundary duty"
+reference_sections = ["eudi-arf:v3.0.0:wallet-secure-cryptographic-device", "eudi-arf:v3.0.0:wallet-secure-cryptographic-application", "eidas-2024-1183:article-5a-signatures-and-seals"]
+summary = "Wallet-core accepts only opaque, type-distinct, bounded key handles, rejects non-graphic handle identifiers at the protobuf boundary, distinguishes SDK-injected platform secure-area and vault-service custody classes, and validates attestation evidence binding before WUA exchange."
+owner_crate = "crates/keystore"
+status = "partial"
+evidence = ["crates/types/src/identifiers.rs", "crates/types/src/error.rs", "crates/proto/proto/reallyme/wallet/v1/errors.proto", "crates/keystore/src/model.rs", "crates/keystore/src/sign.rs", "crates/keystore/src/validate_boundary.rs", "crates/proto-codec/src/convert.rs"]
+test_evidence = ["crates/types/src/identifiers_tests.rs", "crates/keystore/src/validate_boundary.rs", "crates/proto-codec/tests/convert_tests.rs"]
+
+[[requirement]]
+id = "EIDAS-2024-1183-ART-5A-05-B"
+source = "Regulation (EU) 2024/1183, Article 5a(5)(b)"
+summary = "The wallet must expose a common dashboard for transaction history and relying-party visibility."
+owner_crate = "crates/log"
+status = "partial"
+evidence = ["crates/log/src/validate.rs", "crates/log/src/append.rs", "crates/runtime/src/handle.rs"]
+test_evidence = ["crates/log/src/validate.rs", "crates/runtime/src/handle_tests.rs"]
+
+[[requirement]]
+id = "EIDAS-2024-1183-ART-5A-05-C"
+source = "Regulation (EU) 2024/1183, Article 5a(5)(c)"
+summary = "The wallet informs users about compromised or suspended relying parties and identity data."
+owner_crate = "crates/consent"
+status = "not_implemented"
+evidence = ["crates/types/src/log.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-RUNTIME-CONNECT-001"
+source = "ReallyMe wallet architecture decision"
+reference_sections = ["reallyme-wallet:sdk-proto-boundary", "reallyme-wallet:russian-doll-binary-packaging"]
+summary = "Wallet-core exposes generated protobuf DTOs and bounded Rust runtime adapters; identity owns C ABI, JNI, Wasm, Swift, Kotlin, TypeScript, and composed binary packaging."
+owner_crate = "crates/runtime"
+status = "partial"
+evidence = ["crates/proto/proto/reallyme/wallet/v1/wallet.proto", "crates/runtime/src"]
+test_evidence = ["crates/runtime/src/handle_tests.rs", "crates/http/tests/serve_tests.rs", "conformance/tests/sdk_contract_tests.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-STORAGE-TRAITS-001"
+source = "ReallyMe wallet architecture decision"
+reference_sections = ["reallyme-wallet:platform-encrypted-storage-boundary", "eudi-arf:v3.0.0:wallet-data-storage-and-recovery"]
+summary = "Wallet-core defines storage traits for SDK-provided encrypted stores and append-only record persistence without owning platform storage implementations."
+owner_crate = "crates/storage"
+status = "partial"
+evidence = ["crates/storage/src/store.rs"]
+test_evidence = ["crates/runtime/src/handle_tests.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-LIFECYCLE-EVIDENCE-001"
+source = "EUDI ARF wallet lifecycle and user-control duty"
+reference_sections = ["eudi-arf:v3.0.0:wallet-lifecycle-management", "eudi-arf:v3.0.0:backup-restore-and-portability", "eidas-2024-1183:article-5a-user-control"]
+summary = "Wallet-core models backup, restore, migration, portability, withdrawal, deletion, suspension, and reactivation as typed lifecycle state and append-only evidence records over generated protobuf DTOs."
+owner_crate = "crates/lifecycle, crates/proto, crates/storage, crates/runtime"
+status = "partial"
+evidence = ["crates/lifecycle/src/model.rs", "crates/lifecycle/src/validate_evidence.rs", "crates/proto/proto/reallyme/wallet/v1/wallet.proto", "crates/proto-codec/src/convert.rs", "crates/storage/src/store.rs", "crates/runtime/src/handle.rs", "crates/http/src/serve.rs"]
+test_evidence = ["crates/lifecycle/src/validate_evidence.rs", "crates/proto-codec/tests/convert_tests.rs", "crates/proto-codec/tests/codec_tests.rs", "crates/runtime/src/handle_tests.rs", "crates/http/tests/serve_tests.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-UNLINKABLE-BATCH-POOL-001"
+source = "EUDI ARF wallet unlinkability duty"
+reference_sections = ["eudi-arf:v3.0.0:unlinkability-and-privacy", "eudi-arf:v3.0.0:batch-issuance-and-once-only-use"]
+summary = "Presentation uses once-only batch-pool copies so verifiers cannot correlate repeated credential presentations by wallet-held credential record identity."
+owner_crate = "crates/inventory"
+status = "partial"
+evidence = ["crates/inventory/src/claim.rs", "crates/types/src/credential.rs"]
+test_evidence = ["crates/inventory/src/claim.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-STATUS-EVIDENCE-001"
+source = "EUDI ARF credential lifecycle and status-checking duty"
+reference_sections = ["eudi-arf:v3.0.0:credential-lifecycle-management", "eudi-arf:v3.0.0:credential-status-and-revocation", "eudi-standards-tracking:token-status-list"]
+summary = "Wallet-core has local inventory status transitions, but the public protobuf status-evidence operation rejects requests. IETF Token Status List JWT/CWT verification, status-list URI binding, and an authenticated public update boundary remain required before claiming interoperable status support."
+owner_crate = "crates/inventory"
+status = "partial"
+evidence = ["crates/proto/proto/reallyme/wallet/v1/wallet.proto", "crates/inventory/src/import.rs", "crates/inventory/src/update_status.rs", "crates/inventory/src/refresh.rs", "crates/inventory/src/reissue.rs", "crates/inventory/src/delete.rs", "crates/inventory/src/claim.rs", "crates/runtime/src/handle.rs", "crates/proto-codec/src/decode.rs", "crates/proto-codec/src/encode.rs"]
+test_evidence = ["crates/inventory/src/import.rs", "crates/inventory/src/update_status.rs", "crates/inventory/src/refresh.rs", "crates/inventory/src/reissue.rs", "crates/inventory/src/delete.rs", "crates/inventory/src/claim.rs", "crates/runtime/src/handle_tests.rs", "crates/proto-codec/tests/codec_tests.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-WUA-LIFECYCLE-001"
+source = "EUDI ARF wallet unit attestation duty"
+reference_sections = ["eudi-arf:v3.0.0:wallet-unit-attestation", "eudi-arf:v3.0.0:wallet-provider-attestation-lifecycle"]
+summary = "Wallet-core obtains wallet unit attestations through an injected provider, validates evidence and validity windows, binds a current attestation into issuance before credential request work, rotates to distinct replacements, and exposes generated protobuf codecs for SDK boundaries."
+owner_crate = "crates/attestation, crates/flows"
+status = "partial"
+evidence = ["crates/attestation/src/obtain.rs", "crates/attestation/src/rotate.rs", "crates/attestation/src/validate.rs", "crates/flows/src/issue.rs", "crates/proto-codec/src/decode.rs", "crates/proto-codec/src/encode.rs"]
+test_evidence = ["crates/attestation/src/obtain.rs", "crates/attestation/src/rotate.rs", "crates/attestation/src/validate.rs", "crates/flows/src/issue.rs", "conformance/tests/issuance_flow_tests.rs", "crates/proto-codec/tests/codec_tests.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-QES-QSEAL-CONSENT-001"
+source = "EUDI ARF qualified electronic signature and seal consent duty"
+reference_sections = ["eidas-2024-1183:article-5a-qualified-electronic-signatures", "eudi-arf:v3.0.0:qes-and-qseal-activation", "eudi-arf:v3.0.0:qtsp-decision-records"]
+summary = "Wallet-core models qualified signature and qualified seal consent actions over generated protobuf DTOs, validates QTSP/QES/QSeal decision records before runtime append, and keeps decision evidence digest-only."
+owner_crate = "crates/consent, crates/log, crates/runtime, crates/proto, crates/proto-codec"
+status = "partial"
+evidence = ["crates/proto/proto/reallyme/wallet/v1/wallet.proto", "crates/types/src/consent.rs", "crates/types/src/log.rs", "crates/consent/src/capture.rs", "crates/log/src/validate.rs", "crates/runtime/src/handle.rs", "crates/proto-codec/src/convert.rs"]
+test_evidence = ["crates/consent/src/capture.rs", "crates/log/src/validate.rs", "crates/runtime/src/handle_tests.rs", "crates/proto-codec/tests/convert_tests.rs", "crates/proto-codec/tests/codec_tests.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-WEB-DELIVERY-001"
+source = "EUDI ARF same-device and cross-device handoff duty"
+reference_sections = ["eudi-arf:v3.0.0:same-device-flow", "eudi-arf:v3.0.0:cross-device-flow", "eudi-standards-tracking:openid4vp"]
+summary = "Wallet web handoff helpers enforce QR payload bounds, URL bounds, expiry, base64url encoding for binary payloads, and supported deep-link schemes."
+owner_crate = "crates/render"
+status = "partial"
+evidence = ["crates/render/src/web.rs", "crates/render/tests/web_tests.rs"]
+test_evidence = ["crates/render/tests/web_tests.rs"]
+
+[[requirement]]
+id = "ARF-WALLET-CONTACT-DELIVERY-001"
+source = "EUDI ARF proximity and cross-device handoff duty"
+reference_sections = ["eudi-arf:v3.0.0:proximity-flow", "eudi-standards-tracking:iso18013-5", "eudi-arf:v3.0.0:session-transcript-binding"]
+summary = "Wallet contact delivery adapter enforces bounded fragmentation, deterministic reassembly, duplicate/missing frame rejection, message lifetime, and session transcript hash binding."
+owner_crate = "crates/flows"
+status = "partial"
+evidence = ["crates/flows/src/fragment_contact.rs", "crates/flows/src/reassemble_contact.rs", "crates/flows/src/validate_contact.rs", "crates/flows/tests/contact_tests.rs"]
+test_evidence = ["crates/flows/tests/contact_tests.rs"]

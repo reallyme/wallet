@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "fixture_id": "wallet.wua.valid.v1",
+  "wallet_unit_id": "wallet-unit-0001",
+  "wallet_provider_id": "reallyme-wallet-provider-test",
+  "holder_key_handle": "wallet-key-handle-0001",
+  "issuer_binding_audience": "https://issuer.example",
+  "issued_at_unix": 1700000000,
+  "expires_at_unix": 1700003600,
+  "evidence_digest_b64url": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

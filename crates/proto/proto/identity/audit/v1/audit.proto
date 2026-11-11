@@ -1,0 +1,112 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package identity.audit.v1;
+
+option java_multiple_files = true;
+option java_package = "me.really.identity.audit.v1";
+option swift_prefix = "ReallyMeIdentityAuditProto";
+
+// IdentityProofingLevel is the level of identity proofing asserted by QEAA
+// compliance evidence.
+enum IdentityProofingLevel {
+  IDENTITY_PROOFING_LEVEL_UNSPECIFIED = 0;
+  IDENTITY_PROOFING_LEVEL_BASELINE = 1;
+  IDENTITY_PROOFING_LEVEL_EXTENDED = 2;
+  IDENTITY_PROOFING_LEVEL_HIGH = 3;
+}
+
+// QtspRole is the qualified trust-service role asserted for the issuer.
+enum QtspRole {
+  QTSP_ROLE_UNSPECIFIED = 0;
+  QTSP_ROLE_QEAA_PROVIDER = 1;
+}
+
+// IssuerCredentialKind identifies the trust-material family used by the QEAA
+// issuer.
+enum IssuerCredentialKind {
+  ISSUER_CREDENTIAL_KIND_UNSPECIFIED = 0;
+  ISSUER_CREDENTIAL_KIND_X509 = 1;
+}
+
+// KeyProtection is the protection class for the credential signing key.
+enum KeyProtection {
+  KEY_PROTECTION_UNSPECIFIED = 0;
+  KEY_PROTECTION_HSM = 1;
+  KEY_PROTECTION_QSCD = 2;
+}
+
+// StatusMethod is the revocation/status mechanism declared for the credential.
+enum StatusMethod {
+  STATUS_METHOD_UNSPECIFIED = 0;
+  STATUS_METHOD_STATUS_LIST = 1;
+}
+
+// QeaaCompliance carries protocol-neutral QEAA compliance metadata and audit
+// evidence. It is data-model transport only: no HTTP, no OpenID state, and no
+// server audit trail.
+message QeaaCompliance {
+  QtspInfo qtsp = 1 [debug_redact = true];
+  QeaaPolicies policies = 2 [debug_redact = true];
+  IssuerCredential issuer_credential = 3 [debug_redact = true];
+  KeyManagement key_management = 4 [debug_redact = true];
+  IdentityProofing identity_proofing = 5 [debug_redact = true];
+  AuditInfo audit = 6 [debug_redact = true];
+  RevocationPolicy revocation = 7 [debug_redact = true];
+}
+
+// QtspInfo identifies the qualified trust service provider.
+message QtspInfo {
+  string tsp_name = 1 [debug_redact = true];
+  string tsp_id = 2 [debug_redact = true];
+  QtspRole tsp_role = 3;
+}
+
+// QeaaPolicies carries policy and standards identifiers.
+message QeaaPolicies {
+  string policy_id = 1 [debug_redact = true];
+  repeated string standards = 2 [debug_redact = true];
+}
+
+// IssuerCredential carries X.509 issuer trust material metadata.
+message IssuerCredential {
+  IssuerCredentialKind kind = 1;
+  bytes cert_fingerprint_sha256 = 2 [debug_redact = true];
+  repeated bytes cert_chain_der = 3 [debug_redact = true];
+  string trusted_list_ref = 4 [debug_redact = true];
+  repeated string policy_oids = 5 [debug_redact = true];
+  repeated string qcstatements_oids = 6 [debug_redact = true];
+}
+
+// KeyManagement carries signing-key protection metadata.
+message KeyManagement {
+  string signing_key_id = 1 [debug_redact = true];
+  KeyProtection protection = 2;
+}
+
+// IdentityProofing carries proofing metadata and evidence hash.
+message IdentityProofing {
+  string standard = 1 [debug_redact = true];
+  IdentityProofingLevel loip = 2;
+  string evidence_ref = 3 [debug_redact = true];
+  bytes evidence_hash = 4 [debug_redact = true];
+}
+
+// AuditInfo carries audit-report metadata and validity period.
+message AuditInfo {
+  string audit_standard = 1 [debug_redact = true];
+  string audit_report_ref = 2 [debug_redact = true];
+  bytes audit_report_hash = 3 [debug_redact = true];
+  uint64 period_from_unix = 4 [debug_redact = true];
+  uint64 period_to_unix = 5 [debug_redact = true];
+}
+
+// RevocationPolicy carries status-list freshness policy metadata.
+message RevocationPolicy {
+  StatusMethod status_method = 1;
+  string signing_key_id = 2 [debug_redact = true];
+  uint32 max_status_age_seconds = 3 [debug_redact = true];
+}

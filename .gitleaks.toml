@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+minVersion = "v8.30.1"
+
+[extend]
+useDefault = true
+
+# Exact public fixture lines are allowlisted only for the generic API-key rule.
+# A changed vector requires a fresh review; whole files and commits stay scanned.
+
+[[allowlists]]
+description = "Public deterministic key-storage protobuf vectors"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['''(?:^|/)(?:vectors|crates/proto/tests/fixtures|crates/proto-codec/tests/fixtures/proto)/wallet-key-storage-v1-golden\.txt$''']
+regexes = [
+    '''(?m)^portable_key_storage_record=0a0e706f727461626c652d6b65792d31120c6469642d7265636f72642d311a7b0a186469643a6578616d706c653a686f6c646572236b65792d3110021a126469643a6578616d706c653a686f6c646572220308c80132440a0308c8011221036b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2961a1a7b22637276223a22502d323536222c226b7479223a224543227d224b0a1a0a186469643a6578616d706c653a686f6c646572236b65792d3112290803322508021221036b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2961a020a0028013001380140014a01025218777261707065642d6b65792d7365742d73656e74696e656c5a060880e2cfaa0662024878$''',
+    '''(?m)^hardware_key_binding_record=0a0e68617264776172652d6b65792d31120c6469642d7265636f72642d311a7b0a186469643a6578616d706c653a686f6c646572236b65792d3110021a126469643a6578616d706c653a686f6c646572220308c80132440a0308c8011221036b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2961a1a7b22637276223a22502d323536222c226b7479223a224543227d224b0a1a0a186469643a6578616d706c653a686f6c646572236b65792d3112290803322508021221036b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2961a020a0028013002380240024a0102524a086410011a0308c8012218706c6174666f726d2d68616e646c652d73656e74696e656c2a21036b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2963003380362060880e2cfaa06$''',
+]
+
+[[allowlists]]
+description = "Public deterministic provider request vector"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['''(?:^|/)(?:vectors|crates/proto/tests/fixtures|crates/proto-codec/tests/fixtures/proto)/wallet-provider-v1-golden\.txt$''']
+regexes = [
+    '''(?m)^get_credential_provider_request=080110071809927d1e0a1c63726564656e7469616c2d70726f76696465722d676f6c64656e2d31$''',
+]
+
+[[allowlists]]
+description = "Synthetic wallet key handle"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['''(?:^|/)conformance/fixtures/wallets/wua-valid\.json$''']
+regexes = [
+    '''(?m)^  "holder_key_handle": "wallet-key-handle-0001",$''',
+]

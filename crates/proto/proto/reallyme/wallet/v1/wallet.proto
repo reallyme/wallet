@@ -1,0 +1,744 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.wallet.v1;
+
+import "reallyme/openid4vp/v1/openid4vp.proto";
+import "reallyme/crypto/v1/crypto.proto";
+import "reallyme/openid4vci/v1/openid4vci.proto";
+
+option java_multiple_files = true;
+option java_package = "me.really.wallet.v1";
+option swift_prefix = "ReallyMeWalletProto";
+
+// CredentialLifecycleStatus is the user-visible lifecycle status of a local
+// wallet credential record.
+enum CredentialLifecycleStatus {
+  CREDENTIAL_LIFECYCLE_STATUS_UNSPECIFIED = 0;
+  CREDENTIAL_LIFECYCLE_STATUS_ACTIVE = 1;
+  CREDENTIAL_LIFECYCLE_STATUS_SUSPENDED = 2;
+  CREDENTIAL_LIFECYCLE_STATUS_REVOKED = 3;
+  CREDENTIAL_LIFECYCLE_STATUS_DELETED = 4;
+}
+
+// CredentialStatusEvidenceMethod identifies the already-checked evidence type
+// supplied by protocol/identity layers. Wallet-core does not fetch or parse
+// status lists.
+enum CredentialStatusEvidenceMethod {
+  CREDENTIAL_STATUS_EVIDENCE_METHOD_UNSPECIFIED = 0;
+  CREDENTIAL_STATUS_EVIDENCE_METHOD_TOKEN_STATUS_LIST = 1;
+  CREDENTIAL_STATUS_EVIDENCE_METHOD_REVOCATION_LIST = 2;
+  CREDENTIAL_STATUS_EVIDENCE_METHOD_SUSPENSION_LIST = 3;
+  CREDENTIAL_STATUS_EVIDENCE_METHOD_ISSUER_REFRESH = 4;
+  CREDENTIAL_STATUS_EVIDENCE_METHOD_QTSP_DECISION = 5;
+}
+
+// BatchCopyState tracks a once-only presentation copy. Claimed copies must not
+// be reused because that would break verifier unlinkability.
+enum BatchCopyState {
+  BATCH_COPY_STATE_UNSPECIFIED = 0;
+  BATCH_COPY_STATE_AVAILABLE = 1;
+  BATCH_COPY_STATE_CLAIMED = 2;
+}
+
+// Admission rule enforced by the storage provider in the same transaction as
+// reserving a once-only copy. The generic rule is for non-ZK presentations;
+// prepared private ZK presentations require the active ZK credential rule.
+enum PresentationCopyClaimPolicy {
+  PRESENTATION_COPY_CLAIM_POLICY_UNSPECIFIED = 0;
+  PRESENTATION_COPY_CLAIM_POLICY_GENERIC = 1;
+  PRESENTATION_COPY_CLAIM_POLICY_ACTIVE_ZK_CREDENTIAL = 2;
+}
+
+// DisclosurePolicyDecision is produced before user consent is requested.
+enum DisclosurePolicyDecision {
+  DISCLOSURE_POLICY_DECISION_UNSPECIFIED = 0;
+  DISCLOSURE_POLICY_DECISION_ALLOWED = 1;
+  DISCLOSURE_POLICY_DECISION_DENIED = 2;
+  // Allowed if the user consents, after the user is warned that the request
+  // asks for attributes outside the relying party's registration.
+  DISCLOSURE_POLICY_DECISION_ALLOWED_WITH_UNREGISTERED_REQUEST = 3;
+}
+
+// ConsentDecision captures the user's explicit decision.
+enum ConsentDecision {
+  CONSENT_DECISION_UNSPECIFIED = 0;
+  CONSENT_DECISION_APPROVED = 1;
+  CONSENT_DECISION_REJECTED = 2;
+}
+
+// ConsentActionKind identifies whether an option reveals attributes or proves
+// a derived statement without source disclosure.
+enum ConsentActionKind {
+  CONSENT_ACTION_KIND_UNSPECIFIED = 0;
+  CONSENT_ACTION_KIND_DISCLOSE = 1;
+  CONSENT_ACTION_KIND_DERIVE = 2;
+  CONSENT_ACTION_KIND_QUALIFIED_SIGNATURE = 3;
+  CONSENT_ACTION_KIND_QUALIFIED_SEAL = 4;
+}
+
+// The treatment of one source attribute within a derived presentation.
+enum ConsentDerivationMode {
+  CONSENT_DERIVATION_MODE_UNSPECIFIED = 0;
+  CONSENT_DERIVATION_MODE_HIDDEN = 1;
+  CONSENT_DERIVATION_MODE_REVEAL = 2;
+  CONSENT_DERIVATION_MODE_EQ = 3;
+  CONSENT_DERIVATION_MODE_GTE = 4;
+  CONSENT_DERIVATION_MODE_LTE = 5;
+  CONSENT_DERIVATION_MODE_RANGE = 6;
+  CONSENT_DERIVATION_MODE_MEMBER_OF_SET = 7;
+}
+
+// The exact public operand form paired with a derivation mode.
+enum ConsentPredicateOperandKind {
+  CONSENT_PREDICATE_OPERAND_KIND_UNSPECIFIED = 0;
+  CONSENT_PREDICATE_OPERAND_KIND_NONE = 1;
+  CONSENT_PREDICATE_OPERAND_KIND_VALUE = 2;
+  CONSENT_PREDICATE_OPERAND_KIND_THRESHOLD = 3;
+  CONSENT_PREDICATE_OPERAND_KIND_RANGE = 4;
+  CONSENT_PREDICATE_OPERAND_KIND_SET = 5;
+}
+
+// TransactionPurpose is the wallet-visible purpose shown in the transaction
+// log.
+enum TransactionPurpose {
+  TRANSACTION_PURPOSE_UNSPECIFIED = 0;
+  TRANSACTION_PURPOSE_ISSUANCE = 1;
+  TRANSACTION_PURPOSE_PRESENTATION = 2;
+  TRANSACTION_PURPOSE_REFRESH = 3;
+  TRANSACTION_PURPOSE_DELETION = 4;
+}
+
+// DecisionOutcome is used for QTSP, relying-party, trust, and status decisions.
+enum DecisionOutcome {
+  DECISION_OUTCOME_UNSPECIFIED = 0;
+  DECISION_OUTCOME_ACCEPT = 1;
+  DECISION_OUTCOME_REJECT = 2;
+}
+
+// QtspDecisionKind classifies qualified trust decisions recorded by wallet-core.
+enum QtspDecisionKind {
+  QTSP_DECISION_KIND_UNSPECIFIED = 0;
+  QTSP_DECISION_KIND_RELYING_PARTY_REGISTRATION_CERTIFICATE = 1;
+  QTSP_DECISION_KIND_ISSUER_TRUST_CHAIN = 2;
+  QTSP_DECISION_KIND_CREDENTIAL_STATUS = 3;
+  QTSP_DECISION_KIND_QUALIFIED_ELECTRONIC_SIGNATURE = 4;
+  QTSP_DECISION_KIND_QUALIFIED_ELECTRONIC_SEAL = 5;
+}
+
+// FlowKind identifies a resumable wallet state machine.
+enum FlowKind {
+  FLOW_KIND_UNSPECIFIED = 0;
+  FLOW_KIND_ISSUANCE = 1;
+  FLOW_KIND_PRESENTATION = 2;
+}
+
+// OpenId4VciIssuanceStage is wallet-core's resumable holder-side issuance
+// state. Protocol validity belongs to reallyme.openid4vci.v1; wallet-core uses
+// this stage only to resume and enforce local sequencing.
+enum OpenId4VciIssuanceStage {
+  OPEN_ID4_VCI_ISSUANCE_STAGE_UNSPECIFIED = 0;
+  OPEN_ID4_VCI_ISSUANCE_STAGE_OFFER_RECEIVED = 1;
+  OPEN_ID4_VCI_ISSUANCE_STAGE_CONSENT_CAPTURED = 2;
+  OPEN_ID4_VCI_ISSUANCE_STAGE_AUTHORIZED = 3;
+  OPEN_ID4_VCI_ISSUANCE_STAGE_TOKEN_EXCHANGED = 4;
+  OPEN_ID4_VCI_ISSUANCE_STAGE_DEFERRED = 5;
+  OPEN_ID4_VCI_ISSUANCE_STAGE_CREDENTIAL_STORED = 6;
+  OPEN_ID4_VCI_ISSUANCE_STAGE_CREDENTIAL_RECEIVED = 7;
+}
+
+// OpenId4VciCredentialReuseMethod is the Wallet-selected ETSI TS 119 472-3
+// reuse method. It is durable state, not a copy of untrusted issuer JSON.
+enum OpenId4VciCredentialReuseMethod {
+  OPEN_ID4_VCI_CREDENTIAL_REUSE_METHOD_UNSPECIFIED = 0;
+  OPEN_ID4_VCI_CREDENTIAL_REUSE_METHOD_UNRESTRICTED = 1;
+  OPEN_ID4_VCI_CREDENTIAL_REUSE_METHOD_ONCE_ONLY = 2;
+  OPEN_ID4_VCI_CREDENTIAL_REUSE_METHOD_LIMITED_TIME = 3;
+  OPEN_ID4_VCI_CREDENTIAL_REUSE_METHOD_ROTATING_BATCH = 4;
+  OPEN_ID4_VCI_CREDENTIAL_REUSE_METHOD_PER_RELYING_PARTY = 5;
+}
+
+// OpenId4VciIssuerMetadataProfile records the exact metadata policy enforced
+// before the issuance session started. ETSI values require authenticated
+// signed metadata and cannot be restored through the generic OpenID4VCI lane.
+enum OpenId4VciIssuerMetadataProfile {
+  OPEN_ID4_VCI_ISSUER_METADATA_PROFILE_UNSPECIFIED = 0;
+  OPEN_ID4_VCI_ISSUER_METADATA_PROFILE_OPENID4VCI = 1;
+  OPEN_ID4_VCI_ISSUER_METADATA_PROFILE_ETSI_TS_119_472_PART_3 = 2;
+  OPEN_ID4_VCI_ISSUER_METADATA_PROFILE_EU_ETSI_TS_119_472_PART_3 = 3;
+}
+
+// OpenId4VciNotificationDeliveryState records durable notification delivery.
+// A pending entry remains retryable after process restart; delivered is terminal.
+enum OpenId4VciNotificationDeliveryState {
+  OPEN_ID4_VCI_NOTIFICATION_DELIVERY_STATE_UNSPECIFIED = 0;
+  OPEN_ID4_VCI_NOTIFICATION_DELIVERY_STATE_PENDING = 1;
+  OPEN_ID4_VCI_NOTIFICATION_DELIVERY_STATE_DELIVERED = 2;
+}
+
+// WalletLifecycleState is the durable Wallet Unit state shared with SDK
+// facades. It is not UI state.
+enum WalletLifecycleState {
+  WALLET_LIFECYCLE_STATE_UNSPECIFIED = 0;
+  WALLET_LIFECYCLE_STATE_UNPROVISIONED = 1;
+  WALLET_LIFECYCLE_STATE_PROVISIONING = 2;
+  WALLET_LIFECYCLE_STATE_ACTIVE = 3;
+  WALLET_LIFECYCLE_STATE_SUSPENDED = 4;
+  WALLET_LIFECYCLE_STATE_RECOVERY_PENDING = 5;
+  WALLET_LIFECYCLE_STATE_MIGRATION_PENDING = 6;
+  WALLET_LIFECYCLE_STATE_WITHDRAWAL_PENDING = 7;
+  WALLET_LIFECYCLE_STATE_DELETION_PENDING = 8;
+  WALLET_LIFECYCLE_STATE_WITHDRAWN = 9;
+  WALLET_LIFECYCLE_STATE_DELETED = 10;
+  WALLET_LIFECYCLE_STATE_FAILED = 11;
+}
+
+// WalletLifecycleEvent advances the Wallet Unit state machine.
+enum WalletLifecycleEvent {
+  WALLET_LIFECYCLE_EVENT_UNSPECIFIED = 0;
+  WALLET_LIFECYCLE_EVENT_BEGIN_PROVISIONING = 1;
+  WALLET_LIFECYCLE_EVENT_COMPLETE_PROVISIONING = 2;
+  WALLET_LIFECYCLE_EVENT_SUSPEND = 3;
+  WALLET_LIFECYCLE_EVENT_REACTIVATE = 4;
+  WALLET_LIFECYCLE_EVENT_BEGIN_RECOVERY = 5;
+  WALLET_LIFECYCLE_EVENT_COMPLETE_RECOVERY = 6;
+  WALLET_LIFECYCLE_EVENT_BEGIN_MIGRATION = 7;
+  WALLET_LIFECYCLE_EVENT_COMPLETE_MIGRATION = 8;
+  WALLET_LIFECYCLE_EVENT_BEGIN_WITHDRAWAL = 9;
+  WALLET_LIFECYCLE_EVENT_COMPLETE_WITHDRAWAL = 10;
+  WALLET_LIFECYCLE_EVENT_BEGIN_DELETION = 11;
+  WALLET_LIFECYCLE_EVENT_COMPLETE_DELETION = 12;
+  WALLET_LIFECYCLE_EVENT_MARK_FAILED = 13;
+  WALLET_LIFECYCLE_EVENT_RETRY_PROVISIONING = 14;
+}
+
+// WalletLifecycleEvidenceKind classifies lifecycle evidence supplied by SDK or
+// provider adapters. Wallet-core stores a bounded digest and reference, not raw
+// provider payloads.
+enum WalletLifecycleEvidenceKind {
+  WALLET_LIFECYCLE_EVIDENCE_KIND_UNSPECIFIED = 0;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_PROVISIONING = 1;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_BACKUP = 2;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_RESTORE = 3;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_RECOVERY = 4;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_MIGRATION = 5;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_PORTABILITY_EXPORT = 6;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_PORTABILITY_IMPORT = 7;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_WITHDRAWAL = 8;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_DELETION = 9;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_SUSPENSION = 10;
+  WALLET_LIFECYCLE_EVIDENCE_KIND_REACTIVATION = 11;
+}
+
+// UnixTimestamp carries seconds since the Unix epoch. It avoids JSON-first time
+// strings at the protobuf boundary.
+message UnixTimestamp {
+  int64 seconds = 1;
+}
+
+// EncryptedRecordHeader routes encrypted wallet records without decrypting
+// their payloads.
+message EncryptedRecordHeader {
+  uint32 schema_version = 1;
+  string key_handle_id = 2;
+  reserved 3;
+  reserved "algorithm";
+  UnixTimestamp created_at = 4;
+  reallyme.crypto.v1.AeadAlgorithm encryption_algorithm = 5;
+}
+
+// EncryptedRecord carries platform-encrypted data. Wallet-core never interprets
+// ciphertext and never receives raw private key material.
+message EncryptedRecord {
+  EncryptedRecordHeader header = 1;
+  bytes nonce = 2;
+  bytes aad = 3;
+  bytes ciphertext = 4;
+}
+
+// Storage policy for one exact ZK circuit output. Request-bound witnesses and
+// proofs carry a verifier binding; prepared proof stages carry a proof-window
+// binding in their verified public inputs and remain usable across requests.
+enum ZkStoredArtifactKind {
+  ZK_STORED_ARTIFACT_KIND_UNSPECIFIED = 0;
+  ZK_STORED_ARTIFACT_KIND_PREPARED_INPUT = 1;
+  ZK_STORED_ARTIFACT_KIND_WITNESS = 2;
+  ZK_STORED_ARTIFACT_KIND_PROOF = 3;
+  ZK_STORED_ARTIFACT_KIND_PREPARED_PUBLIC_PROOF = 4;
+}
+
+// Encrypted prepared input, reusable public-persona proof, or request-bound
+// proof material for one exact circuit source. Private one-time proof packages
+// are stored through the atomic presentation-copy inventory, never this
+// reusable artifact route. Prepared artifacts carry no verifier request
+// binding; their circuit public inputs must be revalidated on use.
+// The circuit reference is ZK's canonical {hash}:{family}:{stage}:v1 name.
+// Witness/proof plaintext is a canonical reallyme.zk.v1.ZkWitness or
+// ZkProofPackage; prepared-proof plaintext is a canonical
+// reallyme.zk.v1.ZkPreparedRawProofPackage. Prepared-input plaintext uses the ZK provider's validated
+// circuit-specific contract, never an untyped source of credential authority.
+// The storage AEAD authenticates the entire descriptor as associated data.
+message ZkStoredArtifact {
+  bytes artifact_id = 1;
+  repeated string credential_record_ids = 2;
+  string circuit_ref = 3;
+  ZkStoredArtifactKind kind = 4;
+  bytes claim_scope_digest = 5;
+  bytes nonce_hash = 6;
+  bytes audience_hash = 7;
+  bytes transaction_data_hash = 8;
+  UnixTimestamp expires_at = 9;
+  EncryptedRecord encrypted_payload = 10;
+}
+
+// CredentialRecord is the protobuf form of wallet inventory state.
+message CredentialRecord {
+  string id = 1;
+  string issuer_id = 2;
+  reallyme.openid4vci.v1.CredentialFormat format = 3;
+  CredentialLifecycleStatus status = 4;
+  UnixTimestamp received_at = 5;
+  EncryptedRecord encrypted_payload = 6;
+  // Opaque holder/device key handle. Records predating this field may omit it;
+  // presentation selectors must fail closed rather than infer a binding.
+  string holder_key_handle_id = 7;
+  // Exact issuer claim authenticated from the signed credential. This is not
+  // the Credential Issuer metadata identifier in field 2. Legacy records may
+  // omit it; SD-JWT presentation must then treat that record as unusable.
+  string signed_issuer = 8;
+  CredentialStatusReference status_reference = 9;
+}
+
+message CredentialStatusReference {
+  string issuer = 1;
+  bytes list_id = 2;
+  uint64 status_index = 3;
+  UnixTimestamp last_source_issued_at = 4;
+}
+
+// CredentialStatusEvidence carries checked lifecycle evidence. The status-list
+// parser/verifier lives in identity/openid4vci/openid4vp; wallet-core owns only the
+// local inventory transition.
+message CredentialStatusEvidence {
+  string credential_id = 1;
+  CredentialLifecycleStatus observed_status = 2;
+  CredentialStatusEvidenceMethod method = 3;
+  UnixTimestamp checked_at = 4;
+  UnixTimestamp valid_until = 5;
+  string source_issuer = 6;
+  bytes source_list_id = 7;
+  uint64 status_index = 8;
+  UnixTimestamp source_issued_at = 9;
+}
+
+// OnceOnlyPresentationCopy is a verifier-unlinkable presentation copy from a
+// batch pool.
+message OnceOnlyPresentationCopy {
+  string id = 1;
+  BatchCopyState state = 2;
+  EncryptedRecord encrypted_payload = 3;
+  string credential_id = 4;
+  // Copy-scoped digest of the prepared claim; protected by outer inventory AEAD.
+  bytes prepared_claim_selector_digest = 5;
+}
+
+// reallyme.security: sensitive-owner
+// PreparedPrivateTokenPayloadV1 is the plaintext inside one encrypted,
+// once-only presentation copy. The evidence is the canonical encoding of
+// reallyme.zk.v1.ZkPreparedCredentialEvidenceV1; the current-state proof is
+// generated when the copy is claimed and is never cached in this payload.
+// The key handle identifies a protected one-time signing key, not key bytes.
+message PreparedPrivateTokenPayloadV1 {
+  string copy_id = 1;
+  string credential_id = 2;
+  bytes prepared_credential_evidence = 3;
+  string one_time_key_handle_id = 4;
+  string wallet_instance_id = 5;
+}
+
+// KeyHandle is an opaque platform/vault key handle. It never contains key bytes.
+message KeyHandle {
+  string id = 1;
+  reallyme.crypto.v1.SignatureAlgorithm algorithm = 2;
+  UnixTimestamp created_at = 3;
+}
+
+// SigningDigest carries protocol-owned digest bytes to the keystore boundary.
+message SigningDigest {
+  bytes digest_bytes = 1;
+}
+
+// Signature is returned by the platform keystore.
+message Signature {
+  bytes signature_bytes = 1;
+}
+
+// KeyAttestationEvidence is opaque evidence produced by a secure element or
+// vault service for a key handle.
+message KeyAttestationEvidence {
+  string key_handle_id = 1;
+  bytes evidence = 2;
+  UnixTimestamp issued_at = 3;
+  bytes challenge = 4;
+}
+
+// WalletUnitAttestation is presented during issuance and rotated by wallet-core.
+message WalletUnitAttestation {
+  string id = 1;
+  KeyAttestationEvidence evidence = 2;
+  UnixTimestamp valid_until = 3;
+  // Opaque provider-signed artifact covering id, evidence, and validity.
+  bytes signed_provider_artifact = 4;
+}
+
+// ConsentScope contains requested credential attributes.
+message ConsentScope {
+  repeated string attributes = 1;
+}
+
+// reallyme.security: sensitive-owner
+// Exact semantics that the user must see before approving a derived proof.
+message ConsentDerivationInput {
+  string attribute = 1;
+  ConsentDerivationMode mode = 2;
+  ConsentPredicateOperandKind operand_kind = 3;
+  bytes value = 4;
+  uint64 threshold = 5;
+  uint64 range_min = 6;
+  uint64 range_max = 7;
+  repeated bytes set_values = 8;
+}
+
+// ConsentAction is one disclosure or derivation option available to the user.
+message ConsentAction {
+  ConsentActionKind kind = 1;
+  ConsentScope scope = 2;
+  string derivation_id = 3;
+  repeated ConsentDerivationInput derivation_inputs = 4;
+}
+
+// VerifierEntitlement is a wire representation of relying-party scope and
+// expiry. Decoding this message never authenticates the registration evidence;
+// Wallet authorization requires a separate verified registration receipt
+// bound to the signed OpenID4VP request and its authenticated client.
+message VerifierEntitlement {
+  string relying_party_id = 1;
+  ConsentScope authorized_scope = 2;
+  UnixTimestamp valid_until = 3;
+}
+
+// ConsentRequest is prepared by wallet-core and rendered by identity.
+message ConsentRequest {
+  string relying_party_id = 1;
+  ConsentScope requested_scope = 2;
+  DisclosurePolicyDecision policy_decision = 3;
+  repeated ConsentAction actions = 4;
+  UnixTimestamp created_at = 5;
+  string request_nonce = 6;
+  bytes request_digest = 7;
+}
+
+// ConsentCapture is persisted for transaction-log evidence.
+message ConsentCapture {
+  string relying_party_id = 1;
+  ConsentScope requested_scope = 2;
+  DisclosurePolicyDecision policy_decision = 3;
+  ConsentDecision user_decision = 4;
+  UnixTimestamp captured_at = 5;
+  ConsentAction selected_action = 6;
+  string request_nonce = 7;
+  bytes request_digest = 8;
+}
+
+// DisclosedAttribute is a user-visible disclosed attribute name.
+message DisclosedAttribute {
+  string name = 1;
+}
+
+// TransactionLogEntry records every user-visible wallet transaction.
+message TransactionLogEntry {
+  string id = 1;
+  TransactionPurpose purpose = 2;
+  string relying_party_id = 3;
+  repeated DisclosedAttribute disclosed_attributes = 4;
+  UnixTimestamp occurred_at = 5;
+  uint64 sequence = 6;
+  bytes previous_entry_hash = 7;
+  bytes entry_hash = 8;
+}
+
+// QtspDecisionRecord records qualified trust and QTSP decisions with digests of
+// sensitive inputs, not raw evidence.
+message QtspDecisionRecord {
+  QtspDecisionKind kind = 1;
+  DecisionOutcome outcome = 2;
+  string input_sha256_b64url = 3;
+  UnixTimestamp decided_at = 4;
+}
+
+// FlowSnapshot is a proto-first resumable flow state envelope. The state bytes
+// are encoded by wallet-core, not JSON.
+message FlowSnapshot {
+  string id = 1;
+  FlowKind kind = 2;
+  bytes state = 3;
+  UnixTimestamp updated_at = 4;
+  // Version of the kind-specific protobuf stored in state. Zero is invalid;
+  // readers fail closed for versions they do not explicitly support.
+  uint32 state_schema_version = 5;
+}
+
+// WalletLifecycleRecord is the durable Wallet Unit lifecycle state. Prompts,
+// encrypted persistence, and platform recovery UX remain outside wallet-core.
+message WalletLifecycleRecord {
+  string wallet_instance_id = 1;
+  WalletLifecycleState state = 2;
+  UnixTimestamp updated_at = 3;
+  WalletLifecycleEvent last_event = 4;
+  WalletLifecycleState resume_state = 5;
+  WalletLifecycleState failed_from = 6;
+  // Evidence is persisted in the same compare-and-swap record as the state.
+  WalletLifecycleEvidenceRecord last_evidence = 7;
+}
+
+// WalletLifecycleEvidenceRecord is append-only audit evidence for lifecycle
+// operations such as backup, restore, migration, portability, withdrawal, and
+// deletion. Full provider receipts stay in SDK/platform storage.
+message WalletLifecycleEvidenceRecord {
+  string id = 1;
+  string wallet_instance_id = 2;
+  WalletLifecycleEvidenceKind kind = 3;
+  WalletLifecycleEvent event = 4;
+  UnixTimestamp occurred_at = 5;
+  string authority_id = 6;
+  string evidence_ref = 7;
+  bytes evidence_digest = 8;
+}
+
+// OpenId4VciIssuanceSnapshot is the wallet-owned payload for FlowSnapshot.state
+// when FlowSnapshot.kind is FLOW_KIND_ISSUANCE. The protocol DTOs are imported
+// from reallyme.openid4vci.v1; wallet-core owns only local sequencing.
+// reallyme.security: sensitive-owner
+// Protocol snapshots transitively own issuer-provided credential material.
+message OpenId4VciCredentialReusePolicySelection {
+  string credential_configuration_id = 1;
+  OpenId4VciCredentialReuseMethod method = 2;
+  optional uint32 batch_size = 3;
+  optional uint32 reissue_trigger_unused = 4;
+  optional uint64 reissue_trigger_lifetime_left_seconds = 5;
+}
+
+message OpenId4VciIssuanceSnapshot {
+  OpenId4VciIssuanceStage stage = 1;
+  reallyme.openid4vci.v1.CredentialOffer credential_offer = 2;
+  reallyme.openid4vci.v1.CredentialRequest credential_request = 3;
+  reallyme.openid4vci.v1.CredentialResponse credential_response = 4;
+  string deferred_transaction_id = 5;
+  uint64 deferred_interval_seconds = 6;
+  string notification_id = 7;
+  // Kept for backward-compatible decoding of V1 single-credential snapshots.
+  string credential_record_id = 8;
+  // Canonical stored inventory set. Writers use this field for both single and
+  // batch issuance; readers accept field 8 only when this field is empty.
+  repeated string credential_record_ids = 9;
+  // Opaque handle retained through stored state so token-vault cleanup can
+  // resume after a crash even when no notification callback was requested.
+  string access_token_binding_handle = 10;
+  string notification_endpoint = 11;
+  // Verified Wallet Unit Attestation needed to resume deferred issuance.
+  WalletUnitAttestation wallet_unit_attestation = 12;
+  // Ordered opaque credential-binding key handles authenticated by the proof
+  // verifier. The order preserves OpenID4VCI proof provenance only; issued
+  // credentials authenticate one member of this set because response order is
+  // unrelated to proof order. These handles are distinct from the Wallet Unit
+  // Attestation authentication key when using per-credential binding keys.
+  repeated string credential_binding_key_handle_ids = 13;
+  // Immutable policy selected from authenticated Credential Issuer Metadata.
+  // Legacy snapshots omit this field and are treated as unrestricted only.
+  OpenId4VciCredentialReusePolicySelection credential_reuse_policy = 14;
+  // Exact issuer-metadata profile enforced at session creation. Legacy V1
+  // snapshots omit this field and are interpreted as generic OpenID4VCI.
+  OpenId4VciIssuerMetadataProfile issuer_metadata_profile = 15;
+  // Authenticated observation matched to signed holder proof nonce claims.
+  IssuerNonceBinding issuer_nonce_binding = 16;
+}
+
+// OpenId4VciNotificationOutboxEntry contains only an opaque secure-token
+// binding handle. Bearer token material is never persisted in wallet state.
+// reallyme.security: sensitive-owner
+message OpenId4VciNotificationOutboxEntry {
+  string notification_id = 1;
+  string notification_endpoint = 2;
+  string access_token_binding_handle = 3;
+  OpenId4VciNotificationDeliveryState delivery_state = 4;
+  uint32 delivery_attempts = 5;
+  UnixTimestamp updated_at = 6;
+  string credential_issuer = 7;
+}
+
+// OpenId4VciIssuanceCommit is the single atomic storage unit for an issuance
+// completion. Providers must publish all records, the resumable snapshot, and
+// the optional notification outbox entry or publish none of them.
+// reallyme.security: sensitive-owner
+message OpenId4VciIssuanceCommit {
+  bytes idempotency_key = 1;
+  bytes request_digest = 2;
+  repeated CredentialRecord credential_records = 3;
+  FlowSnapshot flow_snapshot = 4;
+  OpenId4VciNotificationOutboxEntry notification_outbox = 5;
+}
+
+// OpenId4VpPresentationSnapshot is the wallet-owned payload for
+// FlowSnapshot.state when FlowSnapshot.kind is FLOW_KIND_PRESENTATION. The
+// OpenID4VP request/response projections are imported from reallyme.openid4vp.v1.
+// reallyme.security: sensitive-owner
+// Presentation snapshots transitively own requests, responses, and consent.
+message OpenId4VpPresentationSnapshot {
+  reallyme.openid4vp.v1.AuthorizationRequest authorization_request = 1;
+  string selected_query_id = 2;
+  repeated string credential_record_ids = 3;
+  ConsentCapture consent = 4;
+  reallyme.openid4vp.v1.AuthorizationResponse authorization_response = 5;
+}
+
+message PutCredentialRecordRequest {
+  CredentialRecord record = 1;
+}
+
+message PutCredentialRecordResponse {
+  string credential_id = 1;
+}
+
+message GetCredentialRecordRequest {
+  string credential_id = 1;
+}
+
+message GetCredentialRecordResponse {
+  CredentialRecord record = 1;
+}
+
+message ApplyCredentialStatusEvidenceRequest {
+  CredentialStatusEvidence evidence = 1;
+  UnixTimestamp now = 2;
+}
+
+message ApplyCredentialStatusEvidenceResponse {
+  CredentialRecord record = 1;
+  CredentialLifecycleStatus previous_status = 2;
+  CredentialLifecycleStatus current_status = 3;
+  bool changed = 4;
+}
+
+message DeleteCredentialRecordRequest {
+  string credential_id = 1;
+}
+
+message DeleteCredentialRecordResponse {}
+
+message ClaimPresentationCopyRequest {
+  string credential_id = 1;
+  PresentationCopyClaimPolicy policy = 2;
+  // Exact consent-selected copy. A claim never chooses the first available copy.
+  string copy_id = 3;
+  // Required with ACTIVE_ZK_CREDENTIAL; compared before the durable burn.
+  bytes prepared_claim_selector_digest = 4;
+}
+
+message ClaimPresentationCopyResponse {
+  OnceOnlyPresentationCopy copy = 1;
+}
+
+message EvaluateVerifierEntitlementRequest {
+  VerifierEntitlement entitlement = 1;
+  ConsentScope requested_scope = 2;
+  UnixTimestamp now = 3;
+}
+
+message EvaluateVerifierEntitlementResponse {
+  DisclosurePolicyDecision decision = 1;
+}
+
+message AppendTransactionLogRequest {
+  TransactionLogEntry entry = 1;
+}
+
+message AppendTransactionLogResponse {}
+
+message AppendQtspDecisionRequest {
+  QtspDecisionRecord record = 1;
+}
+
+message AppendQtspDecisionResponse {}
+
+message SaveFlowSnapshotRequest {
+  FlowSnapshot snapshot = 1;
+  // Absence creates a new snapshot. Presence requires an atomic replacement
+  // of exactly this revision; providers must reject stale revisions.
+  RecordRevision expected_revision = 2;
+}
+
+message SaveFlowSnapshotResponse {
+  string snapshot_id = 1;
+  RecordRevision revision = 2;
+}
+
+message GetFlowSnapshotRequest {
+  string snapshot_id = 1;
+}
+
+message GetFlowSnapshotResponse {
+  FlowSnapshot snapshot = 1;
+  RecordRevision revision = 2;
+}
+
+// RecordRevision is an opaque provider generation. Wallet core checks exact
+// equality only; callers must not infer ordering or share revisions between
+// records or provider instances.
+message RecordRevision {
+  uint64 value = 1;
+}
+
+message PutWalletLifecycleRecordRequest {
+  WalletLifecycleRecord record = 1;
+}
+
+message PutWalletLifecycleRecordResponse {
+  string wallet_instance_id = 1;
+}
+
+message GetWalletLifecycleRecordRequest {
+  string wallet_instance_id = 1;
+}
+
+message GetWalletLifecycleRecordResponse {
+  WalletLifecycleRecord record = 1;
+}
+
+message ApplyWalletLifecycleEventRequest {
+  string wallet_instance_id = 1;
+  WalletLifecycleEvent event = 2;
+  // Legacy caller time is ignored. Runtime uses its trusted clock and evidence time.
+  UnixTimestamp now = 3 [deprecated = true];
+  WalletLifecycleEvidenceRecord evidence = 4;
+}
+
+message ApplyWalletLifecycleEventResponse {
+  WalletLifecycleRecord record = 1;
+}
+
+message AppendWalletLifecycleEvidenceRequest {
+  WalletLifecycleEvidenceRecord record = 1;
+}
+
+message AppendWalletLifecycleEvidenceResponse {}
+
+// IssuerNonceBinding retains authenticated freshness and session identity, not nonce plaintext.
+message IssuerNonceBinding {
+  bytes nonce_digest = 1;
+  bytes session_digest = 2;
+  int64 received_at = 3;
+  int64 expires_at = 4;
+}

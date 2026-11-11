@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "history-1",
+  "purpose": "presentation",
+  "outcome": "completed",
+  "reason": "none",
+  "relying_party_id": "https://reader.example",
+  "requested": [
+    "age"
+  ],
+  "presented": [
+    "age"
+  ],
+  "credential_ids": [
+    "credential-1"
+  ],
+  "consent_digest_hex": "0404040404040404040404040404040404040404040404040404040404040404",
+  "operation_id": "operation-1",
+  "occurred_at": 20,
+  "sequence": 1,
+  "previous_hash_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+  "entry_hash_hex": "051ce63c149ada69663be27eb37e7766c0c59c0e15214bc847aa2f270f810565",
+  "certification_evidence": false
+}

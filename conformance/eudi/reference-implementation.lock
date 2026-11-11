@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-07-12",
+  "status": "pinned_for_fixture_tracking",
+  "rule": "These upstream releases are pinned as fixture-tracking targets only. Treat them as certification evidence only after executed run outputs, fixture hashes, and test-suite artifacts are attached.",
+  "references": [
+    {
+      "id": "eudi-lib-ios-wallet-kit",
+      "repository": "https://github.com/eu-digital-identity-wallet/eudi-lib-ios-wallet-kit",
+      "release": "v0.33.1",
+      "commit": "6f007be",
+      "observed_release_date": "2026-06-19",
+      "purpose": "iOS wallet kit reference implementation surface"
+    },
+    {
+      "id": "av-app-android-wallet-ui",
+      "repository": "https://github.com/eu-digital-identity-wallet/av-app-android-wallet-ui",
+      "release": "2026.07-1",
+      "commit": "9f7c73b",
+      "observed_release_date": "2026-07-10",
+      "purpose": "Android age-verification wallet application reference surface"
+    },
+    {
+      "id": "av-app-ios-wallet-ui",
+      "repository": "https://github.com/eu-digital-identity-wallet/av-app-ios-wallet-ui",
+      "release": "2026.6.1",
+      "commit": "10539e0",
+      "observed_release_date": "2026-06-17",
+      "purpose": "iOS age-verification wallet application reference surface"
+    },
+    {
+      "id": "eudi-doc-testing-application",
+      "repository": "https://github.com/eu-digital-identity-wallet/eudi-doc-testing-application",
+      "release": "milestone/2026.Q1",
+      "commit": "62c4ba7",
+      "observed_release_date": "2026-05-26",
+      "purpose": "Functional E2E test application milestone"
+    }
+  ]
+}

@@ -1,0 +1,788 @@
+// SPDX-FileCopyrightText: 2026 ReallyMe Technologies Limited
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.openid4vp.v1;
+
+option java_multiple_files = true;
+option java_package = "me.really.openid4vp.v1";
+option swift_prefix = "ReallyMeOpenID4VP";
+
+// ClientIdentifierPrefix is the OpenID4VP 1.0 final client_id prefix.
+enum ClientIdentifierPrefix {
+  CLIENT_IDENTIFIER_PREFIX_UNSPECIFIED = 0;
+  CLIENT_IDENTIFIER_PREFIX_NONE = 1;
+  CLIENT_IDENTIFIER_PREFIX_REDIRECT_URI = 2;
+  CLIENT_IDENTIFIER_PREFIX_OPENID_FEDERATION = 3;
+  CLIENT_IDENTIFIER_PREFIX_DECENTRALIZED_IDENTIFIER = 4;
+  CLIENT_IDENTIFIER_PREFIX_VERIFIER_ATTESTATION = 5;
+  CLIENT_IDENTIFIER_PREFIX_X509_SAN_DNS = 6;
+  CLIENT_IDENTIFIER_PREFIX_X509_HASH = 7;
+  CLIENT_IDENTIFIER_PREFIX_ORIGIN = 8;
+}
+
+// ResponseType is the OpenID4VP response_type.
+enum ResponseType {
+  RESPONSE_TYPE_UNSPECIFIED = 0;
+  RESPONSE_TYPE_VP_TOKEN = 1;
+  reserved 2;
+  reserved "RESPONSE_TYPE_VP_TOKEN_ID_TOKEN";
+}
+
+// ResponseMode is the OpenID4VP response_mode.
+enum ResponseMode {
+  RESPONSE_MODE_UNSPECIFIED = 0;
+  RESPONSE_MODE_FRAGMENT = 1;
+  RESPONSE_MODE_FORM_POST = 2;
+  RESPONSE_MODE_DIRECT_POST = 3;
+  RESPONSE_MODE_DIRECT_POST_JWT = 4;
+  RESPONSE_MODE_DC_API = 5;
+  RESPONSE_MODE_DC_API_JWT = 6;
+}
+
+// RequestUriMethod identifies how a request_uri is dereferenced.
+enum RequestUriMethod {
+  REQUEST_URI_METHOD_UNSPECIFIED = 0;
+  REQUEST_URI_METHOD_GET = 1;
+  REQUEST_URI_METHOD_POST = 2;
+}
+
+// ProblemKind is the deterministic RFC 9457 error taxonomy.
+enum ProblemKind {
+  PROBLEM_KIND_UNSPECIFIED = 0;
+  PROBLEM_KIND_INVALID_REQUEST = 1;
+  PROBLEM_KIND_INVALID_REQUEST_OBJECT = 2;
+  PROBLEM_KIND_INVALID_CLIENT_IDENTIFIER = 3;
+  PROBLEM_KIND_INVALID_DCQL_QUERY = 4;
+  PROBLEM_KIND_UNSATISFIED_DCQL_QUERY = 5;
+  PROBLEM_KIND_BINDING_EXPIRED = 6;
+  PROBLEM_KIND_SESSION_NOT_FOUND = 7;
+  PROBLEM_KIND_SESSION_MISMATCH = 8;
+  PROBLEM_KIND_UNSUPPORTED_FEATURE = 9;
+  PROBLEM_KIND_WALLET_UNAVAILABLE = 10;
+  PROBLEM_KIND_INTERNAL = 11;
+}
+
+// OpenId4VpErrorReason is the OpenID4VP component-specific reason-code enum carried by
+// reallyme.identity.common.v1.IdentityStackError when domain is OPENID4VP.
+// The enum is local to this repository; identity common owns only the neutral
+// cross-stack envelope.
+enum OpenId4VpErrorReason {
+  OPEN_ID4_VP_ERROR_REASON_UNSPECIFIED = 0;
+
+  OPEN_ID4_VP_ERROR_REASON_TYPE_EMPTY_VALUE = 100;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_EMPTY_COLLECTION = 101;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_INVALID_CLIENT_IDENTIFIER_PREFIX = 102;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_UNSUPPORTED_METADATA_CAPABILITY = 103;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_UNSUPPORTED_TRANSACTION_DATA_HASH_ALGORITHM = 104;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_INVALID_REQUEST_OBJECT_JWT = 105;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_SERIALIZATION_FAILED = 106;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_INVALID_ENCODING = 107;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_JSON_DEPTH_EXCEEDED = 108;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_EMPTY_PRESENTATION_LIST = 109;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_JSON_SIZE_EXCEEDED = 110;
+  OPEN_ID4_VP_ERROR_REASON_TYPE_DUPLICATE_JSON_KEY = 111;
+
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_INVALID_REQUEST = 200;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_INVALID_REQUEST_OBJECT = 201;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_INVALID_CLIENT_IDENTIFIER = 202;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_INVALID_DCQL_QUERY = 203;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_UNSATISFIED_DCQL_QUERY = 204;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_BINDING_EXPIRED = 205;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_SESSION_NOT_FOUND = 206;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_SESSION_MISMATCH = 207;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_UNSUPPORTED_FEATURE = 208;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_WALLET_UNAVAILABLE = 209;
+  OPEN_ID4_VP_ERROR_REASON_PROBLEM_INTERNAL = 210;
+
+  OPEN_ID4_VP_ERROR_REASON_DCQL_INVALID_JSON = 300;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_EMPTY_VALUE = 301;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_INVALID_IDENTIFIER = 302;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_DUPLICATE_IDENTIFIER = 303;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_CLAIM_SETS_WITHOUT_CLAIMS = 304;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_UNKNOWN_REFERENCE = 305;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_INVALID_CLAIMS_PATH = 306;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_CLAIMS_PATH_MISMATCH = 307;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_INVALID_CLAIM_VALUE = 308;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_QUERY_TOO_LARGE = 309;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_INVALID_CREDENTIAL_METADATA = 310;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_UNSATISFIED_REQUIRED_CREDENTIAL = 311;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_DUPLICATE_JSON_KEY = 312;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_MISSING_CLAIM_IDENTIFIER = 313;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_UNSUPPORTED_TRUSTED_AUTHORITY_TYPE = 314;
+  OPEN_ID4_VP_ERROR_REASON_DCQL_UNSUPPORTED_CLAIM_PROPERTY = 315;
+
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_INVALID_REQUEST_OBJECT = 400;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_MISSING_ISSUER = 401;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_MISSING_AUDIENCE = 402;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_MISSING_CLIENT_IDENTIFIER = 403;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_MISSING_NONCE = 404;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_ISSUER_CLIENT_IDENTIFIER_MISMATCH = 405;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_MISSING_EXPIRATION = 406;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_MISSING_ISSUED_AT = 407;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_CLOCK_UNAVAILABLE = 408;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_REQUEST_OBJECT_EXPIRED = 409;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_REQUEST_OBJECT_ISSUED_IN_FUTURE = 410;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_REQUEST_OBJECT_LIFETIME_TOO_LONG = 411;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_INVALID_REQUEST_URI = 412;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_INVALID_BINDING = 413;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_MISSING_HOLDER_BINDING_CLAIM = 414;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_HOLDER_BINDING_AUDIENCE_MISMATCH = 415;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_HOLDER_BINDING_NONCE_MISMATCH = 416;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_HOLDER_BINDING_EXPIRED = 417;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_BINDING_EXPIRED = 418;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_SESSION_NOT_FOUND = 419;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_SESSION_MISMATCH = 420;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_EMPTY_VP_TOKEN = 421;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_EMPTY_PRESENTATION_LIST = 422;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_VP_TOKEN_QUERY_MISMATCH = 423;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_VP_TOKEN_CARDINALITY_MISMATCH = 424;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_UNSUPPORTED_FORMAT = 425;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_INVALID_ZK_PRESENTATION = 426;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_CREDENTIAL_REVOKED = 427;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_INVALID_CREDENTIAL_STATUS = 428;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_CREDENTIAL_STATUS_UNAVAILABLE = 429;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_INVALID_CREDENTIAL_VALIDITY = 430;
+  OPEN_ID4_VP_ERROR_REASON_VERIFIER_INVALID_ROOT_ASSURANCE_STATUS = 431;
+
+  OPEN_ID4_VP_ERROR_REASON_WALLET_INVALID_AUTHORIZATION_REQUEST_TRANSPORT = 500;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_DUPLICATE_AUTHORIZATION_REQUEST_PARAMETER = 501;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_CONFLICTING_REQUEST_OBJECT_PARAMETERS = 502;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_MISSING_WALLET_NONCE = 503;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_UNEXPECTED_WALLET_NONCE = 504;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_UNSUPPORTED_REQUEST_URI_METHOD = 505;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_TRANSPORT_CLIENT_IDENTIFIER_MISMATCH = 506;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_RESPONSE_ENDPOINT_CLIENT_IDENTIFIER_MISMATCH = 507;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_TRANSPORT_WALLET_NONCE_MISMATCH = 508;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_REQUEST_OBJECT_TOO_LARGE = 509;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_INVALID_REQUEST_OBJECT = 510;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_REQUEST_OBJECT_EXPIRED = 511;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_REQUEST_OBJECT_ISSUED_IN_FUTURE = 512;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_INVALID_CLIENT_IDENTIFIER_PREFIX = 513;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_INVALID_VERIFIER_ATTESTATION = 514;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_INVALID_METADATA_REFERENCE = 515;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_EXPECTED_ORIGIN_MISMATCH = 516;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_UNSUPPORTED_FEATURE = 517;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_ZK_DERIVATION_FAILED = 518;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_MISSING_X509_CERTIFICATE_CHAIN = 519;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_MALFORMED_X509_CERTIFICATE_CHAIN = 520;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_UNSUPPORTED_X509_CERTIFICATE_ALGORITHM = 521;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_X509_LEAF_KEY_MISMATCH = 522;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_X509_CERTIFICATE_HASH_MISMATCH = 523;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_X509_CERTIFICATE_SAN_MISMATCH = 524;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_X509_CERTIFICATE_PATH_REJECTED = 525;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_X509_TRUST_EVIDENCE_UNAVAILABLE = 526;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_X509_TRUST_EVIDENCE_STALE = 527;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_UNSUPPORTED_CLIENT_IDENTIFIER_MODE = 528;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_INVALID_REQUEST_OBJECT_SIGNATURE = 529;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_UNSUPPORTED_REQUEST_OBJECT_ALGORITHM = 530;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_INVALID_TRANSACTION_DATA = 531;
+  OPEN_ID4_VP_ERROR_REASON_WALLET_INVALID_VERIFIER_METADATA = 532;
+
+  OPEN_ID4_VP_ERROR_REASON_MDOC_INVALID_DEVICE_RESPONSE = 600;
+  OPEN_ID4_VP_ERROR_REASON_MDOC_INVALID_ISSUER_AUTHENTICATION = 601;
+  OPEN_ID4_VP_ERROR_REASON_MDOC_INVALID_DEVICE_AUTHENTICATION = 602;
+  OPEN_ID4_VP_ERROR_REASON_MDOC_SESSION_TRANSCRIPT_MISMATCH = 603;
+  OPEN_ID4_VP_ERROR_REASON_MDOC_DOCUMENT_TYPE_MISMATCH = 604;
+  OPEN_ID4_VP_ERROR_REASON_MDOC_EXPIRED = 605;
+  OPEN_ID4_VP_ERROR_REASON_MDOC_UNSUPPORTED_OPERATION = 606;
+
+  OPEN_ID4_VP_ERROR_REASON_ZK_UNKNOWN_CIRCUIT = 700;
+  OPEN_ID4_VP_ERROR_REASON_ZK_UNSUPPORTED_CIRCUIT = 701;
+  OPEN_ID4_VP_ERROR_REASON_ZK_INVALID_PRESENTATION_ENCODING = 702;
+  OPEN_ID4_VP_ERROR_REASON_ZK_INVALID_PROOF = 703;
+  OPEN_ID4_VP_ERROR_REASON_ZK_BINDING_MISMATCH = 704;
+  OPEN_ID4_VP_ERROR_REASON_ZK_VERIFIER_UNAVAILABLE = 705;
+  OPEN_ID4_VP_ERROR_REASON_ZK_CIRCUIT_VERIFICATION_MISMATCH = 706;
+  OPEN_ID4_VP_ERROR_REASON_ZK_UNSUPPORTED_PROOF_SUITE = 707;
+
+  OPEN_ID4_VP_ERROR_REASON_DC_API_EMPTY_VALUE = 800;
+  OPEN_ID4_VP_ERROR_REASON_DC_API_EMPTY_REQUEST_SET = 801;
+  OPEN_ID4_VP_ERROR_REASON_DC_API_INVALID_PROTOCOL = 802;
+  OPEN_ID4_VP_ERROR_REASON_DC_API_HANDOVER_ENCODING_FAILED = 803;
+  OPEN_ID4_VP_ERROR_REASON_DC_API_INVALID_REQUEST_OBJECT = 804;
+  OPEN_ID4_VP_ERROR_REASON_DC_API_REQUEST_OBJECT_TOO_LARGE = 805;
+  OPEN_ID4_VP_ERROR_REASON_DC_API_TOO_MANY_REQUEST_OBJECT_SIGNATURES = 806;
+
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_MISSING_FIELD = 900;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_INVALID_PROTO = 901;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_MISSING_SIGNER = 902;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_UNSUPPORTED_FEATURE = 903;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_SIGNING_FAILED = 904;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_MISSING_RESPONSE_JWT_DECRYPTOR = 905;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_INVALID_RESPONSE_JWT = 906;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_RESPONSE_JWT_DECRYPTION_FAILED = 907;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_CLOCK_UNAVAILABLE = 908;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_REQUEST_OBJECT_NOT_FOUND = 909;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_RESPONSE_VALIDATION_FAILED = 910;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_INVALID_HTTP_METHOD = 911;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_INVALID_CONTENT_TYPE = 912;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_INVALID_ACCEPT_HEADER = 913;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_BODY_TOO_LARGE = 914;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_INVALID_FORM_BODY = 915;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_MISSING_FORM_FIELD = 916;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_DUPLICATE_FORM_FIELD = 917;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_WALLET_NONCE_MISMATCH = 918;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_LAUNCH_STORE_FAILED = 919;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_LAUNCH_ENCODING_FAILED = 920;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_MISSING_VERIFIED_RESPONSE_STORE = 921;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_VERIFIED_RESPONSE_STORE_FAILED = 922;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_INVALID_RESPONSE_CODE = 923;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_SESSION_CONSUME_FAILED = 924;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_SESSION_NOT_FOUND = 925;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_SESSION_ALREADY_CONSUMED = 926;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_SESSION_RESERVATION_CONFLICT = 927;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_SESSION_RELEASE_FAILED = 928;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_SESSION_COMMIT_FAILED = 929;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_INVALID_FOLLOW_BACK_REQUIREMENT = 930;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_FOLLOW_BACK_SESSION_MISMATCH = 931;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_FOLLOW_BACK_EXPIRED = 932;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_FOLLOW_BACK_ALREADY_REDEEMED = 933;
+  OPEN_ID4_VP_ERROR_REASON_RUNTIME_FOLLOW_BACK_REDEMPTION_FAILED = 934;
+
+  OPEN_ID4_VP_ERROR_REASON_PROTO_DECODE = 1000;
+  OPEN_ID4_VP_ERROR_REASON_PROTO_ENCODE = 1001;
+  OPEN_ID4_VP_ERROR_REASON_PROTO_MISSING_FIELD = 1002;
+  OPEN_ID4_VP_ERROR_REASON_PROTO_INVALID_ENUM_VALUE = 1003;
+  OPEN_ID4_VP_ERROR_REASON_PROTO_INVALID_FIELD = 1004;
+  OPEN_ID4_VP_ERROR_REASON_PROTO_JSON_SERIALIZE = 1005;
+  OPEN_ID4_VP_ERROR_REASON_PROTO_JSON_DESERIALIZE = 1006;
+  OPEN_ID4_VP_ERROR_REASON_PROTO_JSON_TOO_LARGE = 1007;
+  OPEN_ID4_VP_ERROR_REASON_PROTO_JSON_NESTING_TOO_DEEP = 1008;
+  OPEN_ID4_VP_ERROR_REASON_PROTO_JSON_DUPLICATE_KEY = 1009;
+}
+
+// DcApiRequestKind is the OpenID4VP Digital Credentials API protocol kind.
+enum DcApiRequestKind {
+  DC_API_REQUEST_KIND_UNSPECIFIED = 0;
+  DC_API_REQUEST_KIND_UNSIGNED = 1;
+  DC_API_REQUEST_KIND_SIGNED = 2;
+  DC_API_REQUEST_KIND_MULTISIGNED = 3;
+}
+
+// PresentationValue is one presentation value inside a DCQL-keyed vp_token entry.
+message PresentationValue {
+  oneof kind {
+    // Compact string presentation, such as SD-JWT VC.
+    string compact = 1;
+    // JSON-native presentation encoded as canonical UTF-8 JSON bytes. The
+    // proto codec enforces a 2 MiB limit, 64-level nesting, and unique keys.
+    bytes json = 2;
+    // ReallyMe ZK presentation envelope.
+    ZkPresentation zk = 3;
+    // Canonical ReallyMe prepared-persona presentation protobuf. The proof,
+    // current status evidence, and fresh holder signature remain one object.
+    bytes zk_prepared_persona = 4;
+  }
+}
+
+// DerivedClaimStatement is one non-PII statement proven by a ZK presentation.
+message DerivedClaimStatement {
+  string statement_id = 1;
+  string statement = 2;
+}
+
+// ZkPresentationBinding carries the session hashes that an external proof
+// verifier must authenticate against the active OpenID4VP request.
+message ZkPresentationBinding {
+  bytes nonce_hash = 1;
+  bytes audience_hash = 2;
+  optional bytes transaction_data_hash = 3;
+}
+
+// ZkPresentationProofSuite identifies every approved proof-system option that
+// affects verification. Unrecognized suites fail closed at the codec boundary.
+enum ZkPresentationProofSuite {
+  ZK_PRESENTATION_PROOF_SUITE_UNSPECIFIED = 0;
+  ZK_PRESENTATION_PROOF_SUITE_BARRETENBERG_ULTRA_HONK_KECCAK_ZK_NO_IPA = 1;
+}
+
+// ZkPresentationProfile identifies the complete credential-proof profile.
+enum ZkPresentationProfile {
+  ZK_PRESENTATION_PROFILE_UNSPECIFIED = 0;
+  ZK_PRESENTATION_PROFILE_CREDENTIAL_SUBJECT_CLAIM_V1 = 1;
+  ZK_PRESENTATION_PROFILE_PRIVATE_PERSONA_CLAIM_V1 = 2;
+  ZK_PRESENTATION_PROFILE_COMMON_CREDENTIAL_ROOT_PRIVATE_PERSONA_V1 = 4;
+  ZK_PRESENTATION_PROFILE_COMMON_CREDENTIAL_ROOT_PUBLIC_PERSONA_V1 = 5;
+}
+
+// ZkPresentationStageKind identifies one required production proof stage.
+enum ZkPresentationStageKind {
+  ZK_PRESENTATION_STAGE_KIND_UNSPECIFIED = 0;
+  ZK_PRESENTATION_STAGE_KIND_SESSION = 1;
+  ZK_PRESENTATION_STAGE_KIND_CREDENTIAL_ENVELOPE = 2;
+  ZK_PRESENTATION_STAGE_KIND_CREDENTIAL_ROOT = 3;
+  ZK_PRESENTATION_STAGE_KIND_CLAIM = 4;
+  ZK_PRESENTATION_STAGE_KIND_ROOT_ATTESTATION = 5;
+  ZK_PRESENTATION_STAGE_KIND_ROOT_STATUS = 6;
+  ZK_PRESENTATION_STAGE_KIND_LINEAGE_0 = 7;
+  ZK_PRESENTATION_STAGE_KIND_LINEAGE_1 = 8;
+  ZK_PRESENTATION_STAGE_KIND_SELECTED_CLAIM_0 = 9;
+  ZK_PRESENTATION_STAGE_KIND_SELECTED_CLAIM_1 = 10;
+  ZK_PRESENTATION_STAGE_KIND_ISSUER_CREDENTIAL_STATUS_0 = 11;
+  ZK_PRESENTATION_STAGE_KIND_ISSUER_CREDENTIAL_STATUS_1 = 12;
+  ZK_PRESENTATION_STAGE_KIND_ISSUER_CREDENTIAL_STATUS = 13;
+}
+
+// ZkPresentation is the OpenID4VP vp_token envelope for a ReallyMe ZK proof.
+message ZkPresentation {
+  reserved 2, 3, 4, 7, 9;
+  reserved "circuit_id", "proof", "public_inputs", "circuit_ref", "artifact_manifest_sha256";
+
+  string type = 1;
+  repeated DerivedClaimStatement derived_claims = 5;
+  ZkPresentationBinding binding = 6;
+  ZkPresentationProofSuite proof_suite = 8;
+  ZkPresentationProfile profile = 10;
+  repeated ZkPresentationStage stages = 11;
+}
+
+// ZkPresentationStage carries one exact circuit proof in the production bundle.
+message ZkPresentationStage {
+  ZkPresentationStageKind stage = 1;
+  ZkPresentationCircuitRef circuit_ref = 2;
+  bytes artifact_manifest_sha256 = 3;
+  bytes proof = 4;
+  bytes public_inputs = 5;
+  // The codec requires exactly one artifact digest. Separate fields keep the
+  // manifest tag and its generated representation compatible with v1 readers.
+  optional bytes artifact_set_identity_sha256 = 6;
+}
+
+// ZkPresentationCircuitRef names the exact imported circuit source used by
+// an artifact-backed proof. The presentation profile remains the policy-level
+// stable identifier; this ref binds verifier backends to concrete artifacts.
+message ZkPresentationCircuitRef {
+  string hash_strategy = 1;
+  string family = 2;
+  string stage = 3;
+  uint32 version = 4;
+}
+
+// ClientIdentifier carries the parsed final-spec client_id.
+message ClientIdentifier {
+  ClientIdentifierPrefix prefix = 1;
+  string identifier = 2;
+  string wire_value = 3;
+}
+
+// ClientMetadata carries verifier metadata as canonical UTF-8 JSON bytes. The
+// proto codec enforces a 256 KiB limit, 64-level nesting, and unique keys.
+message ClientMetadata {
+  bytes json = 1;
+}
+
+// TransactionData is the OpenID4VP final transaction_data object.
+message TransactionData {
+  string type = 1;
+  repeated string credential_ids = 2;
+  // Profile payload encoded as canonical UTF-8 JSON bytes. The proto codec
+  // enforces a 256 KiB limit, 64-level nesting, and unique keys.
+  bytes payload_json = 3;
+  // Exact final-spec base64url string received on the wire. Hashing this
+  // retained value avoids silently changing a valid non-canonical JSON input.
+  optional string encoded_value = 4;
+}
+
+// VerifierInfo is a profile-defined attestation carried by verifier_info.
+// Its data is JSON because OpenID4VP permits either an object or a string.
+// Consumers must authenticate and bind it before using it for authorization.
+// VerifierInfoCredentialIds preserves the distinction between omission and an
+// explicitly empty credential_ids list, which OpenID4VP rejects.
+message VerifierInfoCredentialIds {
+  repeated string values = 1;
+}
+
+// VerifierInfo carries one untrusted attestation. Authorization requires
+// format-specific proof, issuer trust, and requester binding checks.
+message VerifierInfo {
+  string format = 1;
+  // UTF-8 JSON object or string; the codec enforces type and size bounds.
+  bytes data_json = 2;
+  optional VerifierInfoCredentialIds credential_ids = 3;
+}
+
+// VerifierInfoSet preserves a present but empty verifier_info array so the
+// codec can reject it under the OpenID4VP non-empty-array rule.
+message VerifierInfoSet {
+  repeated VerifierInfo entries = 1;
+}
+
+// AuthorizationRequest is the final OpenID4VP request object projection.
+message AuthorizationRequest {
+  optional ClientIdentifier client_id = 1;
+  ResponseType response_type = 2;
+  optional ResponseMode response_mode = 3;
+  optional string response_uri = 4;
+  optional string redirect_uri = 5;
+  string nonce = 6;
+  optional string wallet_nonce = 7;
+  optional string state = 8;
+  // DCQL remains a JSON-defined query language; this field carries canonical
+  // UTF-8 JSON bytes for the dcql_query object. The proto codec enforces a
+  // 256 KiB limit, 64-level nesting, unique keys, and DCQL validation.
+  bytes dcql_query_json = 9;
+  repeated TransactionData transaction_data = 10;
+  optional ClientMetadata client_metadata = 11;
+  repeated string expected_origins = 12;
+  optional string iss = 13;
+  repeated string aud = 14;
+  optional uint64 iat = 15;
+  optional uint64 exp = 16;
+  // Non-standard metadata-by-reference extension. Wallet validation rejects
+  // this unless the host injects fresh trusted metadata evidence.
+  optional string client_metadata_uri = 17;
+  // Signed Request Object attestations; never an authorization receipt by itself.
+  optional VerifierInfoSet verifier_info = 18;
+}
+
+// VpTokenEntry is one final-spec vp_token object member keyed by DCQL query id.
+message VpTokenEntry {
+  string query_id = 1;
+  repeated PresentationValue presentations = 2;
+}
+
+// AuthorizationResponse is the final OpenID4VP response object projection.
+message AuthorizationResponse {
+  repeated VpTokenEntry vp_token = 1;
+  optional string state = 2;
+  // Transaction-data bindings belong inside each format-specific holder proof,
+  // not in the OpenID4VP Authorization Response object.
+  reserved 3, 4;
+}
+
+// RequestBinding is verifier session binding material.
+message TransactionDataBinding {
+  // DCQL credential-query identifier whose holder proof carries the digest.
+  string query_id = 1;
+  // Registered digest algorithm name. OpenID4VP currently defines sha-256.
+  string algorithm = 2;
+  // Digest over the exact encoded transaction_data string.
+  bytes digest = 3;
+}
+
+message RequestBinding {
+  ClientIdentifier client_id = 1;
+  string nonce = 2;
+  optional string response_uri = 3;
+  optional string redirect_uri = 4;
+  uint64 expiry_unix = 5;
+  // Field 6 held one lossy digest before ordered, query-scoped bindings were
+  // implemented. It must never be reused because persisted sessions can outlive
+  // a binary rollout.
+  reserved 6;
+  // Browser origin used instead of an HTTP response endpoint for DC API modes.
+  optional string dc_api_origin = 7;
+  // Ordered bindings. Duplicate transaction_data entries are significant and
+  // therefore intentionally preserved.
+  repeated TransactionDataBinding transaction_data_bindings = 8;
+  // Verifier-owned Authorization Request issued-at timestamp retained with the
+  // one-time session so request-bound proofs do not depend on response arrival
+  // time.
+  uint64 request_time_unix = 9;
+}
+
+// HolderBindingClaims is the decoded holder proof subset checked by OpenID4VP.
+message HolderBindingClaims {
+  repeated string audience = 1;
+  string nonce = 2;
+  uint64 expiration_unix = 3;
+  uint64 issued_at_unix = 4;
+  optional string sd_hash = 5;
+  // Digests extracted only after the format-specific holder proof verifies.
+  repeated bytes transaction_data_hashes = 6;
+  optional string transaction_data_hashes_alg = 7;
+}
+
+// SessionRecord is verifier session state retained between request and response.
+message SessionRecord {
+  RequestBinding binding = 1;
+  optional string state = 2;
+  // DCQL query used to create the request; retained for response validation.
+  // The same 256 KiB, 64-level, unique-key policy applies here.
+  bytes dcql_query_json = 3;
+  // Exact canonical ISO SessionTranscript CBOR retained at request launch.
+  // Absent for sessions that cannot select mdoc; otherwise limited to 256 bytes.
+  optional bytes mdoc_session_transcript_cbor = 4;
+  // HTTPS destination returned after a successful direct-post response.
+  // This is distinct from the Authorization Request redirect_uri and is
+  // required by HAIP 1.0 while remaining optional in base OpenID4VP.
+  optional string post_response_redirect_uri = 5;
+  // Exact response mode negotiated for this one-time session. Runtime
+  // endpoints reject a plaintext/encrypted route mismatch before validation.
+  ResponseMode response_mode = 6;
+  // SHA-256 JWK thumbprint used when the retained mdoc SessionTranscript was
+  // built. Absent only when the selected handover profile has no response key.
+  // Decoders require exactly 32 bytes when this field is present.
+  optional bytes mdoc_response_key_thumbprint_sha256 = 7;
+  // Opaque initiating browser-session receipt plus the absolute deadline for
+  // the one-time HAIP same-device follow-back. The binding is exactly 32 bytes.
+  optional FollowBackRequirement follow_back_requirement = 8;
+}
+
+message FollowBackRequirement {
+  bytes browser_session_binding = 1;
+  uint64 expires_unix = 2;
+}
+
+// HostedRequestObject is verifier request_uri state retained between launch
+// and wallet retrieval. Deferred POST material is encoded as the canonical
+// AuthorizationRequest rather than a second JSON model.
+message HostedRequestObject {
+  oneof material {
+    string signed_request_object_jwt = 1;
+    AuthorizationRequest deferred_post_authorization_request = 2;
+  }
+}
+
+// ProblemDetails is the RFC 9457 problem details projection.
+message ProblemDetails {
+  string type = 1;
+  string title = 2;
+  uint32 status = 3;
+  optional string instance = 4;
+  ProblemKind kind = 5;
+}
+
+// DirectPostSuccessResponse is the JSON body returned after the verifier
+// accepts an Authorization Response at its response_uri.
+message DirectPostSuccessResponse {
+  // HAIP 1.0 requires this destination; base OpenID4VP permits omission.
+  optional string redirect_uri = 1 [json_name = "redirect_uri"];
+  // Opaque, single-use code redeemable for the durably stored verified result.
+  optional string response_code = 2 [json_name = "response_code"];
+}
+
+// RequestJwt transport carries a by-value Request Object JWT.
+message RequestJwtTransport {
+  string jwt = 1;
+  optional string expected_client_id = 2;
+  optional string expected_wallet_nonce = 3;
+}
+
+// RequestUri transport carries a by-reference Request Object.
+message RequestUriTransport {
+  string uri = 1;
+  RequestUriMethod method = 2;
+  optional string wallet_nonce = 3;
+  optional string expected_client_id = 4;
+}
+
+// InlineParam is one explicitly named development/interop parameter. A
+// repeated message is used instead of a protobuf map so duplicate names remain
+// observable and can be rejected by the strict codec boundary.
+message InlineParam {
+  string name = 1;
+  string value = 2;
+}
+
+// InlineParams transport is only for explicit development or interop lab policy.
+message InlineParamsTransport {
+  repeated InlineParam params = 1;
+}
+
+// AuthorizationRequestTransport classifies the inbound authorization request.
+message AuthorizationRequestTransport {
+  oneof transport {
+    RequestJwtTransport request_jwt = 1;
+    RequestUriTransport request_uri = 2;
+    InlineParamsTransport inline_params = 3;
+  }
+}
+
+// DcApiProtocol identifies the W3C Digital Credentials API OpenID4VP protocol.
+message DcApiProtocol {
+  uint32 version = 1;
+  DcApiRequestKind kind = 2;
+}
+
+// JwsJsonSignature is one protected signature over a JWS JSON shared payload.
+message JwsJsonSignature {
+  string protected = 1;
+  string signature = 2;
+}
+
+// JwsJsonGeneral is RFC 7515 JWS JSON General Serialization.
+message JwsJsonGeneral {
+  string payload = 1;
+  repeated JwsJsonSignature signatures = 2;
+}
+
+// DigitalCredentialGetRequest is one navigator.credentials.get request entry.
+message DigitalCredentialGetRequest {
+  string protocol = 1;
+  oneof data {
+    AuthorizationRequest unsigned_request = 2;
+    string signed_request = 3;
+    JwsJsonGeneral multisigned_request = 4;
+  }
+}
+
+// DigitalCredentialRequestOptions is CredentialRequestOptions.digital.
+message DigitalCredentialRequestOptions {
+  repeated DigitalCredentialGetRequest requests = 1;
+}
+
+// DcApiAuthorizationResponse is the response for response_mode=dc_api.
+message DcApiAuthorizationResponse {
+  AuthorizationResponse data = 1;
+}
+
+// EncryptedDcApiAuthorizationResponse is the response for response_mode=dc_api.jwt.
+message EncryptedDcApiAuthorizationResponse {
+  string response = 1;
+}
+
+// OpenId4VpOperationContractVersion versions the composed SDK boundary
+// independently from individual OpenID4VP message evolution.
+enum OpenId4VpOperationContractVersion {
+  OPEN_ID4_VP_OPERATION_CONTRACT_VERSION_UNSPECIFIED = 0;
+  OPEN_ID4_VP_OPERATION_CONTRACT_VERSION_V1 = 1;
+}
+
+// OpenId4VpOperationError is a deterministic platform-boundary failure. It
+// never carries backend text, presentation material, or caller input.
+message OpenId4VpOperationError {
+  OpenId4VpErrorReason reason = 1;
+}
+
+// OpenId4VpOperationRequest structurally decodes and normalizes one generated
+// OpenID4VP document. AuthorizationResponse is retained for wire compatibility
+// but returns RUNTIME_UNSUPPORTED_FEATURE: authorization requires server-owned
+// state, trust, clock, and atomic commit dependencies absent from this codec.
+message OpenId4VpOperationRequest {
+  OpenId4VpOperationContractVersion contract_version = 1;
+  oneof operation {
+    AuthorizationRequest authorization_request = 10;
+    AuthorizationResponse authorization_response = 11;
+    AuthorizationRequestTransport authorization_request_transport = 12;
+    // Removed pre-0.1 DTOs used incorrect final-spec metadata shapes.
+    // Metadata remains available through the exact ClientMetadata JSON object.
+    // These field numbers must never be reused.
+    DigitalCredentialRequestOptions digital_credential_request_options = 15;
+    ProblemDetails problem_details = 16;
+  }
+  reserved 13, 14;
+}
+
+// OpenId4VpOperationResult contains the validated canonical message matching
+// the request operation. The nested result keeps success/error framing stable
+// as new operation kinds are introduced.
+message OpenId4VpOperationResult {
+  oneof result {
+    AuthorizationRequest authorization_request = 10;
+    AuthorizationResponse authorization_response = 11;
+    AuthorizationRequestTransport authorization_request_transport = 12;
+    DigitalCredentialRequestOptions digital_credential_request_options = 15;
+    ProblemDetails problem_details = 16;
+  }
+  reserved 13, 14;
+}
+
+// OpenId4VpOperationResponse returns one generated result or one typed error.
+// Consumers must verify both the contract version and matching result oneof.
+message OpenId4VpOperationResponse {
+  oneof outcome {
+    OpenId4VpOperationResult result = 1;
+    OpenId4VpOperationError error = 2;
+  }
+  OpenId4VpOperationContractVersion contract_version = 3;
+}
+
+// BuildAuthorizationRequestRequest asks a verifier adapter to construct a
+// request object projection. Signing policy and key selection are deliberately
+// adapter-owned so private key material never crosses this API boundary.
+message BuildAuthorizationRequestRequest {
+  AuthorizationRequest request = 1;
+  bool sign_request_object = 2;
+  // Trusted verifier clock used to enforce iat/exp before signing.
+  uint64 now_unix = 3;
+}
+
+// BuildAuthorizationRequestResponse returns either an unsigned request object
+// or a compact signed Request Object JWT, plus verifier session binding.
+message BuildAuthorizationRequestResponse {
+  optional AuthorizationRequest request = 1;
+  optional string request_jwt = 2;
+  optional RequestBinding binding = 3;
+  optional ProblemDetails problem = 4;
+}
+
+// ValidateAuthorizationResponseRequest is retained for wire compatibility.
+// Runtime implementations reject this caller-owned session/clock operation;
+// authorization requires the server-owned HTTP runtime lifecycle.
+message ValidateAuthorizationResponseRequest {
+  SessionRecord session = 1;
+  AuthorizationResponse response = 2;
+  uint64 now_unix = 3;
+}
+
+// ValidateAuthorizationResponseResponse carries validation outcome without
+// exposing raw request or credential material in error strings.
+message ValidateAuthorizationResponseResponse {
+  bool valid = 1;
+  optional ProblemDetails problem = 2;
+}
+
+// ParseAuthorizationRequestTransportRequest classifies a wallet inbound
+// authorization request before network-bound request_uri resolution.
+message ParseAuthorizationRequestTransportRequest {
+  string input = 1;
+  uint64 max_request_jwt_bytes = 2;
+  bool require_signed_request_object = 3;
+}
+
+// ParseAuthorizationRequestTransportResponse returns the pure transport parse
+// result or a typed RFC 9457 problem.
+message ParseAuthorizationRequestTransportResponse {
+  optional AuthorizationRequestTransport transport = 1;
+  optional ProblemDetails problem = 2;
+}
+
+// VerifyAuthorizationRequestRequest verifies request-object signature,
+// client_id prefix binding, origin binding, and expiry after adapters resolve
+// any request_uri content.
+message VerifyAuthorizationRequestRequest {
+  AuthorizationRequestTransport transport = 1;
+  optional string origin = 2;
+  uint64 now_unix = 3;
+}
+
+// VerifyAuthorizationRequestResponse returns the verified final-spec request
+// projection or a typed RFC 9457 problem.
+message VerifyAuthorizationRequestResponse {
+  optional AuthorizationRequest request = 1;
+  optional ProblemDetails problem = 2;
+}
+
+// BuildDigitalCredentialRequestOptionsRequest builds browser
+// CredentialRequestOptions.digital from typed OpenID4VP request entries.
+message BuildDigitalCredentialRequestOptionsRequest {
+  repeated DigitalCredentialGetRequest requests = 1;
+}
+
+// BuildDigitalCredentialRequestOptionsResponse returns Digital Credentials API
+// request options or a typed RFC 9457 problem.
+message BuildDigitalCredentialRequestOptionsResponse {
+  optional DigitalCredentialRequestOptions options = 1;
+  optional ProblemDetails problem = 2;
+}
+
+// DecodeDcApiAuthorizationResponseRequest normalizes plaintext or encrypted
+// DC API responses after browser delivery.
+message DecodeDcApiAuthorizationResponseRequest {
+  oneof response {
+    DcApiAuthorizationResponse plaintext = 1;
+    EncryptedDcApiAuthorizationResponse encrypted = 2;
+  }
+}
+
+// DecodeDcApiAuthorizationResponseResponse is retained for wire compatibility.
+// Runtime implementations return UnsupportedFeature because this operation
+// has no server-owned session or authenticated browser-origin context.
+message DecodeDcApiAuthorizationResponseResponse {
+  optional AuthorizationResponse response = 1;
+  optional ProblemDetails problem = 2;
+}

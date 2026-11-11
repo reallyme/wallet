@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+schema_version = 1
+observed_at = "2026-11-11"
+
+[[source]]
+id = "eidas-2024-1183"
+kind = "legal_regulation"
+name = "Regulation (EU) 2024/1183"
+version = "2024/1183"
+url = "https://eur-lex.europa.eu/eli/reg/2024/1183/oj/eng"
+source_status = "official_journal"
+normative = true
+
+[[source]]
+id = "eudi-arf"
+kind = "architecture_reference_framework"
+name = "EUDI Wallet Architecture and Reference Framework"
+version = "v3.0.0"
+repository = "https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework"
+release = "https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework/releases/tag/v3.0.0"
+commit_short = "c64f2cb"
+source_status = "release"
+normative = true
+
+[[source]]
+id = "eudi-fcaf"
+kind = "functional_conformance_assessment"
+name = "EUDI Functional Conformance Assessment Framework"
+version = "v0.0.10"
+repository = "https://github.com/eu-digital-identity-wallet/eudi-doc-functional-conformance-assessment"
+release = "https://github.com/eu-digital-identity-wallet/eudi-doc-functional-conformance-assessment/releases/tag/v0.0.10"
+commit_short = "944b8f8"
+source_status = "release"
+normative = true
+
+[[source]]
+id = "eudi-standards-tracking"
+kind = "standards_tracking_index"
+name = "EUDI Standards and Technical Specifications tracking repository"
+version = "main-observed-2026-07-12"
+repository = "https://github.com/eu-digital-identity-wallet/eudi-doc-standards-and-technical-specifications"
+guide = "https://github.com/eu-digital-identity-wallet/eudi-doc-standards-and-technical-specifications/blob/main/docs/guide.md"
+source_status = "tracking_index_not_normative"
+normative = false
+reason = "The repository tracks candidate and missing standards. Exact standards, versions, and issues must be pinned in requirement records before becoming wallet-core conformance obligations."

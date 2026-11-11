@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "fixture_id": "wallet.sdk.boundary.v1",
+  "rule": "identity consumes the highest composed wallet package and does not load lower ReallyMe Rust artifacts separately.",
+  "crate_type_required": [
+    "rlib"
+  ],
+  "canonical_schema": "reallyme.wallet.v1.WalletOperationRequest",
+  "canonical_entrypoint": "execute_wallet_operation_v1",
+  "mutation_idempotency": "required_32_byte_nonzero_key_with_exact_response_replay",
+  "mutable_record_concurrency": "opaque_revision_compare_and_swap",
+  "canonical_service": "reallyme.wallet.v1.WalletCoreService",
+  "canonical_method": "WalletOperation",
+  "dto_codec": "Buffa generated proto DTOs",
+  "json_status": "generated ProtoJSON on the canonical operation envelope only",
+  "operation_golden_fixture": "vectors/wallet-operation-v1-golden.json",
+  "provider_golden_fixture": "vectors/wallet-provider-v1-golden.txt"
+}

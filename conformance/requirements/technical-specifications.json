@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "source": "eudi-standards-tracking",
+  "source_version": "main-observed-2026-07-12",
+  "source_url": "https://github.com/eu-digital-identity-wallet/eudi-doc-standards-and-technical-specifications",
+  "status": "tracking_only_not_normative",
+  "requirements": [],
+  "tracked_topics": [
+    "OpenID4VCI",
+    "OpenID4VP",
+    "DCQL",
+    "SD-JWT VC",
+    "ISO mdoc",
+    "Token Status List",
+    "Wallet Unit Attestation",
+    "Relying Party registration certificates",
+    "Qualified electronic signatures and seals"
+  ],
+  "rule": "Tracked topics are non-normative. Normative coverage is limited to requirements with an exact standard, version, profile, and source pin."
+}

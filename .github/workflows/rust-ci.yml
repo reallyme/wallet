@@ -1,0 +1,202 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: Rust CI
+
+env:
+  CARGO_AUDIT_VERSION: 0.22.2
+  CARGO_DENY_VERSION: 0.20.2
+  CARGO_NEXTEST_VERSION: 0.9.140
+  CARGO_SEMVER_CHECKS_VERSION: 0.50.0
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+  push:
+    branches:
+      - main
+    # Release preflight requires successful exact-commit evidence. Manually
+    # dispatch this workflow when a Markdown-only HEAD is a release candidate.
+    paths-ignore:
+      - "**/*.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rust-ci-${{ github.event_name }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+jobs:
+  semver:
+    name: Public API semver
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout wallet
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: wallet
+          persist-credentials: false
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
+        with:
+          toolchain: 1.99.0
+      - name: Install Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "26"
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+        with:
+          workspaces: wallet
+          cache-bin: false
+      - name: Install cargo-semver-checks
+        uses: taiki-e/install-action@41049aa56687c35e0afa74eed4f09cec4f9afabf # v2.85.2
+        with:
+          tool: cargo-semver-checks@${{ env.CARGO_SEMVER_CHECKS_VERSION }}
+      - name: Check public crate versions against crates.io
+        working-directory: wallet
+        run: node scripts/check-published-semver.mjs
+
+  rust:
+    name: fmt, lint, test, documentation, dependency policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout wallet
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: wallet
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Checkout release-readiness runner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: reallyme/release-readiness
+          ref: 9cf40c7da1def8a8d809af51789284097c572dd5
+          path: wallet/.release-readiness
+          persist-credentials: false
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
+        with:
+          toolchain: 1.99.0
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - name: Install Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "26"
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+        with:
+          workspaces: wallet
+          cache-bin: false
+      - name: Install nextest
+        uses: taiki-e/install-action@41049aa56687c35e0afa74eed4f09cec4f9afabf # v2.85.2
+        with:
+          tool: cargo-nextest@${{ env.CARGO_NEXTEST_VERSION }}
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@41049aa56687c35e0afa74eed4f09cec4f9afabf # v2.85.2
+        with:
+          tool: cargo-deny@${{ env.CARGO_DENY_VERSION }}
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@41049aa56687c35e0afa74eed4f09cec4f9afabf # v2.85.2
+        with:
+          tool: cargo-audit@${{ env.CARGO_AUDIT_VERSION }}
+      - name: Check CI lane ownership
+        working-directory: wallet
+        run: node scripts/check_ci_lane_ownership.mjs
+      - name: Format
+        working-directory: wallet
+        run: cargo fmt --check
+      - name: Check all features with warnings denied
+        working-directory: wallet
+        env:
+          RUSTFLAGS: -Dwarnings
+        run: cargo check --locked --workspace --all-features
+      - name: Clippy
+        working-directory: wallet
+        run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+      - name: Test native lane
+        working-directory: wallet
+        run: cargo nextest run --locked --workspace --no-default-features --features native
+      - name: Test all features
+        working-directory: wallet
+        run: cargo nextest run --locked --workspace --all-features
+      - name: Build documentation
+        working-directory: wallet
+        env:
+          RUSTDOCFLAGS: -Dwarnings
+        run: cargo doc --locked --workspace --no-deps --all-features
+      - name: Check wasm32 lane
+        working-directory: wallet
+        run: node scripts/check_rust_release_policy.mjs --check-wasm
+      - name: Check every intended Rust package surface
+        working-directory: wallet
+        run: node scripts/check_rust_package_surfaces.mjs
+      - name: Check shared release readiness policy
+        working-directory: wallet
+        run: node .release-readiness/scripts/run-consumer-check.mjs --policy-only
+      - name: Test release tooling
+        working-directory: wallet
+        run: node --test scripts/*.test.mjs
+      - name: Dependency policy
+        working-directory: wallet
+        run: cargo deny --locked check
+      - name: Fuzz dependency policy
+        working-directory: wallet
+        run: cargo deny --locked --manifest-path fuzz/Cargo.toml --config fuzz/deny.toml check
+      - name: Security advisory audit
+        working-directory: wallet
+        run: scripts/audit_committed_lockfiles.sh
+
+  msrv:
+    name: published crates on Rust 1.99
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout wallet
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: wallet
+          persist-credentials: false
+      - name: Install minimum supported Rust toolchain
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
+        with:
+          toolchain: 1.99.0
+      - name: Install Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "26"
+      - name: Check published crates at the declared MSRV
+        working-directory: wallet
+        env:
+          RUSTFLAGS: -Dwarnings
+          RUSTUP_TOOLCHAIN: 1.99.0
+        run: node scripts/check_rust_release_policy.mjs --check-msrv
+
+  package-archives:
+    name: Inspect and test normalized crate archives
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout wallet
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: wallet
+          persist-credentials: false
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
+        with:
+          toolchain: 1.99.0
+      - name: Install Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "26"
+      - name: Inspect and test normalized crate archives
+        working-directory: wallet
+        run: node scripts/publish-crates-in-order.mjs inspect

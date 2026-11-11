@@ -1,0 +1,64 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet-flows"
+version = "0.1.0"
+description = "Headless issuance and presentation state machines for ReallyMe wallet core."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/Cargo.toml"]
+
+[features]
+default = ["native"]
+native = [
+    "crypto_hmac/native",
+    "reallyme-wallet-storage/native",
+    "reallyme-openid4vci-wallet/native",
+    "reallyme-openid4vp-wallet/native",
+    "openid4vci-profiles/native",
+    "openid4vci-types/native",
+    "reallyme-openid-oauth/native",
+    "reallyme-etsi-eaa-conformance/native",
+    "reallyme-wallet-attestation/native",
+    "reallyme-wallet-consent/native",
+    "reallyme-wallet-inventory/native",
+    "reallyme-wallet-keystore/native",
+    "reallyme-wallet-types/native",
+]
+
+[dependencies]
+crypto_core = { workspace = true }
+crypto_hmac = { workspace = true }
+crypto_sha2_256 = { workspace = true }
+reallyme-wallet-storage = { path = "../storage", version = "0.1.0", default-features = false }
+buffa = { workspace = true }
+openid4vci-proto = { workspace = true, features = ["generated"] }
+openid4vci-profiles = { workspace = true }
+reallyme-openid4vci-wallet = { workspace = true }
+reallyme-openid4vp-wallet = { workspace = true }
+openid4vci-types = { workspace = true }
+reallyme-etsi-eaa-conformance = { workspace = true }
+reallyme-openid-oauth = { workspace = true }
+reallyme-codec = { workspace = true, features = ["base64url", "jcs"] }
+reallyme-disclosure-policy = { workspace = true }
+reallyme-wallet-attestation = { path = "../attestation", version = "0.1.0", default-features = false }
+reallyme-wallet-consent = { path = "../consent", version = "0.1.0", default-features = false }
+reallyme-wallet-inventory = { path = "../inventory", version = "0.1.0", default-features = false }
+reallyme-wallet-keystore = { path = "../keystore", version = "0.1.0", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+secrecy = { workspace = true }
+thiserror = { workspace = true }
+zeroize = { workspace = true }
+
+[dev-dependencies]
+reallyme-crypto-p256 = { workspace = true, features = ["native"] }
+reallyme-vp-core = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

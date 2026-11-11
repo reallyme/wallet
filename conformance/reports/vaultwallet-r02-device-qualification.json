@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "gate": "VW-R02",
+  "status": "incomplete",
+  "evidence_binding": "unverified",
+  "release_commit": null,
+  "artifact_manifest_sha2_256": null,
+  "target_hardware_lanes": [
+    "ios-secure-enclave",
+    "android-strongbox",
+    "android-hardware-backed-tee"
+  ],
+  "crypto_dependency": {
+    "published_api_supports_selected_profile": false,
+    "qualification_candidate_status": "unpublished"
+  },
+  "lanes": [
+    {
+      "id": "ios-secure-enclave",
+      "status": "unverified"
+    },
+    {
+      "id": "android-strongbox",
+      "status": "unexecuted"
+    },
+    {
+      "id": "android-hardware-backed-tee",
+      "status": "unexecuted"
+    }
+  ],
+  "out_of_scope_hardware": [
+    "WSCD",
+    "TPM",
+    "smartcard",
+    "desktop hardware"
+  ],
+  "limitations": [
+    "No published crypto API qualification is bound to a release commit and artifact manifest.",
+    "The iOS Secure Enclave device matrix is not qualified against a released dependency.",
+    "Android StrongBox and hardware-backed TEE physical-device matrices are unexecuted."
+  ]
+}

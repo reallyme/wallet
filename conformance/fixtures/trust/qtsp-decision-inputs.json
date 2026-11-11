@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "fixture_id": "trust.qtsp.decision-inputs.v1",
+  "decision_kind": "presentation",
+  "created_at_unix": 1700000000,
+  "request_digest_b64url": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "outcome": "reject",
+  "error_codes": [
+    "expired"
+  ],
+  "failure_classes": [
+    "expired"
+  ]
+}

@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet-proto-codec"
+version = "0.1.0"
+description = "Bounded protobuf codecs and typed domain conversions for ReallyMe Wallet."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/tests/**/*", "/Cargo.toml", "/README.md", "/NOTICE"]
+
+[features]
+default = ["native"]
+zk = ["dep:reallyme-wallet-zk", "dep:reallyme-zk-api"]
+native = [
+    "reallyme-crypto-p256/native",
+    "reallyme-wallet-attestation/native",
+    "reallyme-wallet-keystore/native",
+    "reallyme-wallet-lifecycle/native",
+    "reallyme-wallet-types/native",
+]
+wasm = [
+    "reallyme-crypto-p256/wasm",
+    "reallyme-wallet-attestation/wasm",
+    "reallyme-wallet-keystore/wasm",
+    "reallyme-wallet-lifecycle/wasm",
+    "reallyme-wallet-types/wasm",
+]
+
+[dependencies]
+buffa = { workspace = true }
+crypto_sha2_256 = { workspace = true }
+reallyme-crypto-p256 = { workspace = true }
+openid4vci-proto = { workspace = true, features = ["generated"] }
+reallyme-crypto-proto = { workspace = true, features = ["generated"] }
+reallyme-ssi-proto = { workspace = true, features = ["generated"] }
+reallyme-wallet-attestation = { path = "../attestation", version = "0.1.0", default-features = false }
+reallyme-wallet-keystore = { path = "../keystore", version = "0.1.0", default-features = false }
+reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.0", default-features = false }
+reallyme-wallet-proto = { path = "../proto", version = "0.1.0", default-features = false, features = ["generated"] }
+reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+reallyme-wallet-zk = { path = "../wallet-zk", version = "0.1.0", optional = true }
+reallyme-zk-api = { workspace = true, optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+zeroize = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,0 +1,166 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+{
+  "schema": "reallyme.identity.conformance_evidence_map.v1",
+  "repository": "reallyme/wallet",
+  "requirements": {
+    "command:identity.ble.advertise": {
+      "accepted_requirement_sha256": "a1a7061b9436091a5d79bd5b80784746979cab4446ad68cbc75a5d729a684c3f",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.ble.connect": {
+      "accepted_requirement_sha256": "0e597a3a3ef8059d132396440720c45ae9f420c2d6b50e4c063aefffd285f6e8",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.ble.disconnect": {
+      "accepted_requirement_sha256": "18cf99d67e1bff18a378d31cf6329a548c3ab04cc5c135f143cdd4a2ea2b156e",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.ble.discover": {
+      "accepted_requirement_sha256": "95ad945fcc6742b8a394e0a6ea86b6eba065e7f13cf45273eaf84c0433124634",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.ble.exchange": {
+      "accepted_requirement_sha256": "82e77b55aa7cea4107d035396e8dd273ab3d2cba68c09368d8c0e9a5db59f7d4",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.nfc.detect": {
+      "accepted_requirement_sha256": "9b858eeaa4d3fb3210dd312fff5a7407edb182c654acb6be266ef0e27297ca97",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.nfc.establish_secure_channel": {
+      "accepted_requirement_sha256": "8de8d83645c25eae697525cae784eb00f80d64736284fd284519cf8fb963ab76",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.nfc.perform_active_authentication": {
+      "accepted_requirement_sha256": "1a9adca7ea04cd72656bfddd109c4f385984d30b5a5d9802dc887e10f7746ec3",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.nfc.perform_chip_authentication": {
+      "accepted_requirement_sha256": "a1cfea22ab6e7314b8089e1b5e0d40c44d04b07cbc570f65528e51d37ae9825a",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.nfc.perform_passive_authentication": {
+      "accepted_requirement_sha256": "b7a68b0599063ff2a5f9b4721ce3169cf59251618e0f4b890cbf2df0180fd4dc",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.nfc.read": {
+      "accepted_requirement_sha256": "95bce7cf3ab26051fa6f24e0570159d1d477ae6d36ffee5beeb151e6f1a2ee78",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.nfc.validate_chip": {
+      "accepted_requirement_sha256": "50d7b570710aa954715d0733079c835b4e90736e44d54c9aad42b4fa0456c663",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.nfc.write": {
+      "accepted_requirement_sha256": "809ee637b63fa899949cc36acea9df885196cb1642f6d3c13fb384d91d1d9fa5",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.proximity.connect": {
+      "accepted_requirement_sha256": "dbed246a6c46ca117c7cdd2c7fedefd0b5796f5709e8bc20d5020942079c63dd",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.proximity.create_session": {
+      "accepted_requirement_sha256": "e872f30029aba9fcbdc6fc515a19d3c25b3d05cb07103aeb89cf2e549700f682",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.proximity.disconnect": {
+      "accepted_requirement_sha256": "c85dbe262f41f2a908b366fe724da8a17bc5138627064264c3d8c297089b153b",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.proximity.negotiate": {
+      "accepted_requirement_sha256": "d0ab001ea12c83e0c8d5cde5f574b331d8d48304a138594de0f7933074cb14b7",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.proximity.present": {
+      "accepted_requirement_sha256": "42b7cd283737d25b577c790de401892b71f16ff03f2ddd933414f33b4487d589",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.proximity.request": {
+      "accepted_requirement_sha256": "71ccd38ecce64edf84d1bb7f428ae36d7babe375a00d9564066e92bbe54828e3",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.proximity.validate_session": {
+      "accepted_requirement_sha256": "9ba38957042242cb0260392d76c1d3388ec26124f9a8df8793e8b5a64953f2f1",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.transport.configure": {
+      "accepted_requirement_sha256": "901625fc766c56a442b12e5561da4d5a8ebcf87f83b1be0f1c92f352e5b97fa5",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.transport.get_capabilities": {
+      "accepted_requirement_sha256": "cf7ba201b77ee6f93b50a7a7041e64b70abd5cf575032df54862f391e5f08fa1",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.transport.receive": {
+      "accepted_requirement_sha256": "2ab0c2b0f39bffbe332c5b4b3d0ce43d28b63480eb990b381859a145f3e81725",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.transport.register": {
+      "accepted_requirement_sha256": "cc9c760e03797072e453a0e6afd6bb70e907eb709466bd7038b2547303f8a63d",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.transport.send": {
+      "accepted_requirement_sha256": "502e1bf81316e6db1c72bb57f5c52216b6a0334a645aad7d3ada4bc22f829d83",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    },
+    "command:identity.transport.validate": {
+      "accepted_requirement_sha256": "92522a7210f0998d2a33f98383af70a70fa952d2bbd31e3acf98ab2da92b05c8",
+      "status": "not_applicable",
+      "reason_code": "capability_not_selected",
+      "evidence": []
+    }
+  }
+}

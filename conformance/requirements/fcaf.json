@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "source": "eudi-fcaf",
+  "source_version": "v0.0.10",
+  "source_url": "https://github.com/eu-digital-identity-wallet/eudi-doc-functional-conformance-assessment/releases/tag/v0.0.10",
+  "coverage_seed": [
+    {
+      "id": "FCAF-COVERAGE-WALLET-ISSUANCE-WUA",
+      "status": "partial",
+      "mapped_wallet_requirement": "ARF-WALLET-WUA",
+      "evidence": [
+        "conformance/tests/issuance_flow_tests.rs"
+      ]
+    },
+    {
+      "id": "FCAF-COVERAGE-WALLET-ZK-FAIL-CLOSED",
+      "status": "partial",
+      "mapped_wallet_requirement": "ARF-WALLET-RP-ENTITLEMENT",
+      "evidence": [
+        "conformance/tests/presentation_zk_tests.rs"
+      ]
+    },
+    {
+      "id": "FCAF-COVERAGE-WALLET-RUNTIME-CONTRACT",
+      "status": "partial",
+      "mapped_wallet_requirement": "EIDAS-WALLET-TRANSACTION-LOG",
+      "evidence": [
+        "conformance/tests/sdk_contract_tests.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ]
+    }
+  ],
+  "limitations": [
+    "These local coverage entries are not an exact mapping to official FCAF test identifiers.",
+    "No executed upstream FCAF results are attached."
+  ]
+}

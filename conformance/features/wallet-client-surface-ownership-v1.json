@@ -1,0 +1,57 @@
+{
+  "SPDX-FileCopyrightText": "Copyright © 2026 ReallyMe Technologies Limited. All rights reserved",
+  "SPDX-License-Identifier": "MIT OR Apache-2.0",
+  "schema_version": 1,
+  "contract_id": "reallyme.wallet.client-surface-ownership.v1",
+  "status": "ownership-contract-only",
+  "wallet_v1_protected_read_mode": "vault-proxy-only",
+  "integration_revisions": {
+    "vaultkit": "121ecf457cb970a1c3022fe702484093efb2d9c0",
+    "vault": "d0eb65e30e4a7399b29f9deca4fdb0f2cef29ddc",
+    "vaultsync": "5664eaaf5be8723bc822f98e451be1d8d1bff9db"
+  },
+  "ownership": {
+    "wallet_domain_contracts": "reallyme/wallet",
+    "general_wallet_client_bindings": "reallyme/identity",
+    "expert_hardware_binding_provider": "injected-platform-host",
+    "opaque_storage_engine": "reallyme/vaultwallet",
+    "opaque_storage_ffi": "reallyme/vaultwallet",
+    "generic_client_substrate": "reallyme/vaultkit",
+    "generic_ffi_handles": "reallyme/vaultkit",
+    "final_artifact_composition": "top-level-sdk-or-application"
+  },
+  "vaultkit_generic_facilities": [
+    "unlock-security-authority",
+    "protected-reads-and-streaming",
+    "checkpoint-outbox-cache",
+    "provider-transport",
+    "materialization-sessions",
+    "lifecycle-cancellation-progress",
+    "generic-ffi-safe-handles"
+  ],
+  "wallet_domain_facilities": [
+    "credential-records",
+    "did-and-key-records",
+    "provider-operations",
+    "hardware-key-binding-contracts"
+  ],
+  "vaultwallet_opaque_facilities": [
+    "record-and-revision-storage",
+    "causal-and-precondition-state",
+    "tombstones-and-concurrent-heads",
+    "checkpoint-and-storage-operations",
+    "opaque-engine-ffi"
+  ],
+  "target_wallet_v1_hardware": [
+    "ios-secure-enclave",
+    "android-strongbox",
+    "android-tee"
+  ],
+  "out_of_scope_wallet_v1_hardware": [
+    "desktop-hardware",
+    "wscd",
+    "tpm",
+    "smartcard",
+    "other"
+  ]
+}

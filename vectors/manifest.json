@@ -1,0 +1,17 @@
+{
+  "SPDX-FileCopyrightText": "Copyright © 2026 ReallyMe Technologies Limited. All rights reserved",
+  "SPDX-License-Identifier": "MIT OR Apache-2.0",
+  "schema_version": 1,
+  "hash_algorithm": "sha256",
+  "vectors": [
+    { "path": "wallet-key-storage-v1-golden.txt", "sha256": "b05c144a2a06f481a36c4a022ec167084262923005a013c5e96362f429e9fea2" },
+    { "path": "wallet-operation-v1-golden.json", "sha256": "7ce2cd70fde0946ed812277ab06daafaae77e88fac8e9727e6207be571a0a4a4" },
+    { "path": "wallet-provider-v1-golden.txt", "sha256": "371e57accb9fdc535ddd1a19ef9743e5d6b2f1f9ef179e1d6435a500dbf5fae7" },
+    { "path": "protojson/delete-credential-success-response.json", "sha256": "129765444fd60d52154260bca3e9a6ccfd75dbc84e1a2d4419433771a6e66c40" },
+    { "path": "protojson/get-credential-request.json", "sha256": "5df14d22ccfc9bd05be104f1f67d698d177c9c343b4040c9cc1a26fa783491c3" },
+    { "path": "protojson/malicious-duplicate-operation.json", "sha256": "a8b2a93c9d86cbc3e0d04c56f767a8dacec9bb4c1c37669d92b9e520f9ceb323" },
+    { "path": "protojson/malicious-unknown-enum.json", "sha256": "b57592282bce9b6570b0928053e60b58d3e42bbe84a84a0d65bb75f50cbc492d" },
+    { "path": "protojson/malicious-unknown-field.json", "sha256": "1894e1c2e05b983269d4275c2b5f58dd810cf3f853b4e5d3cfb8deee725f602d" },
+    { "path": "protojson/malicious-wrong-shape.json", "sha256": "c76f804b96f3f4e8765c43e26821ed5049c2455c5c806f81083733a0293e5e27" }
+  ]
+}

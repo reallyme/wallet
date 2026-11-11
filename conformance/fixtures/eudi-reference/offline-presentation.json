@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "fixture_id": "eudi.reference.presentation.offline.v1",
+  "status": "fixture_seeded",
+  "reference_lock": "conformance/eudi/reference-implementation.lock",
+  "flow": "offline_presentation",
+  "mode": "offline",
+  "wallet_core_evidence": [
+    "conformance/fixtures/credentials/pid-mdoc-record.json",
+    "conformance/fixtures/lifecycle/contact-delivery.json",
+    "conformance/fixtures/trust/status-list-revocation.json"
+  ],
+  "required_wallet_core_checks": [
+    "use_last_valid_credential_status_evidence_without_network_fetch",
+    "reject_expired_contact_delivery_payload",
+    "validate_contact_session_transcript_binding",
+    "enforce_once_only_copy_allocation_when_policy_requires_unlinkability",
+    "record_user_visible_transaction_log"
+  ],
+  "delegated_checks": [
+    "offline_reader_authentication_policy",
+    "openid4vp_mdoc_presentation_format_verification",
+    "openid4vp_iso18013_7_session_transcript_handover",
+    "identity_mdoc_namespace_and_element_parsing",
+    "identity_mdoc_device_signature_or_mac_verification",
+    "platform_offline_transport"
+  ],
+  "non_software_controls": [
+    "wallet_provider_offline_risk_policy",
+    "certification_body_acceptance_of_cached_status_freshness_window"
+  ]
+}

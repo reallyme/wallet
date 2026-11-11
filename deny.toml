@@ -1,0 +1,76 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[graph]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "wasm32-unknown-unknown",
+    "aarch64-apple-ios",
+    "aarch64-linux-android",
+]
+all-features = true
+no-default-features = false
+
+[output]
+feature-depth = 1
+
+[advisories]
+ignore = []
+
+[licenses]
+confidence-threshold = 0.93
+allow = [
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "MIT",
+    "Unicode-3.0",
+    # `foldhash` enters through buffa/hashbrown; Zlib is OSI-approved and
+    # compatible with the wallet proto lane.
+    "Zlib",
+]
+[licenses.private]
+ignore = false
+registries = []
+
+[bans]
+# Pin each reviewed transitive duplicate precisely so a new duplicate version
+# fails the release gate until its dependency path receives an explicit review.
+multiple-versions = "deny"
+wildcards = "deny"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+# Direct use of broad error/logging crates is prohibited by workspace lints and
+# source review. Do not ban transitive use unless we are ready to replace
+# upstream dependencies that carry them internally.
+deny = []
+skip = [
+    { crate = "base64@0.22.1", reason = "buffa still requires the earlier base64 line" },
+    { crate = "block-buffer@0.10.4", reason = "the older digest line remains in transitive cryptography" },
+    { crate = "cpufeatures@0.2.17", reason = "the older keccak line remains in transitive cryptography" },
+    { crate = "crypto-common@0.1.7", reason = "the older digest line remains in transitive cryptography" },
+    { crate = "digest@0.10.7", reason = "the older sha3 line remains in transitive cryptography" },
+    { crate = "generic-array@0.14.7", reason = "the older digest and block-buffer lines remain transitive" },
+    { crate = "getrandom@0.2.17", reason = "Arkworks 0.6 via Poseidon2 retains rand 0.8 while current Crypto uses getrandom 0.4" },
+    { crate = "hashbrown@0.15.5", reason = "buffa still requires the earlier hashbrown line" },
+    { crate = "keccak@0.1.6", reason = "the older sha3 line remains in transitive cryptography" },
+    { crate = "miniz_oxide@0.8.9", reason = "png still requires the earlier miniz_oxide line" },
+    { crate = "rand_core@0.6.4", reason = "Arkworks 0.6 via Poseidon2 retains rand 0.8 while current Crypto uses rand_core 0.10" },
+    { crate = "sha3@0.10.9", reason = "reallyme-crypto-kmac still requires the earlier sha3 line" },
+    { crate = "syn@2.0.119", reason = "older derive macros still require the syn 2 line" },
+    { crate = "synstructure@0.13.2", reason = "x509-parser 0.18.1 depends on the asn1-rs 0.7 derive line" },
+]
+skip-tree = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
+
+[sources.allow-org]
+github = []
+gitlab = []
+bitbucket = []

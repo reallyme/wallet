@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# Security-sensitive Wallet boundaries require review by the repository owner.
+* @vanderbr
+
+/crates/attestation/ @vanderbr
+/crates/consent/ @vanderbr
+/crates/flows/ @vanderbr
+/crates/keystore/ @vanderbr
+/crates/lifecycle/ @vanderbr
+/crates/provider/ @vanderbr
+/crates/runtime/ @vanderbr
+/crates/proto-codec/ @vanderbr
+/crates/storage/ @vanderbr
+/crates/inventory/ @vanderbr
+/.github/workflows/ @vanderbr
+/scripts/publish-crates-in-order.mjs @vanderbr

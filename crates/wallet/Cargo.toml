@@ -1,0 +1,59 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet"
+version = "0.1.0"
+description = "ReallyMe EUDI wallet core facade."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/tests/**/*.rs", "/Cargo.toml"]
+
+[features]
+default = ["native"]
+native = [
+    "reallyme-wallet-attestation/native",
+    "reallyme-wallet-consent/native",
+    "reallyme-wallet-flows/native",
+    "reallyme-wallet-inventory/native",
+    "reallyme-wallet-keystore/native",
+    "reallyme-wallet-lifecycle/native",
+    "reallyme-wallet-log/native",
+    "reallyme-wallet-proto/generated",
+    "reallyme-wallet-proto-codec/native",
+    "reallyme-wallet-provider/native",
+    "reallyme-wallet-runtime/native",
+    "reallyme-wallet-storage/native",
+    "reallyme-wallet-types/native",
+]
+render = ["dep:reallyme-wallet-render"]
+http = ["dep:reallyme-wallet-http"]
+
+[dependencies]
+buffa = { workspace = true }
+reallyme-ssi-proto = { workspace = true, features = ["generated"] }
+reallyme-wallet-attestation = { path = "../attestation", version = "0.1.0", default-features = false }
+reallyme-wallet-consent = { path = "../consent", version = "0.1.0", default-features = false }
+reallyme-wallet-flows = { path = "../flows", version = "0.1.0", default-features = false }
+reallyme-wallet-http = { path = "../http", version = "0.1.0", optional = true }
+reallyme-wallet-inventory = { path = "../inventory", version = "0.1.0", default-features = false }
+reallyme-wallet-keystore = { path = "../keystore", version = "0.1.0", default-features = false }
+reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.0", default-features = false }
+reallyme-wallet-log = { path = "../log", version = "0.1.0", default-features = false }
+reallyme-wallet-proto = { path = "../proto", version = "0.1.0", default-features = false }
+reallyme-wallet-proto-codec = { path = "../proto-codec", version = "0.1.0", default-features = false }
+reallyme-wallet-provider = { path = "../provider", version = "0.1.0", default-features = false }
+reallyme-wallet-render = { path = "../render", version = "0.1.0", default-features = false, optional = true }
+reallyme-wallet-runtime = { path = "../runtime", version = "0.1.0", default-features = false }
+reallyme-wallet-storage = { path = "../storage", version = "0.1.0", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

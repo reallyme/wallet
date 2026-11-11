@@ -1,0 +1,206 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.wallet.v1;
+
+import "reallyme/wallet/v1/wallet.proto";
+
+option java_multiple_files = true;
+option java_package = "me.really.wallet.v1";
+option swift_prefix = "ReallyMeWalletProto";
+
+// HistoryPurpose is a Wallet-owned policy/history value. Unknown values fail closed.
+enum HistoryPurpose {
+  HISTORY_PURPOSE_UNSPECIFIED = 0;
+  HISTORY_PURPOSE_ISSUANCE = 1;
+  HISTORY_PURPOSE_PRESENTATION = 2;
+  HISTORY_PURPOSE_REFRESH = 3;
+  HISTORY_PURPOSE_DELETION = 4;
+  HISTORY_PURPOSE_QUALIFIED_SIGNATURE = 5;
+  HISTORY_PURPOSE_QUALIFIED_SEAL = 6;
+}
+
+// HistoryOutcome is a Wallet-owned policy/history value. Unknown values fail closed.
+enum HistoryOutcome {
+  HISTORY_OUTCOME_UNSPECIFIED = 0;
+  HISTORY_OUTCOME_COMPLETED = 1;
+  HISTORY_OUTCOME_REFUSED = 2;
+  HISTORY_OUTCOME_CANCELLED = 3;
+  HISTORY_OUTCOME_FAILED = 4;
+  HISTORY_OUTCOME_EXPIRED = 5;
+  HISTORY_OUTCOME_DELIVERY_UNKNOWN = 6;
+}
+
+// HistoryFailureReason is a Wallet-owned policy/history value. Unknown values fail closed.
+enum HistoryFailureReason {
+  HISTORY_FAILURE_REASON_UNSPECIFIED = 0;
+  HISTORY_FAILURE_REASON_NONE = 1;
+  HISTORY_FAILURE_REASON_USER_DECISION = 2;
+  HISTORY_FAILURE_REASON_POLICY = 3;
+  HISTORY_FAILURE_REASON_INVALID_INPUT = 4;
+  HISTORY_FAILURE_REASON_PROVIDER = 5;
+  HISTORY_FAILURE_REASON_TRANSPORT = 6;
+  HISTORY_FAILURE_REASON_EXPIRY = 7;
+}
+
+// FlowDisposition is a Wallet-owned policy/history value. Unknown values fail closed.
+enum FlowDisposition {
+  FLOW_DISPOSITION_UNSPECIFIED = 0;
+  FLOW_DISPOSITION_ACTIVE = 1;
+  FLOW_DISPOSITION_COMPLETED = 2;
+  FLOW_DISPOSITION_CANCELLED = 3;
+  FLOW_DISPOSITION_FAILED = 4;
+  FLOW_DISPOSITION_EXPIRED = 5;
+  FLOW_DISPOSITION_DELIVERY_UNKNOWN = 6;
+}
+
+// FlowEffectKind is a Wallet-owned policy/history value. Unknown values fail closed.
+enum FlowEffectKind {
+  FLOW_EFFECT_KIND_UNSPECIFIED = 0;
+  FLOW_EFFECT_KIND_CONSENT = 1;
+  FLOW_EFFECT_KIND_SIGNING = 2;
+  FLOW_EFFECT_KIND_SUBMISSION = 3;
+  FLOW_EFFECT_KIND_STORAGE_COMMIT = 4;
+}
+
+// FlowEffectState is a Wallet-owned policy/history value. Unknown values fail closed.
+enum FlowEffectState {
+  FLOW_EFFECT_STATE_UNSPECIFIED = 0;
+  FLOW_EFFECT_STATE_RESERVED = 1;
+  FLOW_EFFECT_STATE_CONFIRMED = 2;
+}
+
+// ConsentRetentionKind is a Wallet-owned policy/history value. Unknown values fail closed.
+enum ConsentRetentionKind {
+  CONSENT_RETENTION_KIND_UNSPECIFIED = 0;
+  CONSENT_RETENTION_KIND_NO_RETENTION = 1;
+  CONSENT_RETENTION_KIND_UNTIL = 2;
+}
+
+// ReuseInstance binds one authenticated inventory record to its durable allocation.
+message ReuseInstance {
+  string credential_id = 1;
+  int64 valid_from = 2;
+  int64 valid_until = 3;
+  bool retired = 4;
+  uint64 uses = 5;
+  bytes party_binding = 6;
+}
+
+// ReuseClaim is immutable write-ahead use history; it is never evicted to allow reuse.
+message ReuseClaim {
+  bytes operation_id = 1;
+  bytes request_digest = 2;
+  bytes party_binding = 3;
+  string credential_id = 4;
+  int64 committed_at = 5;
+}
+
+// ReplenishmentIntent preserves exact retry identity across host restarts.
+message ReplenishmentIntent {
+  bytes operation_id = 1;
+  int64 requested_at = 2;
+  bool fulfilled = 3;
+}
+
+// CredentialReuseState is an encrypted, atomically replaced cohort. Version must be 1.
+message CredentialReuseState {
+  uint32 schema_version = 1;
+  string id = 2;
+  OpenId4VciCredentialReusePolicySelection policy = 3;
+  repeated ReuseInstance instances = 4;
+  uint32 next_index = 5;
+  repeated ReuseClaim claims = 6;
+  ReplenishmentIntent replenishment = 7;
+  bool retired = 8;
+  int64 updated_at = 9;
+}
+
+// ConsentPolicyChoice records one exact policy version and explicit holder choice.
+message ConsentPolicyChoice {
+  string id = 1;
+  string version = 2;
+  bytes document_digest = 3;
+  bool mandatory = 4;
+  bool accepted = 5;
+}
+
+// ConsentPolicyContext contains only authenticated identifiers and approved terms.
+message ConsentPolicyContext {
+  string purpose = 1;
+  ConsentRetentionKind retention = 2;
+  int64 retention_until = 3;
+  repeated ConsentPolicyChoice policies = 4;
+  bytes transaction_digest = 5;
+}
+
+// ReaderSessionBinding carries SSI-authenticated facts, not ISO transport messages.
+message ReaderSessionBinding {
+  string reader_id = 1;
+  bytes certificate_digest = 2;
+  bytes session_digest = 3;
+  bytes request_digest = 4;
+  int64 authenticated_at = 5;
+  int64 valid_until = 6;
+}
+
+// ConsentReceipt is evidence, never a reconstructible authorization capability.
+message ConsentReceipt {
+  uint32 schema_version = 1;
+  ConsentCapture capture = 2;
+  ConsentPolicyContext policy = 3;
+  ReaderSessionBinding reader = 4;
+}
+
+// TransactionHistoryRecord uses a domain-separated v2 transcript, preserving v1 hashes.
+message TransactionHistoryRecord {
+  uint32 schema_version = 1;
+  string id = 2;
+  HistoryPurpose purpose = 3;
+  HistoryOutcome outcome = 4;
+  HistoryFailureReason reason = 5;
+  string relying_party_id = 6;
+  repeated string requested = 7;
+  repeated string presented = 8;
+  repeated string credential_ids = 9;
+  bytes consent_digest = 10;
+  string operation_id = 11;
+  int64 occurred_at = 12;
+  uint64 sequence = 13;
+  bytes previous_hash = 14;
+  bytes entry_hash = 15;
+}
+
+// HistoryCursor pins a bounded contiguous query/export to one authenticated head.
+message HistoryCursor {
+  uint64 after_sequence = 1;
+  bytes after_hash = 2;
+  uint64 through_sequence = 3;
+  bytes through_hash = 4;
+  uint32 limit = 5;
+}
+
+// FlowEffect is a durable reservation made before a provider can act.
+message FlowEffect {
+  bytes id = 1;
+  bytes request_digest = 2;
+  FlowEffectKind kind = 3;
+  FlowEffectState state = 4;
+  bytes request_bytes = 5;
+}
+
+// FlowExecutionRecord atomically retains disposition, reservations and opaque snapshot.
+message FlowExecutionRecord {
+  uint32 schema_version = 1;
+  string id = 2;
+  FlowKind kind = 3;
+  bytes intent_digest = 4;
+  FlowDisposition disposition = 5;
+  repeated FlowEffect effects = 6;
+  bytes snapshot = 7;
+  int64 expires_at = 8;
+  int64 updated_at = 9;
+}

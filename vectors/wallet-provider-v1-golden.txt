@@ -1,0 +1,5 @@
+schema_version=1
+protobuf_package=reallyme.wallet.v1
+wallet_provider_descriptor=080110011a02d20f2080808401
+get_credential_provider_request=080110071809927d1e0a1c63726564656e7469616c2d70726f76696465722d676f6c64656e2d31
+not_found_provider_response=0801100718092a020804

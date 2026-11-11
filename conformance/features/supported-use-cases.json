@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "use_cases": [
+    {
+      "id": "issuance.offer-to-wallet-storage",
+      "status": "implemented",
+      "reason": "Wallet-core has resumable issuance state, WUA binding, pre-authorized token request construction, injected token, credential, and deferred endpoint boundaries with opaque token handles, explicit token-exchange state, deferred response handling, and inventory validation. Concrete OpenID4VCI issuer and HTTP-adapter composition is exercised downstream by Identity Conformance.",
+      "evidence": [
+        "crates/flows/src/issue.rs",
+        "crates/flows/src/exchange_pre_authorized_token.rs",
+        "crates/flows/src/submit_credential_request.rs",
+        "crates/flows/src/poll_deferred_credential.rs",
+        "conformance/tests/issuance_flow_tests.rs",
+        "conformance/reports/external-readiness.json"
+      ]
+    },
+    {
+      "id": "presentation.request-to-response",
+      "status": "implemented",
+      "reason": "Wallet-core has consent, RP registration certificate screening, batch-pool allocation, policy SatisfactionPlan derivation integration, zk fail-closed tests, and reference-run manifests for full OpenID4VP response evidence delegated to openid4vp and identity.",
+      "evidence": [
+        "crates/flows/src/prepare_presentation_consent.rs",
+        "crates/wallet-zk/src/prove_presentation_derivation.rs",
+        "crates/consent/src/evaluate.rs",
+        "conformance/tests/presentation_zk_tests.rs",
+        "conformance/tests/relying_party_entitlement_tests.rs",
+        "conformance/eudi/reference-run-manifest.json",
+        "conformance/reports/external-readiness.json"
+      ]
+    },
+    {
+      "id": "delivery.qr-deeplink-contact",
+      "status": "implemented",
+      "reason": "Bounded QR/link/contact delivery adapters are implemented and tested.",
+      "evidence": [
+        "crates/render/src/web.rs",
+        "crates/render/tests/web_tests.rs",
+        "crates/flows/src/fragment_contact.rs",
+        "crates/flows/src/reassemble_contact.rs",
+        "crates/flows/tests/contact_tests.rs"
+      ]
+    },
+    {
+      "id": "runtime.connect-shaped-sdk-boundary",
+      "status": "implemented",
+      "reason": "The sole WalletCoreService method carries the canonical WalletOperationRequest and WalletOperationResponse contract through strict generated codecs and the transport-neutral executor.",
+      "evidence": [
+        "crates/proto/proto/reallyme/wallet/v1/wallet_operation.proto",
+        "crates/proto/proto/reallyme/wallet/v1/wallet_service.proto",
+        "crates/proto-codec/src/decode.rs",
+        "crates/proto-codec/src/encode.rs",
+        "crates/runtime/src/handle.rs",
+        "crates/http/src/serve.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ]
+    }
+  ]
+}

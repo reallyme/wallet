@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "status": "evidence_incomplete",
+  "dependencies": [
+    {
+      "id": "ssi-mdoc-envelope",
+      "owner": "reallyme/ssi",
+      "status": "delegated-available",
+      "wallet_boundary": "Wallet-core stores mdoc credential records, lifecycle evidence, consent, contact-delivery state, and transaction logs; ISO mdoc envelope parsing, DeviceResponse assembly, DeviceAuth, issuer auth, and CBOR validation stay in SSI.",
+      "observed_paths": [
+        "../ssi/crates/envelopes/mdoc/src/lib.rs",
+        "../ssi/crates/envelopes/mdoc/src/present.rs",
+        "../ssi/crates/envelopes/mdoc/src/device_auth.rs",
+        "../ssi/crates/envelopes/mdoc/src/verify.rs",
+        "../ssi/crates/envelopes/mdoc/tests/mdoc_tests.rs",
+        "../ssi/conformance/requirements/mdoc.json"
+      ],
+      "wallet_evidence": [
+        "conformance/tests/mdoc_boundary_tests.rs",
+        "conformance/fixtures/credentials/pid-mdoc-record.json",
+        "conformance/fixtures/eudi-reference/proximity-presentation.json",
+        "conformance/fixtures/eudi-reference/offline-presentation.json"
+      ],
+      "limitations": [
+        "No retained proximity or offline interoperability output joins SSI DeviceResponse verification to Wallet consent, inventory, and transaction records."
+      ]
+    },
+    {
+      "id": "openid4vci-mso-mdoc-format",
+      "owner": "reallyme/openid4vci",
+      "status": "engineering-execution-retained-qualification-pending",
+      "wallet_boundary": "Wallet-core consumes OpenID4VCI holder DTOs and credential response records; OpenID4VCI format identifiers, issuer metadata, proofs, token endpoint wire behavior, and HTTP issuer adapters stay in openid4vci. Identity owns the provider-wired deployable host and composes the canonical holder driver with bounded network, key, attestation, proof, clock, and authenticated encrypted-storage providers. Identity Conformance owns executable cross-repository composition, complete certification orchestration, and retained evidence.",
+      "observed_paths": [
+        "../openid4vci/crates/types/src/format.rs",
+        "../openid4vci/crates/types/src/metadata/mod.rs",
+        "../openid4vci/crates/wallet/src/resolve.rs",
+        "../openid4vci/crates/wallet/src/request.rs",
+        "../openid4vci/crates/http/src/axum_issuer/configure.rs",
+        "../openid4vci/crates/http/src/axum_holder_harness.rs",
+        "../openid4vci/crates/http/examples/holder_harness.rs",
+        "../openid4vci/scripts/conformance/run_oidf_oid4vci_wallet.sh",
+        "../openid4vci/scripts/conformance/serve_oidf_oid4vci_wallet_harness.sh",
+        "../openid4vci/conformance/oidf-wallet-plan.toml",
+        "../openid4vci/conformance/oidf/suite-contract.json",
+        "../openid4vci/crates/proto/proto/reallyme/openid4vci/v1/openid4vci.proto",
+        "../identity/conformance/oidf-wallet-harness/src/drive_wallet_flow.rs",
+        "../identity/conformance/oidf-wallet-harness/src/adapt_holder_harness.rs",
+        "../identity/conformance/oidf-wallet-harness/src/provide_wallet_flow.rs",
+        "../identity/conformance/oidf-openid4vci-wallet-host/README.md",
+        "../identity/conformance/oidf-openid4vci-wallet-host/src/launch_live_host.rs",
+        "../identity/bindings/wallet-inventory-store/src/lib.rs",
+        "../identity-conformance/adapters/wallet/README.md",
+        "../identity-conformance/plans/oidf/certification.json",
+        "../identity-conformance/scripts/run_oidf_openid4vci_certification.sh"
+      ],
+      "wallet_evidence": [
+        "crates/flows/src/issue.rs",
+        "crates/flows/src/build_pre_authorized_token_request.rs",
+        "crates/flows/src/exchange_pre_authorized_token.rs",
+        "crates/flows/src/submit_credential_request.rs",
+        "crates/flows/src/validate_credential_request.rs",
+        "crates/flows/src/submit_credential_request_tests.rs",
+        "crates/flows/src/poll_deferred_credential.rs",
+        "conformance/tests/issuance_flow_tests.rs",
+        "crates/flows/src/bind_issuer_nonce.rs"
+      ],
+      "limitations": [
+        "Reviewed release/deployment provenance and issuer-role certification outputs remain pending.",
+        "Nonce-provider trust and freshness policy remain deployment-owned; missing or mismatched observations continue to fail closed."
+      ],
+      "engineering_evidence": {
+        "owner": "reallyme/identity-conformance",
+        "summary_path": "results/local/wallet-current-schema-20261110/summary.json",
+        "classification": "local_engineering",
+        "certification_claim": false,
+        "complete_wallet_profiles": 6,
+        "completed_modules": 138,
+        "suite_passed_modules": 138,
+        "matching_host_outcomes": true
+      }
+    },
+    {
+      "id": "openid4vp-mdoc-presentation-format",
+      "owner": "reallyme/openid4vp",
+      "status": "delegated-available",
+      "wallet_boundary": "Wallet-core owns contact-delivery state, consent, inventory copy allocation, and transaction logs for proximity and offline presentations; OpenID4VP owns mdoc presentation format verification, DC API handover digest selection, and SessionTranscript-facing adapter glue.",
+      "observed_paths": [
+        "../openid4vp/crates/formats/src/mdoc.rs",
+        "../openid4vp/crates/dc-api/src/mdoc.rs",
+        "../openid4vp/vectors/mdoc/annex-b-handover.json",
+        "../openid4vp/conformance/requirements/eudi-presentation.json",
+        "../openid4vp/crates/proto/proto/reallyme/openid4vp/v1/openid4vp.proto"
+      ],
+      "wallet_evidence": [
+        "conformance/tests/mdoc_boundary_tests.rs",
+        "conformance/fixtures/eudi-reference/proximity-presentation.json",
+        "conformance/fixtures/eudi-reference/offline-presentation.json",
+        "crates/flows/src/fragment_contact.rs",
+        "crates/flows/src/reassemble_contact.rs",
+        "crates/log/src/append.rs"
+      ],
+      "limitations": [
+        "Executed proximity and offline outputs joining OpenID4VP handover, SSI verification, and Wallet records are not attached.",
+        "No retained EUDI reference-verifier run establishes ISO 18013-7 handover and SessionTranscript interoperability."
+      ]
+    },
+    {
+      "id": "openid4vp-oidf-wallet-harness",
+      "owner": "reallyme/wallet + reallyme/openid4vp + reallyme/identity",
+      "status": "engineering-execution-retained-qualification-pending",
+      "wallet_boundary": "Wallet exposes the bounded conformance HTTP control plane and an injected OidfWalletFlowDriver seam without taking a dependency on the OpenID4VP DC API implementation. OpenID4VP owns request, DC API, trust, and response validation. Identity owns the provider-wired host and concrete composed driver for request_uri resolution, signed, unsigned, and multi-signed Browser API verification, consent, credential selection, DCQL-keyed vp_token construction, direct_post.jwt and dc_api.jwt encryption, and response submission. Complete local Wallet-role executions are retained centrally. Formal qualification still requires reviewed exports, manual presentation evidence review, and the released deployment cohort.",
+      "observed_paths": [
+        "../openid4vp/conformance/scripts/run_oidf_wallet_plan.sh",
+        "../openid4vp/conformance/oidf-wallet-plan.toml",
+        "../identity/conformance/oidf-openid4vp-wallet-harness/src/drive_wallet_flow.rs",
+        "../identity/conformance/oidf-openid4vp-wallet-harness/src/verify_wallet_request.rs",
+        "../identity/conformance/oidf-openid4vp-wallet-harness/src/provide_wallet_flow.rs",
+        "../identity/conformance/oidf-openid4vp-wallet-host/README.md",
+        "../identity/conformance/oidf-openid4vp-wallet-host/src/launch_live_host.rs",
+        "../identity/bindings/wallet-inventory-store/src/lib.rs"
+      ],
+      "wallet_evidence": [
+        "crates/http/src/oidf_wallet_flow.rs",
+        "crates/http/src/parse_oidf_wallet_launch.rs",
+        "crates/http/src/serve_oidf_wallet_harness.rs",
+        "crates/http/examples/serve_oidf_wallet_harness.rs",
+        "conformance/scripts/serve_oidf_wallet_harness.sh",
+        "conformance/README.md"
+      ],
+      "limitations": [
+        "Eight claim-preference warnings reflect absent optional fixture claims and are retained without waiver.",
+        "Sixty-four negative-module REVIEW outcomes require normal evidence review; no certification pass is claimed.",
+        "Reviewed release/deployment provenance and supported device, proximity and offline qualification remain pending."
+      ],
+      "engineering_evidence": {
+        "owner": "reallyme/identity-conformance",
+        "summary_path": "results/local/wallet-current-schema-20261110/summary.json",
+        "classification": "local_engineering",
+        "certification_claim": false,
+        "complete_wallet_profiles": 4,
+        "completed_modules": 140,
+        "matching_host_outcomes": true,
+        "suite_results": {
+          "PASSED": 68,
+          "WARNING": 8,
+          "REVIEW": 64
+        }
+      }
+    },
+    {
+      "id": "openid4vp-zk-format-binding",
+      "owner": "reallyme/openid4vp",
+      "status": "format-api-and-backend-evidence",
+      "wallet_boundary": "The Wallet ZK integration crate injects an optional prover while Wallet core records derivation consent; OpenID4VP formats own ZK vp_token encoding, verifier fail-closed behavior, and session-binding checks at response verification.",
+      "observed_paths": [
+        "../zk/crates/api/src/lib.rs",
+        "../zk/crates/api/src/proof.rs",
+        "../zk/crates/backend-bb/src/stage_provider.rs",
+        "../zk/crates/backend-bb/tests/openid4vp_stage_provider_tests.rs",
+        "../zk/crates/proto/proto/reallyme/zk/v1/manifest.proto",
+        "../openid4vp/crates/formats/src/zk_presentation.rs",
+        "../openid4vp/crates/formats/src/report_zk_error.rs",
+        "../openid4vp/crates/verifier/src/zk_holder_binding.rs",
+        "../openid4vp/crates/verifier/src/response.rs",
+        "../openid4vp/crates/wallet/src/prepare_zk_presentation.rs",
+        "../openid4vp/crates/proto/proto/reallyme/openid4vp/v1/openid4vp.proto",
+        "../identity-conformance/evidence/openid4vp/reports/openid4vp-eudi.json"
+      ],
+      "wallet_evidence": [
+        "crates/wallet-zk/src/prove_presentation_derivation.rs",
+        "crates/flows/src/prepare_presentation_consent.rs",
+        "crates/wallet-zk/src/prove_presentation_derivation_tests.rs",
+        "conformance/tests/presentation_zk_tests.rs"
+      ],
+      "limitations": [
+        "Production Barretenberg certification-run artifacts are not attached."
+      ]
+    },
+    {
+      "id": "identity-wallet-runtime-facades",
+      "owner": "reallyme/identity",
+      "status": "platform-facades-and-engineering-host-execution-retained-qualification-pending",
+      "wallet_boundary": "Wallet owns the canonical WalletOperation/provider schemas, hardened generated Rust messages, strict codecs, provider policy, and headless Rust runtime; identity owns C ABI, JNI, Wasm bindings, product-facing Swift, Kotlin/Android, and TypeScript facades, and the highest composed artifacts.",
+      "observed_paths": [
+        "../identity/README.md",
+        "../identity/bindings/ffi/Cargo.toml",
+        "../identity/bindings/wasm/Cargo.toml",
+        "../identity/crates/runtime/src/lib.rs",
+        "../identity/crates/runtime/src/operation.rs",
+        "../identity/conformance/oidf-wallet-harness/src/lib.rs",
+        "../identity/conformance/oidf-wallet-harness/src/drive_wallet_flow.rs",
+        "../identity/conformance/oidf-wallet-harness/src/adapt_holder_harness.rs",
+        "../identity/conformance/oidf-openid4vp-wallet-harness/src/lib.rs",
+        "../identity/conformance/oidf-openid4vp-wallet-harness/src/drive_wallet_flow.rs",
+        "../identity/conformance/oidf-openid4vp-wallet-harness/src/verify_wallet_request.rs",
+        "../identity/conformance/oidf-openid4vci-wallet-host/README.md",
+        "../identity/conformance/oidf-openid4vp-wallet-host/README.md",
+        "../identity/bindings/wallet-inventory-store/src/lib.rs",
+        "../identity/packages/swift/README.md",
+        "../identity/packages/kotlin/README.md",
+        "../identity/packages/ts/README.md"
+      ],
+      "wallet_evidence": [
+        "crates/proto/proto/reallyme/wallet/v1/wallet_operation.proto",
+        "crates/proto/proto/reallyme/wallet/v1/wallet_provider.proto",
+        "crates/proto/src/lib.rs",
+        "crates/proto-codec/src/lib.rs",
+        "crates/provider/src/lib.rs",
+        "crates/http/src/serve.rs",
+        "conformance/features/identity-wallet-handoff-v1.json",
+        "vectors/wallet-provider-v1-golden.txt",
+        "conformance/fixtures/wallets/wallet-core-sdk-boundary.json"
+      ],
+      "limitations": [
+        "Native host engineering executions do not qualify every SDK, FFI/JNI, Wasm or device lane.",
+        "Presentation evidence review and released-candidate deployment qualification remain separate."
+      ],
+      "engineering_evidence": {
+        "owner": "reallyme/identity-conformance",
+        "summary_path": "results/local/wallet-current-schema-20261110/summary.json",
+        "classification": "local_engineering",
+        "certification_claim": false,
+        "complete_wallet_profiles": 10,
+        "completed_modules": 278,
+        "matching_host_outcomes": true
+      }
+    }
+  ]
+}

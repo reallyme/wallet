@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet-consent"
+version = "0.1.0"
+description = "Relying-party entitlement and consent policy boundary for ReallyMe wallet core."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/Cargo.toml"]
+
+[features]
+default = ["native"]
+native = ["reallyme-trust-x509/native", "reallyme-openid4vp-wallet/native", "reallyme-wallet-storage/native"]
+wasm = ["reallyme-trust-x509/wasm", "reallyme-openid4vp-wallet/wasm", "reallyme-wallet-storage/wasm"]
+
+[dependencies]
+crypto_sha2_256 = { workspace = true }
+reallyme-codec = { workspace = true, features = ["jcs"] }
+reallyme-disclosure-policy = { workspace = true }
+reallyme-openid4vp-types = { workspace = true }
+reallyme-openid4vp-wallet = { workspace = true }
+reallyme-vp-core = { workspace = true }
+reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+reallyme-wallet-storage = { path = "../storage", version = "0.1.0", default-features = false }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+subtle = { workspace = true }
+time = { workspace = true }
+reallyme-trust-x509 = { workspace = true }
+url = { workspace = true }
+zeroize = { workspace = true }
+
+[dev-dependencies]
+reallyme-openid4vp-wallet = { workspace = true, features = ["jose", "native"] }
+reallyme-crypto = { version = "=0.3.17", default-features = false, features = ["native", "p256", "jwk"] }
+reallyme-jose = { version = "=0.4.6", default-features = false, features = ["native"] }
+
+[lints]
+workspace = true

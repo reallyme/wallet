@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "source": "eidas-2024-1183",
+  "source_version": "2024/1183",
+  "source_url": "https://eur-lex.europa.eu/eli/reg/2024/1183/oj/eng",
+  "requirements": [
+    {
+      "id": "EIDAS-WALLET-TRANSACTION-LOG",
+      "status": "partial",
+      "section": "European Digital Identity Wallet user control and transparency duties",
+      "testability": "software-testable",
+      "implementation": [
+        "crates/log/src/append.rs",
+        "crates/http/src/serve.rs"
+      ],
+      "tests": [
+        "crates/runtime/src/handle_tests.rs",
+        "conformance/tests/requirements_ledger_tests.rs"
+      ]
+    },
+    {
+      "id": "EIDAS-WALLET-QES-QSEAL-DECISION",
+      "status": "partial",
+      "section": "Qualified electronic signature and seal support duties",
+      "testability": "software-testable",
+      "implementation": [
+        "crates/types/src/log.rs",
+        "crates/log/src/append.rs",
+        "crates/consent/src/capture.rs"
+      ],
+      "tests": [
+        "crates/runtime/src/handle_tests.rs",
+        "conformance/tests/requirements_ledger_tests.rs"
+      ]
+    },
+    {
+      "id": "EIDAS-WALLET-USER-CONSENT",
+      "status": "partial",
+      "section": "Wallet disclosure and authorization before data release",
+      "testability": "software-testable",
+      "implementation": [
+        "crates/consent/src/capture.rs",
+        "crates/consent/src/evaluate.rs"
+      ],
+      "tests": [
+        "crates/consent/src/evaluate.rs",
+        "conformance/tests/requirements_ledger_tests.rs"
+      ]
+    }
+  ]
+}

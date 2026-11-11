@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "fixture_id": "eudi.reference.issuance.offer-to-storage.v1",
+  "status": "fixture_seeded",
+  "reference_lock": "conformance/eudi/reference-implementation.lock",
+  "flow": "openid4vci_issuance",
+  "mode": "same_device_or_cross_device_offer",
+  "wallet_core_evidence": [
+    "conformance/fixtures/wallets/wua-valid.json",
+    "conformance/fixtures/issuers/openid4vci-issuer-metadata.json",
+    "conformance/fixtures/issuers/openid4vci-offers.json",
+    "conformance/fixtures/credentials/pid-sd-jwt-record.json"
+  ],
+  "required_wallet_core_checks": [
+    "resolve_inline_or_referenced_offer_through_openid4vci_wallet",
+    "capture_user_consent_before_authorization",
+    "build_pre_authorized_token_request_through_openid4vci_wallet",
+    "exchange_token_through_injected_transport_without_storing_bearer_bytes",
+    "record_token_exchange_before_credential_request",
+    "submit_credential_request_through_injected_transport",
+    "poll_deferred_credential_through_injected_transport",
+    "require_wallet_unit_attestation_before_credential_request",
+    "persist_resumable_flow_snapshot",
+    "validate_inventory_record_before_stored_state"
+  ],
+  "delegated_checks": [
+    "issuer_metadata_wire_validation",
+    "credential_envelope_signature_validation",
+    "access_token_exchange",
+    "credential_endpoint_http_transport"
+  ]
+}

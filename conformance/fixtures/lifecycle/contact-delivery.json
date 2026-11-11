@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "fixture_id": "lifecycle.contact-delivery.v1",
+  "kind": "request",
+  "session_transcript_cbor_b64url": "c2Vzc2lvblRyYW5zY3JpcHQ",
+  "payload_b64url": "aGVsbG8tY29udGFjdA",
+  "now_unix": 100,
+  "ttl_secs": 60,
+  "max_frame_bytes": 256,
+  "expected_result": "round_trip_payload"
+}

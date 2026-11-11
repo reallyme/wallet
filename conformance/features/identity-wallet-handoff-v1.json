@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "contract_id": "reallyme.wallet.identity-handoff.v1",
+  "producer": "reallyme/wallet",
+  "consumer": "reallyme/identity",
+  "ownership": {
+    "rust_engine": "reallyme/wallet",
+    "canonical_proto_contracts": "reallyme/wallet",
+    "generated_rust_bindings": "reallyme/wallet",
+    "native_ffi_and_jni_bindings": "reallyme/identity",
+    "wasm_bindings": "reallyme/identity",
+    "product_facing_swift_api": "reallyme/identity",
+    "product_facing_kotlin_api": "reallyme/identity",
+    "product_facing_typescript_api": "reallyme/identity",
+    "final_composed_artifacts": "reallyme/identity"
+  },
+  "schema_contract": {
+    "package": "reallyme.wallet.v1",
+    "message_schema": "crates/proto/proto/reallyme/wallet/v1/wallet_operation.proto",
+    "provider_schema": "crates/proto/proto/reallyme/wallet/v1/wallet_provider.proto",
+    "error_schema": "crates/proto/proto/reallyme/wallet/v1/errors.proto",
+    "service_schema": "crates/proto/proto/reallyme/wallet/v1/wallet_service.proto",
+    "message_crate": "crates/proto",
+    "codec_crate": "crates/proto-codec",
+    "connect_generated_in_wallet": false
+  },
+  "operation_contract": {
+    "request": "reallyme.wallet.v1.WalletOperationRequest",
+    "response": "reallyme.wallet.v1.WalletOperationResponse",
+    "rust_entrypoint": "execute_wallet_operation_v1",
+    "maximum_message_bytes": 2097152
+  },
+  "provider_contract": {
+    "descriptor": "reallyme.wallet.v1.WalletProviderDescriptor",
+    "request": "reallyme.wallet.v1.WalletProviderRequest",
+    "response": "reallyme.wallet.v1.WalletProviderResponse",
+    "maximum_message_bytes": 2162688,
+    "ambient_fallback_allowed": false
+  },
+  "storage_record_contract": {
+    "header": "reallyme.wallet.v1.EncryptedRecordHeader",
+    "algorithm_enum": "reallyme.crypto.v1.AeadAlgorithm",
+    "approved_algorithms": [
+      "AEAD_ALGORITHM_AES_256_GCM_SIV",
+      "AEAD_ALGORITHM_XCHACHA20_POLY1305"
+    ],
+    "reserved_field_number": 3,
+    "reserved_field_name": "algorithm",
+    "canonical_field": "encryption_algorithm"
+  },
+  "repository_policy": {
+    "wallet_platform_binding_crates_allowed": false,
+    "wallet_platform_packages_allowed": false,
+    "connect_dependency_in_message_crate_allowed": false,
+    "method_name_dispatch_catalog_allowed": false,
+    "platform_ordinal_catalog_allowed": false,
+    "hand_rolled_json_protocol_allowed": false
+  },
+  "golden_fixture": {
+    "path": "vectors/wallet-operation-v1-golden.json",
+    "sha2_256": "7ce2cd70fde0946ed812277ab06daafaae77e88fac8e9727e6207be571a0a4a4"
+  },
+  "provider_golden_fixture": {
+    "path": "vectors/wallet-provider-v1-golden.txt",
+    "sha2_256": "371e57accb9fdc535ddd1a19ef9743e5d6b2f1f9ef179e1d6435a500dbf5fae7"
+  },
+  "consumer_migration": {
+    "status": "complete",
+    "required_evidence": [
+      "canonical_operation_golden_parity",
+      "typed_storage_algorithm_parity",
+      "canonical_provider_golden_parity",
+      "native_composed_symbol_verification",
+      "wasm_single_module_verification",
+      "swift_package_tests",
+      "kotlin_and_android_package_tests",
+      "typescript_package_tests",
+      "legacy_method_catalog_absence"
+    ]
+  }
+}

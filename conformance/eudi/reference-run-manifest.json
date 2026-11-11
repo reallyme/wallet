@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "status": "awaiting_execution",
+  "source_lock": "conformance/sources.lock",
+  "reference_implementation_lock": "conformance/eudi/reference-implementation.lock",
+  "fixture_hashes": "conformance/eudi/reference-fixture-hashes.json",
+  "rule": "These run records define the minimum executed upstream evidence needed before wallet-core reference-wallet interop can be promoted from fixture_seeded to implemented. Do not mark a run passed until the listed artifacts are archived with hashes.",
+  "required_artifact_kinds": [
+    "suite_export",
+    "run_summary",
+    "fixture_hash_manifest",
+    "environment_manifest",
+    "difference_summary"
+  ],
+  "runs": [
+    {
+      "id": "wallet-core.reference-wallet.issuance",
+      "status": "awaiting_execution",
+      "reference_targets": [
+        "eudi-lib-ios-wallet-kit",
+        "eudi-doc-testing-application"
+      ],
+      "wallet_flow": "openid4vci_offer_to_encrypted_storage",
+      "fixture_paths": [
+        "conformance/fixtures/eudi-reference/issuance-offer-to-storage.json",
+        "conformance/fixtures/issuers/openid4vci-issuer-metadata.json",
+        "conformance/fixtures/issuers/openid4vci-offers.json",
+        "conformance/fixtures/wallets/wua-valid.json"
+      ],
+      "expected_archive_path": "conformance/eudi/runs/reference-wallet-issuance/manifest.json",
+      "required_artifacts": [
+        "suite_export",
+        "run_summary",
+        "fixture_hash_manifest",
+        "environment_manifest",
+        "difference_summary"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.same-device-presentation",
+      "status": "awaiting_execution",
+      "reference_targets": [
+        "av-app-android-wallet-ui",
+        "av-app-ios-wallet-ui",
+        "eudi-doc-testing-application"
+      ],
+      "wallet_flow": "openid4vp_same_device_dcql_presentation",
+      "fixture_paths": [
+        "conformance/fixtures/eudi-reference/same-device-presentation.json",
+        "conformance/fixtures/relying-parties/openid4vp-post-request-uri.json",
+        "conformance/fixtures/credentials/pid-sd-jwt-record.json"
+      ],
+      "expected_archive_path": "conformance/eudi/runs/reference-wallet-same-device/manifest.json",
+      "required_artifacts": [
+        "suite_export",
+        "run_summary",
+        "fixture_hash_manifest",
+        "environment_manifest",
+        "difference_summary"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.cross-device-presentation",
+      "status": "awaiting_execution",
+      "reference_targets": [
+        "av-app-android-wallet-ui",
+        "av-app-ios-wallet-ui",
+        "eudi-doc-testing-application"
+      ],
+      "wallet_flow": "openid4vp_cross_device_qr_direct_post_jwt",
+      "fixture_paths": [
+        "conformance/fixtures/eudi-reference/cross-device-presentation.json",
+        "conformance/fixtures/eudi-reference/qr-deep-link-handoff.json",
+        "conformance/fixtures/relying-parties/openid4vp-post-request-uri.json",
+        "conformance/fixtures/credentials/pid-sd-jwt-record.json"
+      ],
+      "expected_archive_path": "conformance/eudi/runs/reference-wallet-cross-device/manifest.json",
+      "required_artifacts": [
+        "suite_export",
+        "run_summary",
+        "fixture_hash_manifest",
+        "environment_manifest",
+        "difference_summary"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.presentation-negative-nonce",
+      "status": "awaiting_execution",
+      "reference_targets": [
+        "eudi-doc-testing-application"
+      ],
+      "wallet_flow": "openid4vp_nonce_binding_negative",
+      "fixture_paths": [
+        "conformance/fixtures/eudi-reference/presentation-nonce-mismatch.json",
+        "conformance/fixtures/relying-parties/openid4vp-post-request-uri.json"
+      ],
+      "expected_archive_path": "conformance/eudi/runs/reference-wallet-negative-nonce/manifest.json",
+      "required_artifacts": [
+        "suite_export",
+        "run_summary",
+        "fixture_hash_manifest",
+        "environment_manifest",
+        "difference_summary"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.proximity-presentation",
+      "status": "awaiting_execution",
+      "reference_targets": [
+        "av-app-android-wallet-ui",
+        "av-app-ios-wallet-ui",
+        "eudi-doc-testing-application"
+      ],
+      "wallet_flow": "iso18013_7_proximity_mdoc_presentation",
+      "fixture_paths": [
+        "conformance/fixtures/eudi-reference/proximity-presentation.json",
+        "conformance/fixtures/credentials/pid-mdoc-record.json"
+      ],
+      "expected_archive_path": "conformance/eudi/runs/reference-wallet-proximity/manifest.json",
+      "required_artifacts": [
+        "suite_export",
+        "run_summary",
+        "fixture_hash_manifest",
+        "environment_manifest",
+        "difference_summary"
+      ]
+    },
+    {
+      "id": "wallet-core.reference-wallet.offline-presentation",
+      "status": "awaiting_execution",
+      "reference_targets": [
+        "av-app-android-wallet-ui",
+        "av-app-ios-wallet-ui",
+        "eudi-doc-testing-application"
+      ],
+      "wallet_flow": "offline_mdoc_presentation_with_cached_status_evidence",
+      "fixture_paths": [
+        "conformance/fixtures/eudi-reference/offline-presentation.json",
+        "conformance/fixtures/credentials/pid-mdoc-record.json",
+        "conformance/fixtures/trust/status-list-revocation.json"
+      ],
+      "expected_archive_path": "conformance/eudi/runs/reference-wallet-offline/manifest.json",
+      "required_artifacts": [
+        "suite_export",
+        "run_summary",
+        "fixture_hash_manifest",
+        "environment_manifest",
+        "difference_summary"
+      ]
+    }
+  ]
+}

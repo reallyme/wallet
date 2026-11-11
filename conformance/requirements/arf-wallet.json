@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "source": "eudi-arf",
+  "source_version": "v3.0.0",
+  "source_url": "https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework/releases/tag/v3.0.0",
+  "requirements": [
+    {
+      "id": "ARF-WALLET-BATCH-POOLS",
+      "status": "partial",
+      "topic": "Verifier unlinkability through once-only presentation copies",
+      "implementation": [
+        "crates/inventory/src/claim.rs",
+        "crates/inventory/src/validate_record.rs"
+      ],
+      "tests": [
+        "conformance/tests/presentation_zk_tests.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ]
+    },
+    {
+      "id": "ARF-WALLET-WUA",
+      "status": "partial",
+      "topic": "Wallet Unit Attestation obtain, validation, binding, and rotation",
+      "implementation": [
+        "crates/attestation/src/obtain.rs",
+        "crates/attestation/src/rotate.rs",
+        "crates/attestation/src/validate.rs",
+        "crates/flows/src/issue.rs"
+      ],
+      "tests": [
+        "conformance/tests/issuance_flow_tests.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ]
+    },
+    {
+      "id": "ARF-WALLET-RP-ENTITLEMENT",
+      "status": "partial",
+      "topic": "Verifier entitlement checking before disclosure",
+      "implementation": [
+        "crates/consent/src/evaluate.rs",
+        "crates/types/src/consent.rs"
+      ],
+      "tests": [
+        "conformance/tests/sdk_contract_tests.rs",
+        "crates/runtime/src/handle_tests.rs"
+      ]
+    },
+    {
+      "id": "ARF-WALLET-CONTACT-DELIVERY",
+      "status": "partial",
+      "topic": "QR, deep-link, same-device, and cross-device delivery envelopes",
+      "implementation": [
+        "crates/flows/src/fragment_contact.rs",
+        "crates/flows/src/reassemble_contact.rs",
+        "crates/render/src/web.rs"
+      ],
+      "tests": [
+        "crates/flows/tests/contact_tests.rs",
+        "crates/render/tests/web_tests.rs"
+      ]
+    },
+    {
+      "id": "ARF-WALLET-LIFECYCLE-EVIDENCE",
+      "status": "partial",
+      "topic": "Append-only lifecycle evidence for backup, restore, migration, portability, withdrawal, deletion, suspension, and reactivation",
+      "implementation": [
+        "crates/lifecycle/src/model.rs",
+        "crates/lifecycle/src/validate_evidence.rs",
+        "crates/proto/proto/reallyme/wallet/v1/wallet.proto",
+        "crates/storage/src/store.rs",
+        "crates/runtime/src/handle.rs",
+        "crates/http/src/serve.rs"
+      ],
+      "tests": [
+        "crates/lifecycle/src/validate_evidence.rs",
+        "crates/proto-codec/tests/convert_tests.rs",
+        "crates/proto-codec/tests/codec_tests.rs",
+        "crates/runtime/src/handle_tests.rs",
+        "crates/http/tests/serve_tests.rs"
+      ]
+    }
+  ]
+}

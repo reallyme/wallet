@@ -1,0 +1,20 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.wallet.v1;
+
+import "reallyme/wallet/v1/wallet_operation.proto";
+
+option java_multiple_files = true;
+option java_package = "me.really.wallet.v1";
+option swift_prefix = "ReallyMeWalletProto";
+
+// WalletCoreService is the Connect/gRPC adapter contract exposed by SDK
+// runtimes. WalletOperation is the sole proto-first entrypoint so every binding
+// shares one versioned dispatch and error envelope.
+service WalletCoreService {
+  rpc WalletOperation(WalletOperationRequest) returns (WalletOperationResponse);
+}

@@ -1,0 +1,717 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-11-11",
+  "status": "gaps_identified",
+  "scope": "Engineering comparison of local reference code with the Rust Wallet engine and its repository boundaries; not a normative assessment or certification result.",
+  "limitations": [
+    "This targeted review does not establish exhaustive feature coverage or security assurance. Reference features are not automatically mandatory requirements.",
+    "Sibling working trees contain uncommitted changes. Source heads alone do not reproduce the inspected files; supplementary SHA-256 digests identify the reviewed content.",
+    "This source review alone does not establish interoperability. Subsequent complete local issuance inventories and presentation runs are retained in Identity Conformance; release, reviewed-export and device qualification remain explicit limits.",
+    "The normative source lock and approved reference execution targets are unchanged. Locally inspected revisions are supplementary engineering inputs."
+  ],
+  "sources": [
+    {
+      "id": "eudi-android-core",
+      "repository": "https://github.com/eu-digital-identity-wallet/eudi-lib-android-wallet-core",
+      "head": "d5e2c51ce594c976e3e4955415dee40ba8a5d50e",
+      "working_tree_modified": false,
+      "files": [
+        {
+          "path": "document-manager/src/main/java/eu/europa/ec/eudi/wallet/document/CreateDocumentSettings.kt",
+          "sha256": "e34be2a1971092b6e232953c3c98ebbd91e38da44e7a6f660b03dc991ed9234b"
+        },
+        {
+          "path": "document-manager/src/main/java/eu/europa/ec/eudi/wallet/document/internal/CredentialPolicyApplier.kt",
+          "sha256": "bcaff47e6aaab8742ac735e29cc438017eb3257dbd57bb5dd0e28578ccf9b7c0"
+        },
+        {
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/registration/relyingparty/DefaultWrpRegistrationEvaluator.kt",
+          "sha256": "3c1f895b76dd178bbfc14d388df93083aacd049df874ae1050a453625bbf6c43"
+        },
+        {
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/statium/DocumentStatusResolver.kt",
+          "sha256": "ad7f0d1a2a21226159f3b5b46ce7151fbc960bc684dff4cdfd15bdb5d96eda31"
+        },
+        {
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/transactionLogging/model/TransactionEntry.kt",
+          "sha256": "dede3558d572a05ea5219e8a1774ec2f165b0eca9fa028ff055cafceb8cd1619"
+        },
+        {
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/transactionLogging/model/TransactionResult.kt",
+          "sha256": "6806d0c87718653da90896fbeefb3f00c254e470f3edf2e863890cbf5c9f3dcb"
+        },
+        {
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/trustmark/TrustMarkManager.kt",
+          "sha256": "31b61813f496ba99db62bf0dd4a2db3e4a93bb1ec46e34fc321768a63b4b9afd"
+        }
+      ]
+    },
+    {
+      "id": "eudi-ios-kit",
+      "repository": "https://github.com/eu-digital-identity-wallet/eudi-lib-ios-wallet-kit",
+      "head": "bfab973f85a2160842c4537b11773af1e607bf52",
+      "working_tree_modified": false,
+      "files": [
+        {
+          "path": "Sources/EudiWalletKit/Services/TransactionDataProcessor.swift",
+          "sha256": "75c225b5344c797e7a4978c047580463dceff6f498a5583db458574f88ff47d0"
+        }
+      ]
+    },
+    {
+      "id": "eudi-ios-transfer",
+      "repository": "https://github.com/eu-digital-identity-wallet/eudi-lib-ios-iso18013-data-transfer",
+      "head": "f3952ea36e37542ee2da829d44334a9987f6c4b4",
+      "working_tree_modified": false,
+      "files": [
+        {
+          "path": "README.md",
+          "sha256": "71491199568c0049704e4289acebb72654f1bc70b1d84ac676039c67d0e1bb6b"
+        }
+      ]
+    },
+    {
+      "id": "eudi-android-app",
+      "repository": "https://github.com/eu-digital-identity-wallet/eudi-app-android-wallet-ui",
+      "head": "4e5be444377ec138f3982242c39eb2b0b888f55a",
+      "working_tree_modified": false,
+      "files": [
+        {
+          "path": "dashboard-feature/src/main/java/eu/europa/ec/dashboardfeature/ui/transactions/data_deletion/DataDeletionRequestViewModel.kt",
+          "sha256": "4d730126b64950e27b0357624079262168a7b11fd8e507b88bafe74de1361498"
+        }
+      ]
+    },
+    {
+      "id": "oidf-suite",
+      "repository": "https://gitlab.com/openid/conformance-suite",
+      "head": "410812ef6bc72a84723c1685725edce3558e31e3",
+      "working_tree_modified": false,
+      "files": [
+        {
+          "path": "src/main/java/net/openid/conformance/vci10wallet/VCIWalletTestCredentialIssuanceWithNotification.java",
+          "sha256": "263f97cc09283239af5e6fabbe9412e279be06eb82e4533d7073edbda4e9cd64"
+        },
+        {
+          "path": "src/main/java/net/openid/conformance/vci10wallet/VCIWalletTestPlan.java",
+          "sha256": "7454cff37fdfb0fd190ff853d1d4fa9a8daeb67c8dd7089f2291e8c1a3aefa86"
+        },
+        {
+          "path": "src/main/java/net/openid/conformance/vp1finalwallet/VP1FinalWalletOptionalCredentialSet.java",
+          "sha256": "8af6de38c5d870f6a1527dab131c52734956a423ca3677e553062e75e148ef63"
+        },
+        {
+          "path": "src/main/java/net/openid/conformance/vp1finalwallet/VP1FinalWalletRequiredNonMatchingCredential.java",
+          "sha256": "631b4f99bb5e7f5fb2d88ee171a031f72eb28f550016d85363222cdc25c74639"
+        },
+        {
+          "path": "src/main/java/net/openid/conformance/vp1finalwallet/VP1FinalWalletTestPlanHaip.java",
+          "sha256": "a6f869c20287a297884a5d6f9d1e6de2b24f59e465e61c40cf352687bf24ff6a"
+        },
+        {
+          "path": "src/main/java/net/openid/conformance/vp1finalwallet/VP1FinalWalletUnknownTransactionDataType.java",
+          "sha256": "ecddddaa7293777ddcf3670d856ed324e6e9ae250ee587ec3c8898e1edfbffb1"
+        }
+      ]
+    },
+    {
+      "id": "identity-taxonomy",
+      "repository": "https://github.com/reallyme/identity-taxonomy",
+      "head": "ffb6ed33118068f852572b011ce4b83027e88264",
+      "working_tree_modified": true,
+      "files": [
+        {
+          "path": "consumers/wallet.yaml",
+          "sha256": "0d79e06910205ca2171da048673216ae3618fb2c197f83546bfdf6d1d9392264"
+        },
+        {
+          "path": "docs/wallet-implementation-boundaries.md",
+          "sha256": "39f70f4bc4127c8d883daaaa6cb1ad166d55d0c40fb6c8d9b72d4e94430f2e94"
+        },
+        {
+          "path": "views/wallet/wallet-surface.yaml",
+          "sha256": "9b8094d2c6da75e2ec69c65b7ceff8d7ec913b20d540794308130d34dee608f5"
+        }
+      ]
+    },
+    {
+      "id": "identity-conformance",
+      "repository": "https://github.com/reallyme/identity-conformance",
+      "head": "069a63db5f542c153af5977814f1fab4062a08d4",
+      "working_tree_modified": true,
+      "files": [
+        {
+          "path": "plans/oidf/certification.json",
+          "sha256": "abf93be4b92b44ff4e8a0588298475e91a6700ed45e71a470925acd39ce0e985"
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "repository": "https://github.com/reallyme/identity",
+      "head": "4d08cf4a16b9a2f4c3884a51edd64614389c205f",
+      "working_tree_modified": true,
+      "files": [
+        {
+          "path": "bindings/wallet-inventory-store/src/lib.rs",
+          "sha256": "979bb81d692147269e830f110d18159d88d6b0163ef54e1800e9c4a0921de3c2"
+        },
+        {
+          "path": "conformance/oidf-openid4vp-wallet-host/src/provide_eudi_consent.rs",
+          "sha256": "c12562a70b8fdeb85152e17cca3b6f5f57552e8d3b6934fd9180933109b6930d"
+        },
+        {
+          "path": "conformance/oidf-wallet-harness/src/complete_issuance_commit.rs",
+          "sha256": "ac152bf27554f1eb171ef14cd69da587c769d7f9f10bd17065754c76b1c3a2b9"
+        }
+      ]
+    },
+    {
+      "id": "openid4vci",
+      "repository": "https://github.com/reallyme/openid4vci",
+      "head": "888ef71d006159b0a11bdc12ff6e0be1bd1f5c6b",
+      "working_tree_modified": true,
+      "files": [
+        {
+          "path": "crates/profiles/src/eudi_metadata.rs",
+          "sha256": "003b7363299647a0bba722fcd7e1c0aefe7641d5d9dce051aff92b5774b565d6"
+        }
+      ]
+    },
+    {
+      "id": "openid4vp",
+      "repository": "https://github.com/reallyme/openid4vp",
+      "head": "24f297f7fd67f5eecdd5fc47c356c96254caa56f",
+      "working_tree_modified": true,
+      "files": [
+        {
+          "path": "crates/formats/src/zk_presentation.rs",
+          "sha256": "92c36fc467506003819f99b3228ceea7be6f04239e5c5b90f1980c121fe9a91c"
+        },
+        {
+          "path": "crates/verifier/src/zk_holder_binding.rs",
+          "sha256": "fea6a165d4b5fedaee033974d3abe04ff88c59d6befc3c0989f4dbaddf427447"
+        },
+        {
+          "path": "crates/wallet/src/prepare_zk_presentation.rs",
+          "sha256": "24cf901261d0bc1ebb47d1f5e77d614d2c891e1eb03c1241910f6af3ee7a9abb"
+        }
+      ]
+    },
+    {
+      "id": "ssi",
+      "repository": "https://github.com/reallyme/ssi",
+      "head": "6aeed023156be5857d7468c67b5d41b5d7bb2e5b",
+      "working_tree_modified": true,
+      "files": [
+        {
+          "path": "crates/disclosure-policy/src/satisfaction.rs",
+          "sha256": "3e6b17b0e4e09282e72f026c6c93300f207f84b84dc7858b9ee4e62cb99a3e4e"
+        }
+      ]
+    },
+    {
+      "id": "vaultwallet",
+      "repository": "https://github.com/reallyme/vaultwallet",
+      "head": "6fac4580b51cbdba20417732998797e3fcdec3c1",
+      "working_tree_modified": true,
+      "files": [
+        {
+          "path": "README.md",
+          "sha256": "51e608fa4c373ddb9d15d5057c0508498ecb165edf2b19f703fb35dabf48f6f2"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "reissuance-record-identity",
+      "disposition": "fixed",
+      "priority": "before_enablement",
+      "change_owner": "reallyme/wallet",
+      "observation": "Reissuance accepted a replacement with the retired record's identifier, contrary to its new-record contract. It now rejects that case before mutating the current record.",
+      "wallet_action": "Retain the same-identifier rejection and regression test. This structural check does not authenticate an issuer response or supply storage atomicity.",
+      "boundary": "Wallet owns local record identity, retirement, and preservation of consumed-copy history.",
+      "wallet_evidence": [
+        "crates/inventory/src/reissue.rs",
+        "crates/inventory/src/reissue_tests.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "eudi-android-core",
+          "path": "document-manager/src/main/java/eu/europa/ec/eudi/wallet/document/internal/CredentialPolicyApplier.kt"
+        }
+      ],
+      "acceptance_criteria": [
+        "Distinct same-issuer replacement succeeds and retires the old record.",
+        "Same-identifier replacement returns InvalidRefreshEvidence and preserves the complete current record."
+      ]
+    },
+    {
+      "id": "credential-reuse-enforcement",
+      "disposition": "fixed",
+      "priority": "before_enablement",
+      "change_owner": "reallyme/wallet",
+      "observation": "Bounded reuse cohorts now enforce once-only use, rotation, stable party allocation, trusted validity windows, monotonic counters and retained attempt identities. Replenishment accounts for thresholds, party capacity and claim capacity; fulfillment retires the old cohort and creates a disjoint replacement through one atomic provider port.",
+      "wallet_action": "Use the Wallet allocator and atomic CredentialReuseStore contract before advertising restricted reuse methods.",
+      "boundary": "OpenID4VCI owns metadata negotiation. Wallet owns inventory-use policy. Identity supplies randomness, scheduling, issuer calls, and provider composition; VaultWallet supplies opaque persistence. Reference rotation and per-party support are themselves incomplete.",
+      "wallet_evidence": [
+        "crates/inventory/src/enforce_reuse.rs",
+        "crates/inventory/src/enforce_reuse_tests.rs",
+        "crates/types/src/reuse_state.rs",
+        "crates/storage/src/policy.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "eudi-android-core",
+          "path": "document-manager/src/main/java/eu/europa/ec/eudi/wallet/document/CreateDocumentSettings.kt"
+        },
+        {
+          "source": "openid4vci",
+          "path": "crates/profiles/src/eudi_metadata.rs"
+        }
+      ],
+      "acceptance_criteria": [
+        "Exhaustion, threshold equality, invalid validity windows, and arithmetic boundaries have typed outcomes.",
+        "Concurrent use and restart cannot reuse consumed instances or reset usage/assignment history.",
+        "Allocation remains bounded and unsupported policies never silently become unrestricted.",
+        "Replenishment and retirement commit through an atomic provider boundary."
+      ]
+    },
+    {
+      "id": "transaction-history-model",
+      "disposition": "fixed",
+      "priority": "before_eudi_release",
+      "change_owner": "reallyme/wallet",
+      "observation": "Version-two history records distinguish completed, refused, cancelled, failed, expired and uncertain attempts; retain requested/presented names, credential references and context; and expose verified bounded query/export pages. A separate v2 transcript preserves v1 hash verification and migration anchors.",
+      "wallet_action": "Use the atomic history append/query port and authorize export delivery in Identity.",
+      "boundary": "Wallet owns history meaning and validation. Identity owns display and authorized export delivery. Providers own durable append/query. Claim values and arbitrary backend error text must not enter history.",
+      "wallet_evidence": [
+        "crates/log/src/history.rs",
+        "crates/log/src/history_tests.rs",
+        "crates/types/src/history.rs",
+        "conformance/fixtures/transaction-history-v2.json",
+        "conformance/tests/history_v2_tests.rs",
+        "crates/storage/src/policy.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "eudi-android-core",
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/transactionLogging/model/TransactionEntry.kt"
+        },
+        {
+          "source": "eudi-android-core",
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/transactionLogging/model/TransactionResult.kt"
+        }
+      ],
+      "acceptance_criteria": [
+        "Completed, refused, cancelled, and failed attempts are distinguishable without retaining claim values.",
+        "Records identify affected credentials and approved request context safely.",
+        "Bounded pagination/export, tampering, duplicate append, and interrupted append have tests.",
+        "Schema compatibility, canonical hashing, generated hardening, and migration vectors change together."
+      ]
+    },
+    {
+      "id": "proximity-reader-consent",
+      "disposition": "composition_gap",
+      "priority": "before_enablement",
+      "change_owner": "reallyme/identity-conformance",
+      "observation": "Wallet now accepts provider-authenticated reader, certificate, request and SessionTranscript facts through a protocol-neutral receipt path, reusing entitlement, exact scope, trusted time, atomic single-use capture and final-disclosure checks. A retained composed SSI reader/device run remains required.",
+      "wallet_action": "Maintain the implemented reader/session consent boundary while Identity supplies reader verification and transport, and Identity Conformance retains the composed execution.",
+      "boundary": "SSI owns mdoc parsing, reader/device authentication, and transcript semantics. Identity owns BLE/NFC and platform engagement. Wallet consumes authenticated facts without recreating ISO/OpenID wire DTOs.",
+      "wallet_evidence": [
+        "crates/consent/src/receipt.rs",
+        "crates/consent/src/receipt_tests.rs",
+        "crates/types/src/consent_receipt.rs",
+        "conformance/tests/mdoc_boundary_tests.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "eudi-ios-transfer",
+          "path": "README.md"
+        },
+        {
+          "source": "eudi-android-core",
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/registration/relyingparty/DefaultWrpRegistrationEvaluator.kt"
+        }
+      ],
+      "acceptance_criteria": [
+        "Consent binds the authenticated reader, exact claims, and session transcript.",
+        "Wrong reader/session, stale evidence, replay, refusal, and extra disclosure fail closed.",
+        "A composed reader run joins SSI authentication to durable consent, copy consumption, and transaction history."
+      ]
+    },
+    {
+      "id": "consent-policy-context",
+      "disposition": "fixed",
+      "priority": "before_eudi_release",
+      "change_owner": "reallyme/wallet",
+      "observation": "Receipt-aware consent authenticates exact purpose, retention, policy versions, choices and transaction assignment through the policy owner. Atomic nonce claim and receipt append precede authorization; final disclosure rechecks scope, exact context and trusted-time expiry.",
+      "wallet_action": "Use receipt-aware preparation/capture and persist its complete evidence atomically.",
+      "boundary": "SSI owns disclosure semantics and providers authenticate policy sources. Identity renders terms and transaction details. Wallet owns the durable authorization receipt, not screen content or policy fetching.",
+      "wallet_evidence": [
+        "crates/consent/src/receipt.rs",
+        "crates/consent/src/receipt_tests.rs",
+        "crates/types/src/consent_receipt.rs",
+        "crates/storage/src/policy.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "identity-taxonomy",
+          "path": "views/wallet/wallet-surface.yaml"
+        },
+        {
+          "source": "ssi",
+          "path": "crates/disclosure-policy/src/satisfaction.rs"
+        },
+        {
+          "source": "identity",
+          "path": "conformance/oidf-openid4vp-wallet-host/src/provide_eudi_consent.rs"
+        }
+      ],
+      "acceptance_criteria": [
+        "Changing approved purpose, retention, policy version, or transaction assignment invalidates authorization.",
+        "Unsupported mandatory policy semantics fail closed.",
+        "Receipts identify approved context without duplicating sensitive claim values."
+      ]
+    },
+    {
+      "id": "flow-terminal-dispositions",
+      "disposition": "fixed",
+      "priority": "before_enablement",
+      "change_owner": "reallyme/wallet",
+      "observation": "A durable execution guard now records cancellation, failure, expiry, completion and delivery uncertainty. Exact canonical operation bytes and their hashes are reserved before effects; restart requires reconciliation of outstanding work. Terminal records and copy burns are preserved.",
+      "wallet_action": "Use FlowExecutionStore and the reservation capability for hosts that advertise background cancellation and resumability; do not infer those capabilities from an older protocol-only snapshot.",
+      "boundary": "Wallet owns durable state and resumability. Identity owns cancellation signals and I/O. Uncertain delivery must never release a consumed copy or imply that nothing was disclosed.",
+      "wallet_evidence": [
+        "crates/flows/src/guard_execution.rs",
+        "crates/flows/src/guard_execution_tests.rs",
+        "crates/types/src/execution.rs",
+        "crates/storage/src/policy.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "eudi-android-core",
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/transactionLogging/model/TransactionResult.kt"
+        },
+        {
+          "source": "identity",
+          "path": "conformance/oidf-wallet-harness/src/complete_issuance_commit.rs"
+        }
+      ],
+      "acceptance_criteria": [
+        "Cancelled/expired flows cannot resume or repeat side effects after restart.",
+        "Cancellation races with commit, consent, signing, and submission have deterministic results.",
+        "Delivery uncertainty is explicit and preserves consumed-copy history."
+      ]
+    },
+    {
+      "id": "rights-request-records",
+      "disposition": "wallet_gap",
+      "priority": "product_decision",
+      "change_owner": "reallyme/wallet",
+      "observation": "There is no typed durable erasure-request or suspicious-RP-report record. These appear in reference history and shared vocabulary; app navigation does not belong in Wallet.",
+      "wallet_action": "Decide the supported intent/history contract and, if enabled, retain bounded user-authorized request state linked to the original transaction.",
+      "boundary": "Wallet owns retained intent/history only. Identity/applications own UI and dispatch; RP/authority services own processing. Opening a channel or sending a message does not prove erasure or acceptance.",
+      "wallet_evidence": [
+        "crates/types/src/log.rs",
+        "conformance/features/exclusions.json"
+      ],
+      "reference_evidence": [
+        {
+          "source": "eudi-android-core",
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/transactionLogging/model/TransactionEntry.kt"
+        },
+        {
+          "source": "eudi-android-app",
+          "path": "dashboard-feature/src/main/java/eu/europa/ec/dashboardfeature/ui/transactions/data_deletion/DataDeletionRequestViewModel.kt"
+        }
+      ],
+      "acceptance_criteria": [
+        "Supported record scope is explicit before wire operations are added.",
+        "Retries preserve intent and failed dispatch differs from confirmed processing."
+      ]
+    },
+    {
+      "id": "issuer-notification-events",
+      "disposition": "wallet_gap",
+      "priority": "product_decision",
+      "change_owner": "reallyme/wallet",
+      "observation": "Atomic issuance/outbox contracts and Identity delivery cover accepted-credential notifications. Equivalent durable failure/deletion-event workflows are absent; these are optional capabilities, not evidence that basic issuance is missing.",
+      "wallet_action": "Explicitly select supported events. If failure/deletion events are enabled, commit event-specific intent with the mutation and preserve exact retry material.",
+      "boundary": "OpenID4VCI owns event wire semantics; Wallet owns durable intent; Identity owns transport/token use. Reference Android marks issuer notification unsupported, so parity alone is insufficient.",
+      "wallet_evidence": [
+        "crates/types/src/issuance.rs",
+        "crates/storage/src/store.rs",
+        "crates/proto-codec/src/convert_issuance_commit.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "oidf-suite",
+          "path": "src/main/java/net/openid/conformance/vci10wallet/VCIWalletTestCredentialIssuanceWithNotification.java"
+        },
+        {
+          "source": "identity",
+          "path": "conformance/oidf-wallet-harness/src/complete_issuance_commit.rs"
+        }
+      ],
+      "acceptance_criteria": [
+        "Accepted notification follows durable validated receipt and commit.",
+        "New events survive restart with stable retry identities.",
+        "Suite SKIPPED notification results are not counted as executed event coverage."
+      ]
+    },
+    {
+      "id": "taxonomy-producer-evidence",
+      "disposition": "fixed",
+      "priority": "before_eudi_release",
+      "change_owner": "reallyme/wallet",
+      "observation": "Wallet supplies a pinned taxonomy consumer lock, reviewed requirement map, deterministic producer ledger and negative generator tests. The 26 conditional platform-command assignments are explicitly outside the selected Wallet facade; they are not promoted to implementation coverage.",
+      "wallet_action": "Maintain producer mappings as requirements change and obtain separate shared-inventory/federation review before promotion.",
+      "boundary": "Taxonomy owns vocabulary/federation schemas. Wallet owns truthful producer evidence. Identity Conformance owns composed execution results. An application command list must not become a duplicate Wallet SDK.",
+      "wallet_evidence": [
+        "contracts/coverage/taxonomy.lock.json",
+        "contracts/coverage/conformance-evidence.yaml",
+        "conformance/taxonomy/conformance-ledger-evidence.json",
+        "scripts/generate_wallet_taxonomy_evidence.mjs",
+        "scripts/generate_wallet_taxonomy_evidence.test.mjs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "identity-taxonomy",
+          "path": "consumers/wallet.yaml"
+        },
+        {
+          "source": "identity-taxonomy",
+          "path": "docs/wallet-implementation-boundaries.md"
+        }
+      ],
+      "acceptance_criteria": [
+        "Each mapped requirement has an owner and executable evidence or explicit gap.",
+        "Transport/UI assignments follow reviewed ownership.",
+        "Fixtures cannot promote pending execution evidence."
+      ]
+    },
+    {
+      "id": "issuance-orchestration",
+      "disposition": "fixed",
+      "priority": "before_eudi_release",
+      "change_owner": "reallyme/wallet",
+      "observation": "Nonce-enabled issuance now binds an authenticated nonce digest and freshness window to the exact issuer endpoint, configuration set, wallet key and unique token handle. Authenticated proof digests must match. The canonical request and resumable snapshot retain the observation; missing, changed, expired and wrong-session evidence fails closed.",
+      "wallet_action": "Use nonce-aware proof verification and persist the retained observation with the canonical issuance state; complete composed execution remains owned by Identity Conformance.",
+      "boundary": "Wallet owns nonce binding to issuance state and retry/restore invariants. OpenID4VCI owns nonce endpoint semantics, PAR, PKCE, DPoP, client authentication, response encryption, and protocol validation. Identity fetches authenticated issuer inputs and composes providers. Identity Conformance retains composed execution results.",
+      "wallet_evidence": [
+        "crates/flows/src/bind_issuer_nonce.rs",
+        "crates/flows/src/submit_credential_request_tests.rs",
+        "crates/flows/src/restore_issuance.rs",
+        "crates/proto-codec/src/convert_flows.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "oidf-suite",
+          "path": "src/main/java/net/openid/conformance/vci10wallet/VCIWalletTestPlan.java"
+        }
+      ],
+      "acceptance_criteria": [
+        "Trusted issuer nonce evidence is bound to the exact issuance session and authenticated holder proofs, including retries and restored state.",
+        "Missing, substituted, stale, wrong-session, and replayed nonce evidence fails closed without transport submission or inventory mutation.",
+        "Receipt, proof, holder binding, deferred timing, and restore negative tests remain green.",
+        "Live evidence identifies exact composed sources and deployment artifacts."
+      ]
+    },
+    {
+      "id": "composed-presentation-evidence",
+      "disposition": "composition_gap",
+      "priority": "before_eudi_release",
+      "change_owner": "reallyme/identity-conformance",
+      "observation": "All four current pinned-suite HAIP Wallet presentation inventories completed as local engineering execution: 140 modules with expected composed host outcomes and no failed suite conditions. Eight preference warnings reflect unavailable optional fixture claims; 64 negative modules retain REVIEW results and actual error-screen evidence. Identity Conformance retains private exports and sanitized summaries. Manual review, released deployment provenance and EUDI/device qualification remain open.",
+      "wallet_action": "Retain consent/final-disclosure contracts and require composed evidence rather than porting protocol or UI behavior here.",
+      "boundary": "OpenID4VP owns request/transaction validation and responses. Identity owns selection/consent/signing composition. Identity Conformance owns execution and reviewed exports. Local tests do not establish certification.",
+      "wallet_evidence": [
+        "crates/consent/src/capture.rs",
+        "conformance/reports/external-readiness.json",
+        "conformance/eudi/reference-run-manifest.json"
+      ],
+      "reference_evidence": [
+        {
+          "source": "eudi-ios-kit",
+          "path": "Sources/EudiWalletKit/Services/TransactionDataProcessor.swift"
+        },
+        {
+          "source": "oidf-suite",
+          "path": "src/main/java/net/openid/conformance/vp1finalwallet/VP1FinalWalletUnknownTransactionDataType.java"
+        },
+        {
+          "source": "oidf-suite",
+          "path": "src/main/java/net/openid/conformance/vp1finalwallet/VP1FinalWalletRequiredNonMatchingCredential.java"
+        },
+        {
+          "source": "oidf-suite",
+          "path": "src/main/java/net/openid/conformance/vp1finalwallet/VP1FinalWalletOptionalCredentialSet.java"
+        },
+        {
+          "source": "oidf-suite",
+          "path": "src/main/java/net/openid/conformance/vp1finalwallet/VP1FinalWalletTestPlanHaip.java"
+        },
+        {
+          "source": "identity-conformance",
+          "path": "plans/oidf/certification.json"
+        }
+      ],
+      "acceptance_criteria": [
+        "Unknown transactions and unsatisfied required sets produce no vp_token.",
+        "Optional unmatched sets do not block valid selections; exact claims and assigned transaction hashes remain consent-bound.",
+        "Fresh complete pinned exports cover every claimed format/mode; skipped cases remain visible."
+      ],
+      "engineering_evidence": {
+        "owner": "reallyme/identity-conformance",
+        "summary_path": "results/local/wallet-current-schema-20261110/summary.json",
+        "classification": "local_engineering",
+        "certification_claim": false
+      }
+    },
+    {
+      "id": "custody-status-and-attestation",
+      "disposition": "covered",
+      "priority": "maintain",
+      "change_owner": "reallyme/wallet",
+      "observation": "Opaque key handles, WUA trust verification, authenticated status updates, anti-rollback watermarks, terminal revocation/deletion, lifecycle CAS, and durable once-only claims already exist.",
+      "wallet_action": "Preserve fail-closed injected contracts and extend provider qualification, without adding a concrete vault, key fallback, or credential parser.",
+      "boundary": "SSI owns credential/trust/status semantics. Crypto owns primitives. Identity owns platform composition. VaultWallet owns opaque persistence/sync and installation-local restrictions.",
+      "wallet_evidence": [
+        "crates/attestation/src/model.rs",
+        "crates/inventory/src/check_status_list.rs",
+        "crates/inventory/src/update_status.rs",
+        "crates/storage/src/store.rs",
+        "crates/keystore/src/model.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "eudi-android-core",
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/statium/DocumentStatusResolver.kt"
+        },
+        {
+          "source": "vaultwallet",
+          "path": "README.md"
+        },
+        {
+          "source": "identity",
+          "path": "bindings/wallet-inventory-store/src/lib.rs"
+        }
+      ],
+      "acceptance_criteria": [
+        "Stale status, revoked/deleted state, unsupported providers, and restarted claims cannot regain authority.",
+        "Recovery/migration qualification preserves non-exportable keys and local-only credential restrictions."
+      ]
+    },
+    {
+      "id": "reference-evidence-locations",
+      "disposition": "fixed",
+      "priority": "maintain",
+      "change_owner": "reallyme/wallet",
+      "observation": "Readiness links named removed OpenID4VP files and the former Identity inventory directory. They now point at current owner locations without promoting execution status.",
+      "wallet_action": "Keep current evidence pointers separate from immutable interoperability targets and retain reviewed file hashes.",
+      "boundary": "Wallet owns its report. Identity Conformance owns composed reports. A newer local reference is not an automatic certification baseline upgrade.",
+      "wallet_evidence": [
+        "conformance/reports/external-readiness.json",
+        "conformance/eudi/reference-implementation.lock"
+      ],
+      "reference_evidence": [
+        {
+          "source": "identity",
+          "path": "bindings/wallet-inventory-store/src/lib.rs"
+        },
+        {
+          "source": "openid4vp",
+          "path": "crates/formats/src/zk_presentation.rs"
+        },
+        {
+          "source": "openid4vp",
+          "path": "crates/verifier/src/zk_holder_binding.rs"
+        },
+        {
+          "source": "openid4vp",
+          "path": "crates/wallet/src/prepare_zk_presentation.rs"
+        }
+      ],
+      "acceptance_criteria": [
+        "Current observed paths resolve in the inspected sibling checkout set.",
+        "Existing limitations and pending execution states remain explicit."
+      ]
+    },
+    {
+      "id": "platform-and-trust-mark-surfaces",
+      "disposition": "outside_wallet",
+      "priority": "maintain",
+      "change_owner": "reallyme/identity",
+      "observation": "Reference app APIs, OS key management, BLE/NFC/DC API registration, accessibility, navigation, and trust-mark fetching/display belong above this Rust engine.",
+      "wallet_action": "Keep the Rust/provider boundary. Add Wallet types only for persistent wallet state or authorization independent of platform display.",
+      "boundary": "Identity/applications own SDKs and platform/UI surfaces. Provider/EUDI services own registration and publication. ZK proving stays behind the existing neutral integration.",
+      "wallet_evidence": [
+        "conformance/features/exclusions.json",
+        "docs/architecture/SDK_COMPOSITION.md",
+        "crates/wallet-zk/src/prove_presentation_derivation.rs"
+      ],
+      "reference_evidence": [
+        {
+          "source": "eudi-android-core",
+          "path": "wallet-core/src/main/java/eu/europa/ec/eudi/wallet/trustmark/TrustMarkManager.kt"
+        },
+        {
+          "source": "eudi-ios-transfer",
+          "path": "README.md"
+        }
+      ],
+      "acceptance_criteria": [
+        "No platform SDK, FFI/JNI, concrete prover, or VaultWallet dependency is introduced into Wallet core.",
+        "Missing capabilities continue to return typed unsupported outcomes."
+      ]
+    },
+    {
+      "id": "composed-issuance-evidence",
+      "disposition": "composition_gap",
+      "priority": "before_eudi_release",
+      "change_owner": "reallyme/identity-conformance",
+      "observation": "All six current pinned-suite HAIP wallet issuance inventories passed as local engineering execution: 138 modules with exact expected composed outcomes, including batch, deferred and encrypted receipt storage. Identity Conformance retains the sanitized summary and private export digests. Reviewed deployment/source provenance, certification and EUDI/device execution remain separate requirements.",
+      "wallet_action": "Keep Wallet producer evidence scoped to its Rust contracts; retain complete composed results centrally.",
+      "boundary": "Identity owns the composed host. SSI and OpenID4VCI own protocol mechanics. Identity Conformance owns matrix execution and reviewed exports.",
+      "wallet_evidence": [
+        "conformance/reports/external-readiness.json",
+        "conformance/features/wallet-policy-contracts-v1.json"
+      ],
+      "reference_evidence": [
+        {
+          "source": "oidf-suite",
+          "path": "src/main/java/net/openid/conformance/vci10wallet/VCIWalletTestPlan.java"
+        }
+      ],
+      "acceptance_criteria": [
+        "Complete applicable issuance profiles execute through the intended deployed host.",
+        "Reviewed evidence identifies exact sources, binaries, suite pin, modules and artifact digests."
+      ],
+      "engineering_evidence": {
+        "owner": "reallyme/identity-conformance",
+        "summary_path": "results/local/wallet-current-schema-20261110/summary.json",
+        "classification": "local_engineering",
+        "certification_claim": false
+      }
+    }
+  ],
+  "wallet_baseline": {
+    "head": "0acca29b91ca2d4b9e0404bebb44f41c99211e5f",
+    "working_tree_modified": true
+  },
+  "validation": {
+    "status": "external_release_qualification_remaining",
+    "details": "conformance/reports/wallet-policy-validation.json",
+    "workspace_tests": {
+      "passed": 736,
+      "failed": 0,
+      "ignored": 0
+    },
+    "schema_alignment": "Wallet imports the current canonical OpenID4VP schema. The eleven locked schema inputs verify against registry-published sibling schemas.",
+    "security_workflow": "Tracked and syntax-checked. Hosted execution is unverified.",
+    "external_execution": "All ten local pinned-suite Wallet-role inventories completed: 138 passing issuance modules and 140 presentation modules with expected composed host outcomes. Presentation warnings and manual-review states are retained centrally. EUDI reference applications and hardware transports are not qualified."
+  },
+  "implementation_contract": "conformance/features/wallet-policy-contracts-v1.json"
+}

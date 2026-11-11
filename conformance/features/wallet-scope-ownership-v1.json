@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "contract": "wallet-scope-ownership-v1",
+  "summary": "Explicit ownership decisions for EUDI wallet obligations that sit at or near the Wallet boundary. Wallet keeps this contract and its local evidence; Identity Taxonomy may mirror ownership and coverage, and Identity Conformance records composed runs.",
+  "statuses": [
+    "implemented",
+    "partial",
+    "not_implemented",
+    "delegated",
+    "product_decision_required"
+  ],
+  "areas": [
+    {
+      "id": "wallet-unit-lifecycle-state",
+      "owner": "reallyme/wallet",
+      "status": "implemented",
+      "wallet_responsibility": "Wallet Unit lifecycle states, transitions, trusted-time evidence bounds, and authenticated authority for every event after initial provisioning begins.",
+      "evidence": [
+        "crates/lifecycle/src/transition.rs",
+        "crates/lifecycle/src/classify_event_authority.rs",
+        "crates/runtime/src/handle.rs"
+      ]
+    },
+    {
+      "id": "credential-revocation-state",
+      "owner": "reallyme/wallet",
+      "status": "partial",
+      "wallet_responsibility": "Authenticated status-list application, terminal revoked and deleted states, and refusal to release presentation copies for inactive credentials. Refresh scheduling is a host responsibility. The public protobuf status-evidence operation is disabled, so status updates go through the Rust inventory API only.",
+      "evidence": [
+        "crates/inventory/src/check_status_list.rs",
+        "crates/runtime/src/require_active_credential.rs"
+      ]
+    },
+    {
+      "id": "wallet-unit-revocation-state",
+      "owner": "reallyme/wallet",
+      "status": "not_implemented",
+      "wallet_responsibility": "Wallet Unit and WSCD revocation state, including the attestation status reference and the resulting lifecycle restriction.",
+      "evidence": []
+    },
+    {
+      "id": "transaction-log-retention-policy",
+      "owner": "reallyme/wallet",
+      "status": "not_implemented",
+      "wallet_responsibility": "Retention limits, user-initiated deletion of log entries, and notice before pruning, consistent with the hash-chained history.",
+      "evidence": []
+    },
+    {
+      "id": "portability-policy",
+      "owner": "reallyme/wallet",
+      "status": "partial",
+      "wallet_responsibility": "Authorization, lifecycle evidence, and record meaning for backup, restore, export, and migration. The migration package content policy is not yet defined.",
+      "evidence": [
+        "crates/lifecycle/src/model.rs",
+        "crates/log/src/history.rs"
+      ]
+    },
+    {
+      "id": "credential-classification",
+      "owner": "reallyme/wallet",
+      "status": "not_implemented",
+      "wallet_responsibility": "Attestation type and PID, QEAA, PuB-EAA, or EAA category on credential records wherever the category changes a Wallet decision such as reuse, reissuance, or portability.",
+      "evidence": []
+    },
+    {
+      "id": "attestation-acquisition",
+      "owner": "reallyme/identity and the wallet provider",
+      "status": "delegated",
+      "wallet_responsibility": "Wallet verifies, binds, and rotates Wallet Unit Attestations through injected providers. Acquiring Wallet Instance and key attestations from the Wallet Provider stays outside Wallet.",
+      "evidence": [
+        "crates/attestation/src/obtain.rs",
+        "crates/attestation/src/rotate.rs"
+      ]
+    },
+    {
+      "id": "proximity-and-digital-credentials-api",
+      "owner": "reallyme/identity and the wallet provider",
+      "status": "delegated",
+      "wallet_responsibility": "Wallet supplies reader-session consent receipts and contact-delivery framing. ISO/IEC 18013-5 transports and Digital Credentials API integration stay outside Wallet.",
+      "evidence": [
+        "crates/consent/src/receipt.rs",
+        "crates/flows/src/validate_contact.rs"
+      ]
+    },
+    {
+      "id": "user-rights-workflows",
+      "owner": "reallyme/identity and the wallet provider",
+      "status": "delegated",
+      "wallet_responsibility": "User-facing data-deletion requests to relying parties, reports to data protection authorities, and dashboard workflows stay outside Wallet. Durable rights-request records remain the open rights-request-records item in the reference-code review.",
+      "evidence": []
+    },
+    {
+      "id": "backup-and-migration-storage",
+      "owner": "reallyme/vaultwallet",
+      "status": "delegated",
+      "wallet_responsibility": "Wallet defines authorization and record meaning; VaultWallet owns the storage mechanics for authorized backup and migration.",
+      "evidence": [
+        "crates/storage/src/store.rs"
+      ]
+    },
+    {
+      "id": "wallet-to-wallet-transfer",
+      "owner": "product decision pending",
+      "status": "product_decision_required",
+      "wallet_responsibility": "No Wallet support is claimed until product scope is decided.",
+      "evidence": []
+    },
+    {
+      "id": "legal-person-wallets",
+      "owner": "product decision pending",
+      "status": "product_decision_required",
+      "wallet_responsibility": "No Wallet support is claimed until product scope is decided.",
+      "evidence": []
+    },
+    {
+      "id": "payment-authentication",
+      "owner": "product decision pending",
+      "status": "product_decision_required",
+      "wallet_responsibility": "No Wallet support is claimed for strong customer authentication or payment transaction data until product scope is decided.",
+      "evidence": []
+    }
+  ],
+  "evidence_boundaries": [
+    {
+      "id": "wallet-executable-contracts",
+      "owner": "reallyme/wallet",
+      "responsibility": "Wallet retains its executable contracts, fixtures, and local evidence in this repository."
+    },
+    {
+      "id": "ownership-and-coverage-ledger",
+      "owner": "reallyme/identity-taxonomy",
+      "responsibility": "Records cross-repository ownership and coverage derived from Wallet producer evidence."
+    },
+    {
+      "id": "composed-runs",
+      "owner": "reallyme/identity-conformance",
+      "responsibility": "Records composed issuer, verifier, and device runs with retained execution evidence."
+    }
+  ]
+}

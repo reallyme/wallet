@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "name": "reallyme-wallet-core",
+  "role": "EUDI wallet core domain and runtime library",
+  "source_lock": "conformance/sources.lock",
+  "in_scope": [
+    "credential lifecycle orchestration",
+    "presentation copy batch pools",
+    "headless issuance and presentation state machines",
+    "consent and relying-party entitlement decisions",
+    "wallet unit attestation lifecycle records",
+    "user-visible transaction and QTSP decision logs",
+    "proto-first WalletCoreService runtime boundary",
+    "optional render adapters for wallet distribution artifacts"
+  ],
+  "out_of_scope": [
+    "private key bytes and cryptographic primitive implementations",
+    "protocol wire ownership already held by OpenID4VCI and OpenID4VP crates",
+    "credential envelope parsing owned by reallyme/ssi",
+    "product-facing Swift, Kotlin/Android, and TypeScript package facades owned by identity",
+    "issuer-service and verifier-service deployment logic",
+    "end-user UI rendering"
+  ],
+  "dependency_boundaries": [
+    {
+      "name": "reallyme-crypto",
+      "relationship": "transitive cryptographic implementation below SSI and protocol crates"
+    },
+    {
+      "name": "reallyme/ssi",
+      "relationship": "Credential, trust, status, and disclosure semantics composed by Wallet and the protocol crates"
+    },
+    {
+      "name": "reallyme-openid4vci",
+      "relationship": "OpenID4VCI protocol primitives and holder sequencing below wallet-core"
+    },
+    {
+      "name": "reallyme-openid4vp",
+      "relationship": "OpenID4VP verifier and wallet format handling below wallet-core"
+    },
+    {
+      "name": "reallyme-zk-api",
+      "relationship": "trait-only zk circuit registry and prover/verifier boundary"
+    }
+  ]
+}

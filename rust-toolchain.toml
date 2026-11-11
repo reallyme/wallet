@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[toolchain]
+channel = "1.99.0"
+components = ["clippy", "rustfmt"]
+targets = ["wasm32-unknown-unknown"]
+profile = "minimal"

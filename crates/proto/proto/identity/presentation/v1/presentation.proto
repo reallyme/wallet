@@ -1,0 +1,220 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package identity.presentation.v1;
+
+import "identity/credential/v1/credential.proto";
+
+option java_multiple_files = true;
+option java_package = "me.really.identity.presentation.v1";
+option swift_prefix = "ReallyMeIdentityProto";
+
+// DisclosureMode identifies how a claim is disclosed or constrained.
+enum DisclosureMode {
+  DISCLOSURE_MODE_UNSPECIFIED = 0;
+  DISCLOSURE_MODE_HIDDEN = 1;
+  DISCLOSURE_MODE_REVEAL = 2;
+  DISCLOSURE_MODE_EQ = 3;
+  DISCLOSURE_MODE_GTE = 4;
+  DISCLOSURE_MODE_LTE = 5;
+  DISCLOSURE_MODE_RANGE = 6;
+  DISCLOSURE_MODE_MEMBER_OF_SET = 7;
+}
+
+// VpVerificationOutcome is the stable SDK-facing presentation decision.
+enum VpVerificationOutcome {
+  VP_VERIFICATION_OUTCOME_UNSPECIFIED = 0;
+  VP_VERIFICATION_OUTCOME_ACCEPTED = 1;
+  VP_VERIFICATION_OUTCOME_REJECTED = 2;
+}
+
+// VpFailureClass is a stable high-level class for presentation verification
+// failures. Detailed Rust policy errors remain internal and map into these
+// classes before crossing SDK, FFI, RPC, telemetry, or inter-repo boundaries.
+enum VpFailureClass {
+  VP_FAILURE_CLASS_UNSPECIFIED = 0;
+  VP_FAILURE_CLASS_BINDING = 1;
+  VP_FAILURE_CLASS_EXPIRED = 2;
+  VP_FAILURE_CLASS_ALGORITHM = 3;
+  VP_FAILURE_CLASS_FORMAT = 4;
+  VP_FAILURE_CLASS_CLAIMS = 5;
+  VP_FAILURE_CLASS_DISCLOSURE = 6;
+  VP_FAILURE_CLASS_PREDICATE = 7;
+  VP_FAILURE_CLASS_STATUS = 8;
+  VP_FAILURE_CLASS_QEAA = 9;
+  VP_FAILURE_CLASS_PROOF = 10;
+  VP_FAILURE_CLASS_ZK = 11;
+}
+
+// VpVerificationReport is the proto-backed summary of a presentation
+// verification result for externally observable boundaries.
+message VpVerificationReport {
+  VpVerificationOutcome outcome = 1;
+  repeated VpFailureClass failure_classes = 2;
+}
+
+// Presentation is the protocol-neutral VP payload carried by delivery
+// protocols such as OpenID4VP, web, BLE/mdoc, or Connect transports.
+message Presentation {
+  oneof kind {
+    ZkPresentation zk = 1 [debug_redact = true];
+    SdJwtVcPresentation sd_jwt_vc = 2 [debug_redact = true];
+    MdocPresentation mdoc = 3 [debug_redact = true];
+  }
+}
+
+// MdocPresentation carries an ISO 18013-5 DeviceResponse.
+message MdocPresentation {
+  bytes device_response = 1 [debug_redact = true];
+  optional bytes envelope_hash = 2 [debug_redact = true];
+  optional string doc_type = 3 [debug_redact = true];
+}
+
+// SdJwtVcPresentation carries an SD-JWT VC issuance or presentation string and
+// optional holder key-binding material.
+message SdJwtVcPresentation {
+  string sd_jwt = 1 [debug_redact = true];
+  repeated string disclosures = 2 [debug_redact = true];
+  optional string kb_jwt = 3 [debug_redact = true];
+  optional string vct = 4 [debug_redact = true];
+  optional bytes envelope_hash = 5 [debug_redact = true];
+}
+
+// The original credential fields retain their v1 wire numbers so deployed
+// credential presentations remain readable. New proof profiles use distinct
+// fields; a decoder must reject messages that combine profile shapes.
+// Proof packages are owned and interpreted by ReallyMe ZK.
+message ZkPresentation {
+  PresentationFreshness freshness = 1 [debug_redact = true];
+  CredentialReference credential = 2 [debug_redact = true];
+  repeated ClaimDisclosure disclosures = 3 [debug_redact = true];
+  ZkProof zk_proof = 4 [debug_redact = true];
+  optional QeaaVerifierHints qeaa = 5 [debug_redact = true];
+  oneof additional_profile {
+    ZkPersonaPresentation persona = 6 [debug_redact = true];
+    ZkCommonRootPresentation common_root = 7 [debug_redact = true];
+  }
+}
+
+// Whether a persona's key is hidden or intentionally public in the proof.
+enum ZkPersonaMode {
+  ZK_PERSONA_MODE_UNSPECIFIED = 0;
+  ZK_PERSONA_MODE_PRIVATE = 1;
+  ZK_PERSONA_MODE_PUBLIC = 2;
+}
+
+// One issuer credential claim authorized through a persona.
+message ZkPersonaPresentation {
+  PresentationFreshness freshness = 1 [debug_redact = true];
+  ZkPersonaMode mode = 2;
+  repeated ClaimDisclosure disclosures = 3 [debug_redact = true];
+  oneof evidence {
+    bytes request_bound_proof_package = 4 [debug_redact = true];
+    ZkPreparedPersonaEvidence prepared = 5 [debug_redact = true];
+  }
+}
+
+// Four precomputed credential proofs are separately authenticated for a fresh
+// request. prepared_evidence_package is the canonical
+// reallyme.zk.v1.ZkPreparedCredentialEvidenceV1 message; current_state_package
+// is the canonical reallyme.zk.v1.ZkPreparedRawProofPackage for current status.
+// The selected-claim proof establishes the public persona or one-time key.
+// The holder signature covers a canonical ReallyMe ZK authentication transcript
+// joining both exact packages to the verified request. All four checks remain
+// the responsibility of the injected ZK verifier; this is only a transport type.
+message ZkPreparedPersonaEvidence {
+  bytes prepared_evidence_package = 1 [debug_redact = true];
+  bytes current_state_package = 2 [debug_redact = true];
+  bytes verifier_request = 3 [debug_redact = true];
+  bytes holder_authentication = 4 [debug_redact = true];
+  bytes holder_public_key = 5 [debug_redact = true];
+  bytes holder_signature = 6 [debug_redact = true];
+}
+
+// Two issuer credential claims joined to the same assured private root.
+// Status pointers and original subject identifiers are private witness inputs;
+// only their proof commitments and public inputs appear in the package.
+message ZkCommonRootPresentation {
+  PresentationFreshness freshness = 1 [debug_redact = true];
+  ZkPersonaMode mode = 2;
+  repeated ClaimDisclosure disclosures = 3 [debug_redact = true];
+  bytes proof_package = 4 [debug_redact = true];
+}
+
+// PresentationFreshness binds a presentation to verifier challenge, audience,
+// and expiry.
+message PresentationFreshness {
+  bytes challenge = 1 [debug_redact = true];
+  bytes audience_hash = 2 [debug_redact = true];
+  uint64 expiry_unix = 3 [debug_redact = true];
+}
+
+// CredentialReference identifies the credential being presented.
+message CredentialReference {
+  bytes envelope_hash = 1 [debug_redact = true];
+  string issuer_did = 2 [debug_redact = true];
+  CredentialStatusRef status = 3 [debug_redact = true];
+}
+
+// CredentialStatusRef captures the credential status pointer proved or carried
+// by a presentation.
+message CredentialStatusRef {
+  string status_list_url = 1 [debug_redact = true];
+  bytes status_list_id = 2 [debug_redact = true];
+  uint64 status_list_index = 3 [debug_redact = true];
+  identity.credential.v1.StatusPurpose purpose = 4 [debug_redact = true];
+}
+
+// ClaimDisclosure carries one disclosed or predicate-constrained claim.
+message ClaimDisclosure {
+  string claim_path = 1 [debug_redact = true];
+  DisclosureMode mode = 2 [debug_redact = true];
+
+  oneof value {
+    bytes revealed_value = 3 [debug_redact = true];
+    uint64 threshold = 4 [debug_redact = true];
+    Range range = 5 [debug_redact = true];
+    ValueSet set = 6 [debug_redact = true];
+  }
+}
+
+// Range is an inclusive numeric range.
+message Range {
+  uint64 min = 1 [debug_redact = true];
+  uint64 max = 2 [debug_redact = true];
+}
+
+// ValueSet is a set of accepted byte-string values.
+message ValueSet {
+  repeated bytes values = 1 [debug_redact = true];
+}
+
+// ZkProofSuite binds proof bytes to the exact audited backend flavor. Only the
+// production suite is representable; unspecified non-ZK values fail closed.
+enum ZkProofSuite {
+  ZK_PROOF_SUITE_UNSPECIFIED = 0;
+  ZK_PROOF_SUITE_BARRETENBERG_ULTRAHONK_KECCAK_ZK_NO_IPA = 1;
+}
+
+// ZkProof carries opaque proof bytes plus circuit and verification-key
+// metadata.
+message ZkProof {
+  string circuit_id = 1 [debug_redact = true];
+  string circuit_version = 2 [debug_redact = true];
+  string vk_id = 3 [debug_redact = true];
+  bytes proof_bytes = 4 [debug_redact = true];
+  map<string, bytes> public_inputs = 5 [debug_redact = true];
+  ZkProofSuite proof_suite = 6;
+  bytes artifact_manifest_sha256 = 7 [debug_redact = true];
+}
+
+// QeaaVerifierHints carries QEAA verifier policy hints extracted from a proof
+// or adjacent trust evidence.
+message QeaaVerifierHints {
+  bool required = 1 [debug_redact = true];
+  optional bytes audit_report_hash = 2 [debug_redact = true];
+  uint32 max_status_age_seconds = 3 [debug_redact = true];
+}

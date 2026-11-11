@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "validated_on": "2026-11-11",
+  "scope": "Wallet Rust policy contracts, bounded persistence codecs, producer metadata, and the associated SSI/Identity integration. Local engineering validation; no certification or release qualification.",
+  "status": "implemented_with_external_qualification_remaining",
+  "certification_evidence": false,
+  "published": false,
+  "wallet_checks": [
+    {
+      "command": "cargo fmt --check",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "cargo check --locked --workspace --all-features",
+      "status": "passed",
+      "log_sha256": "bd508cca8d68decc43b5a0593f354fa8f8948bc8c743cc9b0f84216c573af106",
+      "dependency_cohort": "published_ssi_0_6_1"
+    },
+    {
+      "command": "RUSTFLAGS=\"-Dwarnings\" cargo check --locked --workspace --all-features",
+      "status": "passed",
+      "log_sha256": "a338554dbe6e5e0ab78eed5edcbcbd274d8096cce365bcbced791d068acfb955",
+      "dependency_cohort": "published_ssi_0_6_1"
+    },
+    {
+      "command": "cargo clippy --locked --workspace --all-targets --all-features -- -D warnings",
+      "status": "passed",
+      "log_sha256": "41e5fd540d02005bf822f0393b6c8c79363f9a53aa773f6254c08446ee9acefd",
+      "dependency_cohort": "published_ssi_0_6_1"
+    },
+    {
+      "command": "cargo test --locked --workspace --all-features",
+      "status": "passed",
+      "log_sha256": "41e5fd540d02005bf822f0393b6c8c79363f9a53aa773f6254c08446ee9acefd",
+      "passed_tests": 736,
+      "dependency_cohort": "published_ssi_0_6_1"
+    },
+    {
+      "command": "node scripts/check_rust_release_policy.mjs --check-wasm",
+      "status": "passed",
+      "log_sha256": "41e5fd540d02005bf822f0393b6c8c79363f9a53aa773f6254c08446ee9acefd",
+      "dependency_cohort": "published_ssi_0_6_1"
+    },
+    {
+      "command": "RUSTUP_TOOLCHAIN=1.99.0 RUSTFLAGS=\"-Dwarnings\" node scripts/check_rust_release_policy.mjs --check-msrv",
+      "status": "passed",
+      "log_sha256": "97bfa23291fa20edc1153320befe2bf8f369da048ff6b2f94e1a3d7be12326c8",
+      "dependency_cohort": "published_ssi_0_6_1"
+    },
+    {
+      "command": "node scripts/check_rust_package_surfaces.mjs",
+      "status": "passed",
+      "log_sha256": "41e5fd540d02005bf822f0393b6c8c79363f9a53aa773f6254c08446ee9acefd"
+    },
+    {
+      "command": "cargo deny check",
+      "status": "passed",
+      "log_sha256": "41e5fd540d02005bf822f0393b6c8c79363f9a53aa773f6254c08446ee9acefd",
+      "dependency_cohort": "published_ssi_0_6_1"
+    },
+    {
+      "command": "scripts/audit_committed_lockfiles.sh",
+      "status": "passed",
+      "log_sha256": "41e5fd540d02005bf822f0393b6c8c79363f9a53aa773f6254c08446ee9acefd",
+      "dependency_cohort": "published_ssi_0_6_1"
+    },
+    {
+      "command": "scripts/check_security_gates.sh",
+      "status": "passed",
+      "reason": "Complete gate passed for the proposed Wallet tree: format, Clippy, 736 all-feature tests, Wasm, dependency audits, package surfaces, release readiness, and pinned-nightly fuzz target builds. Hosted CI execution remains unverified.",
+      "log_sha256": "41e5fd540d02005bf822f0393b6c8c79363f9a53aa773f6254c08446ee9acefd"
+    },
+    {
+      "command": "node scripts/check_release_readiness.mjs through the repository-pinned runner",
+      "status": "passed",
+      "log_sha256": "41e5fd540d02005bf822f0393b6c8c79363f9a53aa773f6254c08446ee9acefd",
+      "reason": "Complete release readiness passed with reallyme/release-readiness commit 9cf40c7 against registry-published protocol, SSI, and ZK dependencies."
+    },
+    {
+      "command": "node --test scripts/generate_wallet_taxonomy_evidence.test.mjs",
+      "status": "passed",
+      "passed_tests": 3
+    },
+    {
+      "command": "node scripts/generate_wallet_taxonomy_evidence.mjs --check",
+      "status": "passed"
+    },
+    {
+      "command": "Identity Taxonomy audit_conformance_ledger.rb against the committed taxonomy revision in contracts/coverage/taxonomy.lock.json",
+      "status": "passed",
+      "requirement_dispositions": 26,
+      "implementation_or_interoperability_claim": false
+    },
+    {
+      "command": "node scripts/check-published-semver.mjs",
+      "status": "passed_initial_release_checks",
+      "packages_without_a_published_baseline": 17,
+      "log_sha256": "3075d8a8e24731395b6541f1a3cd3649c4263c241e0b1843c8368f8aca4156cc"
+    },
+    {
+      "command": "node scripts/check_release_readiness.mjs --policy-only through the repository-pinned runner",
+      "status": "passed",
+      "log_sha256": "dac4e342694734306981503576379616f49e68a0d96b64f71d22245057f33d5c",
+      "reason": "Static release policy checks passed with reallyme/release-readiness commit 9cf40c7."
+    },
+    {
+      "command": "node --test scripts/*.test.mjs",
+      "status": "passed",
+      "passed_tests": 47,
+      "log_sha256": "5490ba3c5aa20c920b06434e38817ee43fda50a00ee66bc6d7df6b97d44751f3",
+      "dependency_cohort": "published_ssi_0_6_1"
+    },
+    {
+      "command": "node scripts/check_ci_lane_ownership.mjs",
+      "status": "passed"
+    },
+    {
+      "command": "actionlint .github/workflows/repository-security.yml",
+      "status": "passed",
+      "workflow_tracked": true
+    },
+    {
+      "command": "CARGO_NET_OFFLINE=true cargo +nightly-2026-09-15 fuzz build -Z cargo-lints",
+      "status": "passed",
+      "log_sha256": "41e5fd540d02005bf822f0393b6c8c79363f9a53aa773f6254c08446ee9acefd"
+    },
+    {
+      "command": "scripts/run-fuzz-smoke.sh",
+      "status": "passed",
+      "runs_per_target": 16,
+      "target_count": 3,
+      "log_sha256": "d035def406aae7f1fbf15573b944b63e5b1dc879368bf2bfd711852c29c8b4e0"
+    }
+  ],
+  "protobuf_checks": [
+    {
+      "command": "buf lint",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "node scripts/check_wallet_schema_breaking.mjs",
+      "status": "passed",
+      "log_sha256": "bb19a1022633da99d62f929d9735687cba7f4ed9649debca06cbc159512738d8"
+    },
+    {
+      "command": "buf generate",
+      "status": "passed"
+    },
+    {
+      "command": "node scripts/harden-generated-wallet-proto.mjs",
+      "status": "passed"
+    },
+    {
+      "command": "node scripts/harden-generated-wallet-proto.mjs --check-idempotent",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "node scripts/check-proto-hardening-concurrency.mjs",
+      "status": "passed",
+      "log_sha256": "d7d0dd6c54fb031de0cf871b93177eaebf07bb484c0de79de4a258c11463669f"
+    },
+    {
+      "command": "node scripts/check-proto-first-boundaries.mjs",
+      "status": "passed",
+      "log_sha256": "b28280ea20f877aa9e8d9872cb3dd62a9c6574e0561c3a664338799a7d6bff59"
+    },
+    {
+      "command": "node scripts/check_schema_source_lock.mjs",
+      "status": "passed",
+      "log_sha256": "6db884c2d02f68bef07ce4ba1caee9f51260ac8c83b34d36d00d820df621f891",
+      "reason": "All eleven locked Wallet schema inputs and the v1 compatibility baseline verified against registry-published sibling schemas."
+    },
+    {
+      "command": "node scripts/check_schema_source_lock.mjs --local-siblings",
+      "status": "passed",
+      "source_inputs": 11
+    }
+  ],
+  "sibling_checks": {
+    "ssi": {
+      "runtime_home": "crates/eudi/etsi-eaa-conformance",
+      "approved_public_version": "0.6.1",
+      "public_package_set_inspection": "passed",
+      "configured_release_readiness": "passed",
+      "public_api_evolution": "passed",
+      "etsi_tests_passed": 130,
+      "oauth_tests_passed": 110,
+      "targeted_strict_clippy": "passed",
+      "verified_package_build": "passed",
+      "msrv_native": "passed",
+      "msrv_wasm": "passed",
+      "format_check": "passed",
+      "public_enum_contract": "Non-exhaustive classification/error enums. Consumers reject future unsupported classifications with typed errors."
+    },
+    "identity": {
+      "workspace_all_feature_check": "passed_with_the_existing_local_native_backend",
+      "format_check": "passed",
+      "host_and_harness_tests_passed": 305,
+      "host_and_harness_strict_clippy": "passed",
+      "dispatch_tests_passed": 98,
+      "dispatch_strict_clippy": "passed",
+      "wallet_platform_generation": "passed_using_the_declared_Buf_1.73.0_wrapper",
+      "typescript_package_tests": {
+        "status": "passed",
+        "passed": 88
+      },
+      "nonce_wire_fixture": "TypeScript, Swift and JVM use the same independently specified field-16 bytes; absent evidence remains absent and truncated input is rejected.",
+      "host_and_harness_ignored_tests": 1,
+      "openid4vp_and_wallet_platform_generation": "passed_using_the_declared_Buf_1.73.0_wrapper",
+      "token_status_clock": "Explicit injected trusted clock is sampled after retrieval. Rollback/unavailable clocks and future/expired signed evidence fail closed; no issuer clock or skew fallback is used.",
+      "status_list_tests_passed": 10,
+      "swift_wallet_and_openid4vp_tests": {
+        "status": "passed",
+        "passed": 11
+      },
+      "jvm_wallet_and_openid4vp_tests": {
+        "status": "passed",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "current_zk_wire_fixture": "The canonical OpenID4VP manifest and artifact-set identity vectors are consumed unchanged by Rust, TypeScript, Swift and JVM tests. Truncated input fails; no legacy migration layer is installed.",
+      "host_test_log_sha256": "431aa9ddec0010cf5c997b52d3380f8c4aab1e1b57f9f619948637e9c1c3bfd2",
+      "build_toolchain": {
+        "version": "1.99.1",
+        "reason": "The current external EUDI trust-contract dependency declares Rust 1.99.1. A later presentation-host rebuild with the Identity-pinned Rust 1.99.0 therefore rejects that dependency; the explicit 1.99.1 build passes."
+      },
+      "published_etsi_host_tests_passed": 305,
+      "published_etsi_host_strict_clippy": "passed",
+      "published_etsi_host_test_log_sha256": "4d84be8e93ccb89ae1c31477bf5f51b84cd7e0585dc4e75f1f4e408a63181eac",
+      "published_etsi_host_clippy_log_sha256": "c006cab119ecde220d47e96302bf4e1f2e8a9511d5f20738a49ec4aa58346797"
+    },
+    "openid4vci": {
+      "workspace_all_feature_check": "passed",
+      "ssi_development_cohort": "0.6.1",
+      "engineering_driver_policy_tests_passed": 22,
+      "test_log_sha256": "b5b68e93cf8583a716d8c63daf090c7009a91618561f1196a05ae7d027aa820a",
+      "frozen_certification_inventory_changed": false
+    },
+    "openid4vp": {
+      "workspace_all_feature_check": "passed",
+      "ssi_development_cohort": "0.6.1",
+      "current_schema_proto_and_codec_tests_passed": 73,
+      "current_schema_strict_clippy": "passed",
+      "schema_owner": "crates/proto/proto/reallyme/openid4vp/v1/openid4vp.proto",
+      "schema_alignment": "Canonical source already uses artifact_identity; the stale Wallet import and generated Identity consumers were synchronized.",
+      "test_log_sha256": "8b4f56849b892bb2a7652e390eb20aca9deebba03b267762ae670ce9d7630a6b",
+      "published_ssi_workspace_tests_passed": 645,
+      "published_ssi_workspace_strict_clippy": "passed",
+      "published_ssi_test_log_sha256": "dcee281aabf655d2de9a31c7c590a7366f39b4694ef25797c4d99fba00d83026",
+      "tooling_python_tests_passed": 169,
+      "tooling_node_tests_passed": 44,
+      "format_specific_trust_regression_tests_passed": 16,
+      "tooling_python_test_log_sha256": "2f94cbc0acfc146d7d1f1372cfc54a013c5cb627fda61295b7b2085263890c37",
+      "browser_cleanup_contract": "Recheck owned child exit state after a process-group signal failure. Never suppress cleanup failure for a still-live child; share this handling with browser handoff."
+    },
+    "identity_conformance": {
+      "tests_passed": 96,
+      "format_trust_preflight": "Delegates to the OpenID4VP owner before any local profile executes. Wrong format and combined credential roots are rejected.",
+      "crl_deployment": "Explicit public HTTP CRL origin, exact GET route, unpublished Java backend and loopback-only proxy ports.",
+      "live_proxy_check": "Real signed CRL signature/freshness verified; control, credential, query-bearing and wrong-method plaintext requests rejected, including spoofed forwarding headers.",
+      "test_log_sha256": "aafc162e26f218e07a71e5a9722037bbb840b8b6108da138d379036ad59be4c1",
+      "live_proxy_log_sha256": "6985bc14cc9818e997d4b323df73795540aea7e860fe17da3e8a9fb3226de794",
+      "pinned_nginx_container_syntax": "passed_with_disposable_certificate_generated_inside_container",
+      "pinned_nginx_image_digest": "sha256:bc2f6a7c8ddbccf55bdb19659ce3b0a92ca6559e86d42677a5a02ef6bda2fcef"
+    }
+  },
+  "composed_evidence": {
+    "owner": "reallyme/identity-conformance",
+    "summary_path": "results/local/wallet-current-schema-20261110/summary.json",
+    "scope": "All ten HAIP Wallet-role inventories returned by suite release-v5.3.4: six issuance and four presentation profiles.",
+    "outcome": "All 138 issuance modules FINISHED/PASSED. All 140 presentation modules have expected composed host outcomes and no failed suite conditions: 68 PASSED, eight fixture claim-preference WARNING results, and 64 REVIEW results requiring evidence review.",
+    "full_profile_executed": true,
+    "raw_private_artifacts_copied": false,
+    "complete_issuance_profiles": 6,
+    "completed_issuance_modules": 138,
+    "certification_claim": false,
+    "complete_presentation_profiles": 4,
+    "completed_presentation_modules": 140,
+    "presentation_suite_results": {
+      "PASSED": 68,
+      "WARNING": 8,
+      "REVIEW": 64
+    },
+    "full_wallet_role_inventories_executed": true,
+    "complete_cross_role_certification_matrix_executed": false,
+    "summary_sha256": "7c12b154f8bc51b5c145c0f82fbe685a229221f491633fec928c1e718206df93",
+    "total_wallet_role_module_executions": 278,
+    "private_export_integrity": "All ten complete plan archives passed bounded ZIP integrity checks; only sanitized metadata was copied centrally."
+  },
+  "release_and_api_limits": [
+    "Concrete storage, reader, and policy providers must implement the documented atomic contracts before advertising the matching Wallet capabilities. Device and proximity runs remain external.",
+    "All 17 public Wallet packages are initial releases with no published registry baseline, as reported by the repository semver checker.",
+    "Wallet producer metadata records dispositions for the pinned conditional platform requirements. It does not define shared Rust-domain requirement identifiers or claim platform implementation.",
+    "The repository-security workflow is in the source tree and passes actionlint. Its hosted execution and the remote repository settings are unverified.",
+    "No hosted CI run has been executed for this source tree."
+  ],
+  "skipped_checks": [
+    {
+      "command": "Full SSI workspace tests and Clippy, SSI platform SDK/FFI release lanes",
+      "reason": "Targeted OAuth/ETSI tests, strict linting, packaging, native/Wasm compilation and configured release-readiness were run. The separate SSI 0.6.1 release process owns whole-workspace qualification.",
+      "residual_risk": "No whole-SSI test or binary release qualification is claimed."
+    },
+    {
+      "command": "Full Identity workspace tests and Clippy, Android/device/instrumentation and all other native/Wasm SDK lanes",
+      "reason": "The whole Rust workspace compiles; affected host, harness, dispatch and Wallet message boundaries were tested.",
+      "residual_risk": "Untested SDK/domain and device combinations still require the normal Identity release gates."
+    },
+    {
+      "command": "Complete cross-role OIDF certification matrix, reviewed released-candidate execution, and EUDI reference/device/proximity/offline execution",
+      "reason": "All ten local Wallet-role profile inventories completed, comprising 278 module executions. Issuer/verifier roles, released artifact provenance, manual presentation evidence review and device providers require their own qualification.",
+      "residual_risk": "No complete cross-role certification, released-candidate reproducibility, device, proximity or offline interoperability claim."
+    }
+  ],
+  "security_workflow": {
+    "owner": "reallyme/wallet",
+    "file": ".github/workflows/repository-security.yml",
+    "syntax": "actionlint_passed",
+    "operation": "Read-only scheduled/manual private vulnerability reporting inspection; no repository settings are mutated.",
+    "remote_execution_verified": false,
+    "reason": "Remote repository settings were not inspected.",
+    "included_in_source": true
+  },
+  "registry_resolution": {
+    "ssi_version": "0.6.1",
+    "wallet_ssi_packages": 17,
+    "openid4vp_ssi_packages": 5,
+    "all_resolved_from_crates_io": true,
+    "wallet_and_openid4vp_ssi_path_overrides_removed": true,
+    "wallet_fuzz_ssi_override_removed": true,
+    "ssi_proto_archive_sha256": "19d7bf491dfb8d9c30b2ea89640a491422e09c2d5b07f2d6ea81eb41a650a4e7",
+    "ssi_proto_vcs_revision": "43dddafe1c9be46260c01334bcf3d9e34f5c066a",
+    "ssi_checkout_modified": false,
+    "identity_etsi_dependency": "Published =0.6.1; remaining Identity private SSI integration paths are outside the Wallet/OpenID4VP registry migration.",
+    "zk_version": "0.3.0",
+    "all_sibling_crates_resolved_from_crates_io": true
+  },
+  "pre_registry_ci_validation": {
+    "status": "local_gates_passed_hosted_runs_pending",
+    "hosted_workflows_executed": false,
+    "workflow_syntax": "actionlint_passed",
+    "private_evidence_repositories_required": false,
+    "sibling_source_checkouts_required": false,
+    "remaining_validation": [
+      {
+        "command": "GitHub-hosted workflow execution and remote private-vulnerability-reporting inspection",
+        "reason": "No upload or remote workflow dispatch was performed.",
+        "residual_risk": "Runner-specific behaviour and repository settings must be confirmed by hosted execution."
+      }
+    ]
+  },
+  "registry_dependency_migration": {
+    "validated_on": "2026-11-11",
+    "wallet_release_version": "0.1.0",
+    "source": "crates.io",
+    "versions": {
+      "openid4vci": "0.3.0",
+      "openid4vp": "0.3.0",
+      "zk": "0.3.0",
+      "ssi": "0.6.1"
+    },
+    "verified_protocol_and_zk_archives": 11,
+    "schema_inputs_verified": 11,
+    "cargo_lockfiles": [
+      "Cargo.lock",
+      "fuzz/Cargo.lock"
+    ],
+    "provenance": "scripts/sibling-source-provenance.json",
+    "schema_source_lock": "crates/proto/proto-source-lock.json"
+  }
+}

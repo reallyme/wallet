@@ -1,0 +1,86 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.wallet.v1;
+
+import "reallyme/wallet/v1/errors.proto";
+import "reallyme/wallet/v1/wallet.proto";
+
+option java_multiple_files = true;
+option java_package = "me.really.wallet.v1";
+option swift_prefix = "ReallyMeWalletProto";
+
+// WalletOperationRequest is the canonical, transport-neutral wallet command
+// boundary. Variant numbers are grouped by wallet domain and are paired with
+// the corresponding WalletOperationResult numbers. A request with no selected
+// operation is invalid and must fail closed at the operation executor.
+message WalletOperationRequest {
+  // idempotency_key is required for every mutating operation and forbidden for
+  // read-only or pure operations. It is exactly 32 non-zero bytes. The runtime
+  // reserves the key before dispatch and persists the complete response so an
+  // externally retried mutation cannot execute twice or return a different
+  // outcome.
+  bytes idempotency_key = 1;
+
+  oneof operation {
+    PutWalletLifecycleRecordRequest put_wallet_lifecycle_record = 1001;
+    GetWalletLifecycleRecordRequest get_wallet_lifecycle_record = 1002;
+    ApplyWalletLifecycleEventRequest apply_wallet_lifecycle_event = 1003;
+    AppendWalletLifecycleEvidenceRequest append_wallet_lifecycle_evidence = 1004;
+
+    PutCredentialRecordRequest put_credential_record = 2001;
+    GetCredentialRecordRequest get_credential_record = 2002;
+    ApplyCredentialStatusEvidenceRequest apply_credential_status_evidence = 2003;
+    DeleteCredentialRecordRequest delete_credential_record = 2004;
+    ClaimPresentationCopyRequest claim_presentation_copy = 2005;
+
+    EvaluateVerifierEntitlementRequest evaluate_verifier_entitlement = 3001;
+
+    SaveFlowSnapshotRequest save_flow_snapshot = 5001;
+    GetFlowSnapshotRequest get_flow_snapshot = 5002;
+
+    AppendTransactionLogRequest append_transaction_log = 6001;
+    AppendQtspDecisionRequest append_qtsp_decision = 6002;
+  }
+}
+
+// WalletOperationResult is the successful result union for
+// WalletOperationRequest. Each field number is deliberately identical to its
+// request variant so generated bindings can verify exhaustive request/result
+// pairing without a hand-maintained method-name or ordinal catalog.
+message WalletOperationResult {
+  oneof result {
+    PutWalletLifecycleRecordResponse put_wallet_lifecycle_record = 1001;
+    GetWalletLifecycleRecordResponse get_wallet_lifecycle_record = 1002;
+    ApplyWalletLifecycleEventResponse apply_wallet_lifecycle_event = 1003;
+    AppendWalletLifecycleEvidenceResponse append_wallet_lifecycle_evidence = 1004;
+
+    PutCredentialRecordResponse put_credential_record = 2001;
+    GetCredentialRecordResponse get_credential_record = 2002;
+    ApplyCredentialStatusEvidenceResponse apply_credential_status_evidence = 2003;
+    DeleteCredentialRecordResponse delete_credential_record = 2004;
+    ClaimPresentationCopyResponse claim_presentation_copy = 2005;
+
+    EvaluateVerifierEntitlementResponse evaluate_verifier_entitlement = 3001;
+
+    SaveFlowSnapshotResponse save_flow_snapshot = 5001;
+    GetFlowSnapshotResponse get_flow_snapshot = 5002;
+
+    AppendTransactionLogResponse append_transaction_log = 6001;
+    AppendQtspDecisionResponse append_qtsp_decision = 6002;
+  }
+}
+
+// WalletOperationResponse is the canonical response envelope returned after a
+// request has been decoded. Expected caller, policy, provider, storage, and
+// domain failures are represented by error rather than transport-specific
+// exception text or ad hoc JSON.
+message WalletOperationResponse {
+  oneof outcome {
+    WalletOperationResult result = 1;
+    WalletErrorEnvelope error = 2;
+  }
+}

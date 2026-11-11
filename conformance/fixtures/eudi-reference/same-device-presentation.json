@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "fixture_id": "eudi.reference.presentation.same-device.v1",
+  "status": "fixture_seeded",
+  "reference_lock": "conformance/eudi/reference-implementation.lock",
+  "flow": "openid4vp_presentation",
+  "mode": "same_device",
+  "wallet_core_evidence": [
+    "conformance/fixtures/relying-parties/openid4vp-post-request-uri.json",
+    "conformance/fixtures/relying-parties/rp-entitlement-pid-age.json",
+    "conformance/fixtures/credentials/pid-sd-jwt-record.json"
+  ],
+  "required_wallet_core_checks": [
+    "validate_relying_party_registration_certificate_policy",
+    "reject_attribute_overreach",
+    "preserve_zk_derivation_option_without_disclosing_source_attribute",
+    "fail_closed_when_required_zk_backend_is_absent",
+    "record_user_visible_transaction_log"
+  ],
+  "delegated_checks": [
+    "openid4vp_request_object_wire_validation",
+    "nonce_and_audience_binding_in_format_layer",
+    "vp_token_format_assembly"
+  ]
+}

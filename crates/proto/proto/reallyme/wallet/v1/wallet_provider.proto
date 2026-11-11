@@ -1,0 +1,471 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.wallet.v1;
+
+import "reallyme/wallet/v1/wallet.proto";
+import "reallyme/wallet/v1/wallet_key_storage.proto";
+
+option java_multiple_files = true;
+option java_package = "me.really.wallet.v1";
+option swift_prefix = "ReallyMeWalletProto";
+
+// WalletProviderInvocationMode declares how a package invokes the same
+// versioned provider messages. It does not change their storage semantics.
+enum WalletProviderInvocationMode {
+  WALLET_PROVIDER_INVOCATION_MODE_UNSPECIFIED = 0;
+  WALLET_PROVIDER_INVOCATION_MODE_SYNCHRONOUS_NATIVE = 1;
+  WALLET_PROVIDER_INVOCATION_MODE_ASYNCHRONOUS_HOST = 2;
+}
+
+// WalletProviderCapability is the complete provider method catalog required by
+// the version-1 Wallet runtime. Values mirror the canonical operation bands
+// where practical so drift is mechanically detectable.
+enum WalletProviderCapability {
+  WALLET_PROVIDER_CAPABILITY_UNSPECIFIED = 0;
+  WALLET_PROVIDER_CAPABILITY_BEGIN_OPERATION = 1;
+  WALLET_PROVIDER_CAPABILITY_COMMIT_OPERATION = 2;
+  WALLET_PROVIDER_CAPABILITY_READ_TRUSTED_TIME = 3;
+
+  WALLET_PROVIDER_CAPABILITY_CREATE_WALLET_LIFECYCLE = 1001;
+  WALLET_PROVIDER_CAPABILITY_GET_WALLET_LIFECYCLE = 1002;
+  WALLET_PROVIDER_CAPABILITY_COMPARE_AND_SWAP_WALLET_LIFECYCLE = 1003;
+  WALLET_PROVIDER_CAPABILITY_APPEND_WALLET_LIFECYCLE_EVIDENCE = 1004;
+  WALLET_PROVIDER_CAPABILITY_VERIFY_LIFECYCLE_AUTHORITY = 1005;
+
+  WALLET_PROVIDER_CAPABILITY_CREATE_CREDENTIAL = 2001;
+  WALLET_PROVIDER_CAPABILITY_GET_CREDENTIAL = 2002;
+  WALLET_PROVIDER_CAPABILITY_COMPARE_AND_SWAP_CREDENTIAL = 2003;
+  WALLET_PROVIDER_CAPABILITY_DELETE_CREDENTIAL = 2004;
+  WALLET_PROVIDER_CAPABILITY_CLAIM_PRESENTATION_COPY = 2005;
+
+  WALLET_PROVIDER_CAPABILITY_SAVE_DID_STORAGE_RECORD = 4001;
+  WALLET_PROVIDER_CAPABILITY_GET_DID_STORAGE_RECORD = 4002;
+  WALLET_PROVIDER_CAPABILITY_DELETE_DID_STORAGE_RECORD = 4003;
+
+  WALLET_PROVIDER_CAPABILITY_SAVE_PORTABLE_KEY_STORAGE_RECORD = 4101;
+  WALLET_PROVIDER_CAPABILITY_GET_PORTABLE_KEY_STORAGE_RECORD = 4102;
+  WALLET_PROVIDER_CAPABILITY_DELETE_PORTABLE_KEY_STORAGE_RECORD = 4103;
+
+  WALLET_PROVIDER_CAPABILITY_SAVE_HARDWARE_KEY_BINDING_RECORD = 4201;
+  WALLET_PROVIDER_CAPABILITY_GET_HARDWARE_KEY_BINDING_RECORD = 4202;
+  WALLET_PROVIDER_CAPABILITY_DELETE_HARDWARE_KEY_BINDING_RECORD = 4203;
+
+  WALLET_PROVIDER_CAPABILITY_SAVE_FLOW_SNAPSHOT = 5001;
+  WALLET_PROVIDER_CAPABILITY_GET_FLOW_SNAPSHOT = 5002;
+
+  WALLET_PROVIDER_CAPABILITY_APPEND_TRANSACTION_LOG = 6001;
+  WALLET_PROVIDER_CAPABILITY_APPEND_QTSP_DECISION = 6002;
+}
+
+// WalletProviderDescriptor is validated before an executor handle becomes
+// usable. Missing, duplicate, or unknown capabilities fail closed.
+message WalletProviderDescriptor {
+  uint32 contract_version = 1;
+  WalletProviderInvocationMode invocation_mode = 2;
+  repeated WalletProviderCapability capabilities = 3;
+  uint32 max_response_bytes = 4;
+}
+
+// WalletProviderErrorReason is the privacy-safe failure vocabulary returned by
+// platform providers. Provider exception text and record identifiers never
+// cross this boundary.
+enum WalletProviderErrorReason {
+  WALLET_PROVIDER_ERROR_REASON_UNSPECIFIED = 0;
+  WALLET_PROVIDER_ERROR_REASON_INVALID_REQUEST = 1;
+  WALLET_PROVIDER_ERROR_REASON_UNAVAILABLE = 2;
+  WALLET_PROVIDER_ERROR_REASON_REJECTED = 3;
+  WALLET_PROVIDER_ERROR_REASON_NOT_FOUND = 4;
+  WALLET_PROVIDER_ERROR_REASON_ALREADY_EXISTS = 5;
+  WALLET_PROVIDER_ERROR_REASON_REVISION_CONFLICT = 6;
+  WALLET_PROVIDER_ERROR_REASON_IDEMPOTENCY_CONFLICT = 7;
+  WALLET_PROVIDER_ERROR_REASON_OPERATION_IN_PROGRESS = 8;
+  WALLET_PROVIDER_ERROR_REASON_JOURNAL_REJECTED = 9;
+  WALLET_PROVIDER_ERROR_REASON_UNSUPPORTED_CAPABILITY = 10;
+  WALLET_PROVIDER_ERROR_REASON_RESPONSE_TOO_LARGE = 11;
+}
+
+message WalletProviderError {
+  WalletProviderErrorReason reason = 1;
+}
+
+// reallyme.security: sensitive-owner
+message BeginOperationProviderRequest {
+  bytes idempotency_key = 1;
+  bytes request_digest = 2;
+}
+
+message OperationReservation {
+  uint64 value = 1;
+}
+
+// reallyme.security: sensitive-owner
+message ReplayOperationResponse {
+  bytes response = 1;
+}
+
+// reallyme.security: sensitive-owner
+message BeginOperationProviderResponse {
+  oneof outcome {
+    OperationReservation execute = 1;
+    ReplayOperationResponse replay = 2;
+  }
+}
+
+// reallyme.security: sensitive-owner
+message CommitOperationProviderRequest {
+  OperationReservation reservation = 1;
+  bytes response = 2;
+}
+
+message CommitOperationProviderResponse {}
+
+message SaveDidStorageRecordProviderRequest {
+  DidStorageRecord record = 1;
+  RecordRevision expected_revision = 2;
+}
+
+message SaveDidStorageRecordProviderResponse {
+  string record_id = 1;
+  RecordRevision revision = 2;
+}
+
+message GetDidStorageRecordProviderRequest {
+  string record_id = 1;
+}
+
+message GetDidStorageRecordProviderResponse {
+  DidStorageRecord record = 1;
+  RecordRevision revision = 2;
+}
+
+message DeleteDidStorageRecordProviderRequest {
+  string record_id = 1;
+  RecordRevision expected_revision = 2;
+}
+
+message DeleteDidStorageRecordProviderResponse {}
+
+// reallyme.security: sensitive-owner
+message SavePortableKeyStorageRecordProviderRequest {
+  PortableKeyStorageRecord record = 1 [debug_redact = true];
+  RecordRevision expected_revision = 2;
+}
+
+message SavePortableKeyStorageRecordProviderResponse {
+  string record_id = 1 [debug_redact = true];
+  RecordRevision revision = 2;
+}
+
+message GetPortableKeyStorageRecordProviderRequest {
+  string record_id = 1 [debug_redact = true];
+}
+
+// reallyme.security: sensitive-owner
+message GetPortableKeyStorageRecordProviderResponse {
+  PortableKeyStorageRecord record = 1 [debug_redact = true];
+  RecordRevision revision = 2;
+}
+
+message DeletePortableKeyStorageRecordProviderRequest {
+  string record_id = 1 [debug_redact = true];
+  RecordRevision expected_revision = 2;
+}
+
+message DeletePortableKeyStorageRecordProviderResponse {}
+
+// reallyme.security: sensitive-owner
+message SaveHardwareKeyBindingRecordProviderRequest {
+  HardwareKeyBindingRecord record = 1 [debug_redact = true];
+  RecordRevision expected_revision = 2;
+}
+
+message SaveHardwareKeyBindingRecordProviderResponse {
+  string record_id = 1 [debug_redact = true];
+  RecordRevision revision = 2;
+}
+
+message GetHardwareKeyBindingRecordProviderRequest {
+  string record_id = 1 [debug_redact = true];
+}
+
+// reallyme.security: sensitive-owner
+message GetHardwareKeyBindingRecordProviderResponse {
+  HardwareKeyBindingRecord record = 1 [debug_redact = true];
+  RecordRevision revision = 2;
+}
+
+message DeleteHardwareKeyBindingRecordProviderRequest {
+  string record_id = 1 [debug_redact = true];
+  RecordRevision expected_revision = 2;
+}
+
+message DeleteHardwareKeyBindingRecordProviderResponse {}
+
+// reallyme.security: sensitive-owner
+message CreateCredentialProviderRequest {
+  CredentialRecord record = 1;
+}
+
+message CreateCredentialProviderResponse {
+  string credential_id = 1;
+  RecordRevision revision = 2;
+}
+
+// reallyme.security: sensitive-owner
+message GetCredentialProviderRequest {
+  string credential_id = 1;
+}
+
+// reallyme.security: sensitive-owner
+message GetCredentialProviderResponse {
+  CredentialRecord record = 1;
+  RecordRevision revision = 2;
+}
+
+// reallyme.security: sensitive-owner
+message CompareAndSwapCredentialProviderRequest {
+  CredentialRecord record = 1;
+  RecordRevision expected_revision = 2;
+}
+
+message CompareAndSwapCredentialProviderResponse {
+  string credential_id = 1;
+  RecordRevision revision = 2;
+}
+
+// reallyme.security: sensitive-owner
+message DeleteCredentialProviderRequest {
+  string credential_id = 1;
+  RecordRevision expected_revision = 2;
+}
+
+message DeleteCredentialProviderResponse {}
+
+// reallyme.security: sensitive-owner
+message ClaimPresentationCopyProviderRequest {
+  string credential_id = 1;
+  PresentationCopyClaimPolicy policy = 2;
+  // The provider commits this exact copy's unavailable state before returning it.
+  string copy_id = 3;
+  // Exact claim selector, checked inside the provider's atomic reservation.
+  bytes prepared_claim_selector_digest = 4;
+}
+
+// reallyme.security: sensitive-owner
+message ClaimPresentationCopyProviderResponse {
+  OnceOnlyPresentationCopy copy = 1;
+}
+
+// reallyme.security: sensitive-owner
+message CreateWalletLifecycleProviderRequest {
+  WalletLifecycleRecord record = 1;
+}
+
+message CreateWalletLifecycleProviderResponse {
+  string wallet_instance_id = 1;
+  RecordRevision revision = 2;
+}
+
+// reallyme.security: sensitive-owner
+message GetWalletLifecycleProviderRequest {
+  string wallet_instance_id = 1;
+}
+
+// reallyme.security: sensitive-owner
+message GetWalletLifecycleProviderResponse {
+  WalletLifecycleRecord record = 1;
+  RecordRevision revision = 2;
+}
+
+// reallyme.security: sensitive-owner
+message CompareAndSwapWalletLifecycleProviderRequest {
+  WalletLifecycleRecord record = 1;
+  RecordRevision expected_revision = 2;
+  WalletLifecycleEvidenceRecord evidence = 3;
+}
+
+message CompareAndSwapWalletLifecycleProviderResponse {
+  string wallet_instance_id = 1;
+  RecordRevision revision = 2;
+}
+
+// reallyme.security: sensitive-owner
+message AppendWalletLifecycleEvidenceProviderRequest {
+  WalletLifecycleEvidenceRecord record = 1;
+}
+
+message AppendWalletLifecycleEvidenceProviderResponse {}
+
+// reallyme.security: sensitive-owner
+message SaveFlowSnapshotProviderRequest {
+  FlowSnapshot snapshot = 1;
+  RecordRevision expected_revision = 2;
+}
+
+message SaveFlowSnapshotProviderResponse {
+  string snapshot_id = 1;
+  RecordRevision revision = 2;
+}
+
+// reallyme.security: sensitive-owner
+message GetFlowSnapshotProviderRequest {
+  string snapshot_id = 1;
+}
+
+// reallyme.security: sensitive-owner
+message GetFlowSnapshotProviderResponse {
+  FlowSnapshot snapshot = 1;
+  RecordRevision revision = 2;
+}
+
+// reallyme.security: sensitive-owner
+message AppendTransactionLogProviderRequest {
+  TransactionLogEntry entry = 1;
+}
+
+message AppendTransactionLogProviderResponse {}
+
+// reallyme.security: sensitive-owner
+message AppendQtspDecisionProviderRequest {
+  QtspDecisionRecord record = 1;
+}
+
+message AppendQtspDecisionProviderResponse {}
+
+// Read the security clock from the owning provider. The provider must fail
+// closed if the host has no authenticated or platform-trusted time source.
+message ReadTrustedTimeProviderRequest {}
+
+message ReadTrustedTimeProviderResponse {
+  UnixTimestamp observed_at = 1;
+}
+
+// Authenticate the evidence for this exact Wallet Unit and predecessor. A
+// successful result requires authorization for the transition represented
+// by evidence.event, including the evidence timestamp and prior state.
+// reallyme.security: sensitive-owner
+message VerifyLifecycleAuthorityProviderRequest {
+  WalletLifecycleRecord current = 1;
+  WalletLifecycleEvidenceRecord evidence = 2;
+  UnixTimestamp observed_at = 3;
+}
+
+// A trusted provider emits this only after authenticating retry_evidence and
+// reconciling every partial effect of the exact failed attempt in current.
+// Pending, completed, unsafe and unavailable outcomes must return an error.
+// reallyme.security: sensitive-owner
+message WalletLifecycleRetryReconciliation {
+  WalletLifecycleRecord current = 1;
+  WalletLifecycleEvidenceRecord retry_evidence = 2;
+  UnixTimestamp reconciled_at = 3;
+}
+
+message VerifyLifecycleAuthorityProviderResponse {
+  WalletLifecycleRetryReconciliation retry_reconciliation = 1;
+}
+
+// WalletProviderRequest is the sole provider DTO request envelope. executor_id
+// identifies the owning handle and request_id identifies one invocation. Both
+// must be echoed by the response to reject stale or cross-handle results.
+// reallyme.security: sensitive-owner
+message WalletProviderRequest {
+  uint32 contract_version = 1;
+  uint64 executor_id = 2;
+  uint64 request_id = 3;
+
+  oneof request {
+    BeginOperationProviderRequest begin_operation = 10;
+    CommitOperationProviderRequest commit_operation = 11;
+    ReadTrustedTimeProviderRequest read_trusted_time = 12;
+
+    CreateWalletLifecycleProviderRequest create_wallet_lifecycle = 1001;
+    GetWalletLifecycleProviderRequest get_wallet_lifecycle = 1002;
+    CompareAndSwapWalletLifecycleProviderRequest compare_and_swap_wallet_lifecycle = 1003;
+    AppendWalletLifecycleEvidenceProviderRequest append_wallet_lifecycle_evidence = 1004;
+    VerifyLifecycleAuthorityProviderRequest verify_lifecycle_authority = 1005;
+
+    CreateCredentialProviderRequest create_credential = 2001;
+    GetCredentialProviderRequest get_credential = 2002;
+    CompareAndSwapCredentialProviderRequest compare_and_swap_credential = 2003;
+    DeleteCredentialProviderRequest delete_credential = 2004;
+    ClaimPresentationCopyProviderRequest claim_presentation_copy = 2005;
+
+    SaveDidStorageRecordProviderRequest save_did_storage_record = 4001;
+    GetDidStorageRecordProviderRequest get_did_storage_record = 4002;
+    DeleteDidStorageRecordProviderRequest delete_did_storage_record = 4003;
+
+    SavePortableKeyStorageRecordProviderRequest save_portable_key_storage_record = 4101;
+    GetPortableKeyStorageRecordProviderRequest get_portable_key_storage_record = 4102;
+    DeletePortableKeyStorageRecordProviderRequest delete_portable_key_storage_record = 4103;
+
+    SaveHardwareKeyBindingRecordProviderRequest save_hardware_key_binding_record = 4201;
+    GetHardwareKeyBindingRecordProviderRequest get_hardware_key_binding_record = 4202;
+    DeleteHardwareKeyBindingRecordProviderRequest delete_hardware_key_binding_record = 4203;
+
+    SaveFlowSnapshotProviderRequest save_flow_snapshot = 5001;
+    GetFlowSnapshotProviderRequest get_flow_snapshot = 5002;
+
+    AppendTransactionLogProviderRequest append_transaction_log = 6001;
+    AppendQtspDecisionProviderRequest append_qtsp_decision = 6002;
+  }
+}
+
+// WalletProviderResult pairs every provider request with exactly one successful
+// result at the same field number.
+// reallyme.security: sensitive-owner
+message WalletProviderResult {
+  oneof result {
+    BeginOperationProviderResponse begin_operation = 10;
+    CommitOperationProviderResponse commit_operation = 11;
+    ReadTrustedTimeProviderResponse read_trusted_time = 12;
+
+    CreateWalletLifecycleProviderResponse create_wallet_lifecycle = 1001;
+    GetWalletLifecycleProviderResponse get_wallet_lifecycle = 1002;
+    CompareAndSwapWalletLifecycleProviderResponse compare_and_swap_wallet_lifecycle = 1003;
+    AppendWalletLifecycleEvidenceProviderResponse append_wallet_lifecycle_evidence = 1004;
+    VerifyLifecycleAuthorityProviderResponse verify_lifecycle_authority = 1005;
+
+    CreateCredentialProviderResponse create_credential = 2001;
+    GetCredentialProviderResponse get_credential = 2002;
+    CompareAndSwapCredentialProviderResponse compare_and_swap_credential = 2003;
+    DeleteCredentialProviderResponse delete_credential = 2004;
+    ClaimPresentationCopyProviderResponse claim_presentation_copy = 2005;
+
+    SaveDidStorageRecordProviderResponse save_did_storage_record = 4001;
+    GetDidStorageRecordProviderResponse get_did_storage_record = 4002;
+    DeleteDidStorageRecordProviderResponse delete_did_storage_record = 4003;
+
+    SavePortableKeyStorageRecordProviderResponse save_portable_key_storage_record = 4101;
+    GetPortableKeyStorageRecordProviderResponse get_portable_key_storage_record = 4102;
+    DeletePortableKeyStorageRecordProviderResponse delete_portable_key_storage_record = 4103;
+
+    SaveHardwareKeyBindingRecordProviderResponse save_hardware_key_binding_record = 4201;
+    GetHardwareKeyBindingRecordProviderResponse get_hardware_key_binding_record = 4202;
+    DeleteHardwareKeyBindingRecordProviderResponse delete_hardware_key_binding_record = 4203;
+
+    SaveFlowSnapshotProviderResponse save_flow_snapshot = 5001;
+    GetFlowSnapshotProviderResponse get_flow_snapshot = 5002;
+
+    AppendTransactionLogProviderResponse append_transaction_log = 6001;
+    AppendQtspDecisionProviderResponse append_qtsp_decision = 6002;
+  }
+}
+
+// WalletProviderResponse is the sole provider DTO response envelope. Expected
+// provider failures use error; callback/transport failure remains outside this
+// message and must never be synthesized as a successful provider result.
+// reallyme.security: sensitive-owner
+message WalletProviderResponse {
+  uint32 contract_version = 1;
+  uint64 executor_id = 2;
+  uint64 request_id = 3;
+
+  oneof outcome {
+    WalletProviderResult result = 4;
+    WalletProviderError error = 5;
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "exclusions": [
+    {
+      "id": "facades.identity",
+      "owner": "reallyme/identity",
+      "reason": "Identity owns application APIs, platform bindings, and final native and WebAssembly artifacts. Wallet supplies Rust libraries and canonical Wallet contracts."
+    },
+    {
+      "id": "ui.prompts-and-accessibility",
+      "owner": "reallyme/identity and wallet applications",
+      "reason": "Wallet-core emits typed lifecycle, consent, transaction, and presentation records. Native and web UI prompts, copy, accessibility behavior, and app navigation stay above this Rust crate."
+    },
+    {
+      "id": "wire-protocol-openid4vci",
+      "owner": "reallyme/openid4vci",
+      "reason": "OpenID4VCI protocol wire behavior belongs below wallet-core."
+    },
+    {
+      "id": "wire-protocol-openid4vp",
+      "owner": "reallyme/openid4vp",
+      "reason": "OpenID4VP protocol wire behavior belongs below wallet-core."
+    },
+    {
+      "id": "envelope-parsing",
+      "owner": "reallyme/ssi",
+      "reason": "Credential envelope parsing and cryptographic validation stay below wallet-core."
+    },
+    {
+      "id": "zk-backend-bb",
+      "owner": "reallyme/zk and top-level applications",
+      "reason": "The reallyme-wallet-zk integration crate names only reallyme-zk-api traits; concrete prover and verifier backends are injected by composed packages."
+    },
+    {
+      "id": "cryptographic-pseudonym-generation-backend",
+      "owner": "reallyme/ssi, reallyme/zk, identity, or wallet provider secure-area integrations",
+      "reason": "Wallet does not expose cryptographic pseudonym generation. Derivation, key material, and backend-specific proofs belong to the credential, proof, and secure-area providers."
+    },
+    {
+      "id": "qtsp-service-orchestration",
+      "owner": "reallyme/identity, wallet applications, and qualified trust service integrations",
+      "reason": "Wallet-core models QES/QSeal consent actions and digest-only QTSP decision records. Concrete QTSP account flows, remote signing activation, user prompts, and legal evidence packages are provider/application responsibilities."
+    },
+    {
+      "id": "attestation-acquisition",
+      "owner": "reallyme/identity and the wallet provider",
+      "reason": "Acquiring Wallet Instance and key attestations from the Wallet Provider stays above Wallet. Wallet verifies, binds, and rotates Wallet Unit Attestations through injected providers."
+    },
+    {
+      "id": "proximity-and-digital-credentials-api",
+      "owner": "reallyme/identity and the wallet provider",
+      "reason": "ISO/IEC 18013-5 transports and Digital Credentials API integration stay above Wallet. Wallet supplies reader-session consent receipts and contact-delivery framing."
+    },
+    {
+      "id": "user-rights-workflows",
+      "owner": "reallyme/identity and the wallet provider",
+      "reason": "Data-deletion requests to relying parties, reports to data protection authorities, and dashboard workflows are user-facing and stay above Wallet."
+    },
+    {
+      "id": "backup-and-migration-storage",
+      "owner": "reallyme/vaultwallet",
+      "reason": "VaultWallet owns storage mechanics for authorized backup and migration. Wallet owns the authorization, lifecycle evidence, and portability policy."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet-proto"
+version = "0.1.0"
+description = "Generated message-only protobuf contract for ReallyMe Wallet."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+include = ["/LICENSE-MIT", "/LICENSE-APACHE",
+    "/src/**/*.rs",
+    "/proto/**/*.proto",
+    "/proto-source-lock.json",
+    "/baselines/**/*",
+    "/tests/**/*",
+    "/Cargo.toml",
+    "/README.md",
+    "/NOTICE",
+]
+
+[features]
+default = ["generated"]
+generated = [
+    "dep:buffa",
+    "dep:openid4vci-proto",
+    "dep:reallyme-crypto-proto",
+    "dep:reallyme-ssi-proto",
+    "dep:reallyme-openid4vp-proto",
+    "dep:serde",
+    "dep:zeroize",
+]
+
+[dependencies]
+buffa = { workspace = true, optional = true }
+openid4vci-proto = { workspace = true, optional = true, features = ["generated"] }
+reallyme-crypto-proto = { workspace = true, optional = true, features = ["generated"] }
+reallyme-ssi-proto = { workspace = true, optional = true, features = ["generated"] }
+reallyme-openid4vp-proto = { workspace = true, optional = true, features = ["generated"] }
+serde = { workspace = true, optional = true }
+zeroize = { workspace = true, optional = true }
+
+[dev-dependencies]
+openid4vci-proto = { workspace = true, features = ["generated"] }
+reallyme-ssi-proto = { workspace = true, features = ["generated"] }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

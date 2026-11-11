@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "fixture_id": "lifecycle.reconciled_retries.v1",
+  "scope": "wallet-core",
+  "failure_at": 100,
+  "retry_at": 101,
+  "cases": [
+    {
+      "id": "recovery_active",
+      "operation": "recovery",
+      "resume_state": "active",
+      "authorized": true,
+      "observed_at": 101,
+      "expected": "recovery_pending"
+    },
+    {
+      "id": "recovery_suspended",
+      "operation": "recovery",
+      "resume_state": "suspended",
+      "authorized": true,
+      "observed_at": 101,
+      "expected": "recovery_pending"
+    },
+    {
+      "id": "migration_active",
+      "operation": "migration",
+      "resume_state": "active",
+      "authorized": true,
+      "observed_at": 101,
+      "expected": "migration_pending"
+    },
+    {
+      "id": "migration_suspended",
+      "operation": "migration",
+      "resume_state": "suspended",
+      "authorized": true,
+      "observed_at": 101,
+      "expected": "migration_pending"
+    },
+    {
+      "id": "ordinary_evidence_cannot_restart",
+      "operation": "recovery",
+      "resume_state": "active",
+      "authorized": false,
+      "observed_at": 101,
+      "expected": "invalid_transition"
+    },
+    {
+      "id": "freshness_boundary_is_inclusive",
+      "operation": "migration",
+      "resume_state": "suspended",
+      "authorized": true,
+      "observed_at": 161,
+      "expected": "migration_pending"
+    },
+    {
+      "id": "stale_evidence_refused",
+      "operation": "recovery",
+      "resume_state": "active",
+      "authorized": true,
+      "observed_at": 162,
+      "expected": "invalid_evidence"
+    },
+    {
+      "id": "future_evidence_refused",
+      "operation": "recovery",
+      "resume_state": "active",
+      "authorized": true,
+      "observed_at": 100,
+      "expected": "invalid_evidence"
+    }
+  ]
+}

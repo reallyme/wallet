@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet-conformance"
+version = "0.1.0"
+description = "EUDI wallet-core conformance fixtures and golden flow tests."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[features]
+default = ["native"]
+native = [
+    "dep:crypto_sha2_256",
+    "dep:reallyme-openid4vci-wallet",
+    "dep:openid4vci-profiles",
+    "dep:openid4vci-types",
+    "dep:reallyme-openid-oauth",
+    "dep:reallyme-credential-status",
+    "dep:reallyme-wallet-zk",
+    "dep:reallyme-zk-api",
+    "dep:secrecy",
+    "dep:serde_json",
+    "dep:time",
+    "dep:reallyme-trust-x509",
+    "reallyme-wallet/native",
+]
+
+[dependencies]
+crypto_sha2_256 = { package = "reallyme-crypto-sha2-256", version = "=0.3.17", default-features = false, optional = true }
+reallyme-openid4vci-wallet = { workspace = true, optional = true }
+openid4vci-profiles = { workspace = true, optional = true }
+openid4vci-types = { workspace = true, optional = true }
+reallyme-openid-oauth = { workspace = true, optional = true }
+reallyme-credential-status = { workspace = true, optional = true }
+reallyme-ssi-proto = { workspace = true, features = ["generated"] }
+reallyme-wallet = { path = "../crates/wallet", version = "0.1.0", default-features = false }
+reallyme-wallet-zk = { path = "../crates/wallet-zk", version = "0.1.0", optional = true }
+reallyme-zk-api = { workspace = true, optional = true }
+secrecy = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
+thiserror = { workspace = true }
+time = { workspace = true, optional = true }
+reallyme-trust-x509 = { workspace = true, optional = true }
+
+[lints]
+workspace = true

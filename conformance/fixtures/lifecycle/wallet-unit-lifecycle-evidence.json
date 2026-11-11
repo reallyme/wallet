@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "fixture_id": "lifecycle.wallet_unit_evidence.v1",
+  "scope": "wallet-core",
+  "records": [
+    {
+      "id": "lifecycle-evidence-backup-0001",
+      "wallet_instance_id": "wallet-unit-0001",
+      "kind": "backup",
+      "event": "complete_provisioning",
+      "authority_id": "wallet-provider-0001",
+      "evidence_ref": "backup-evidence-0001",
+      "evidence_digest_hex": "01020304"
+    },
+    {
+      "id": "lifecycle-evidence-migration-0001",
+      "wallet_instance_id": "wallet-unit-0001",
+      "kind": "portability_export",
+      "event": "complete_migration",
+      "authority_id": "wallet-provider-0001",
+      "evidence_ref": "portability-evidence-0001",
+      "evidence_digest_hex": "05060708"
+    },
+    {
+      "id": "lifecycle-evidence-deletion-0001",
+      "wallet_instance_id": "wallet-unit-0001",
+      "kind": "deletion",
+      "event": "complete_deletion",
+      "authority_id": "wallet-provider-0001",
+      "evidence_ref": "deletion-evidence-0001",
+      "evidence_digest_hex": "090a0b0c"
+    }
+  ],
+  "negative_cases": [
+    {
+      "case_id": "kind_event_mismatch",
+      "kind": "deletion",
+      "event": "complete_recovery",
+      "expected_error": "invalid_evidence"
+    },
+    {
+      "case_id": "missing_digest",
+      "kind": "backup",
+      "event": "complete_provisioning",
+      "expected_error": "evidence_digest_required"
+    }
+  ]
+}

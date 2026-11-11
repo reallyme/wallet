@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# Coverage-guided fuzzing harnesses for wallet untrusted-input boundaries.
+#
+# This crate is deliberately outside the main workspace so libFuzzer's runtime
+# does not weaken production lints such as `unsafe_code = deny`.
+
+[package]
+name = "wallet-fuzz"
+version = "0.0.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+# Fuzz target names are stable operator-facing commands and evidence labels.
+# Cargo's binary-name style lint would require changing those public names.
+[lints.cargo]
+non_kebab_case_bins = "allow"
+
+[dependencies]
+libfuzzer-sys = "0.4"
+reallyme-wallet-proto-codec = { path = "../crates/proto-codec", version = "0.1.0", default-features = false, features = ["native"] }
+reallyme-wallet-proto = { path = "../crates/proto", version = "0.1.0", default-features = false }
+reallyme-wallet-types = { path = "../crates/types", version = "0.1.0", default-features = false }
+
+[[bin]]
+name = "wallet_proto_decode"
+path = "fuzz_targets/wallet_proto_decode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "wallet_proto_json"
+path = "fuzz_targets/wallet_proto_json.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "wallet_identifier"
+path = "fuzz_targets/wallet_identifier.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]

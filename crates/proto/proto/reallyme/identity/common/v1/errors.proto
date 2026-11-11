@@ -1,0 +1,41 @@
+// SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+syntax = "proto3";
+
+package reallyme.identity.common.v1;
+
+option java_multiple_files = true;
+option java_package = "me.really.identity.common.v1";
+option swift_prefix = "ReallyMeIdentityCommonProto";
+
+// IdentityStackError is the stable cross-repository error envelope used when a
+// boundary cannot expose a component-specific error type directly. The domain
+// selects the owning local proto-backed reason enum, and reason_code carries
+// that enum's numeric value without embedding implementation text, raw inputs,
+// PII, or backend exception details.
+message IdentityStackError {
+  IdentityStackErrorDomain domain = 1;
+  uint32 reason_code = 2;
+  string correlation_id = 3; // optional, non-PII
+}
+
+// IdentityStackErrorDomain identifies the ReallyMe stack component that owns
+// the public reason code in IdentityStackError.reason_code. The enum identifies
+// ownership only; identity-common must not duplicate component-owned reason
+// enums such as CryptoErrorReason, CodecErrorReason, JoseErrorReason,
+// CoseErrorReason, or IdentityCoreErrorReason.
+enum IdentityStackErrorDomain {
+  IDENTITY_STACK_ERROR_DOMAIN_UNSPECIFIED = 0;
+  IDENTITY_STACK_ERROR_DOMAIN_CRYPTO = 1;
+  IDENTITY_STACK_ERROR_DOMAIN_JOSE = 2;
+  IDENTITY_STACK_ERROR_DOMAIN_COSE = 3;
+  IDENTITY_STACK_ERROR_DOMAIN_IDENTITY_CORE = 4;
+  IDENTITY_STACK_ERROR_DOMAIN_OPENID4VCI = 5;
+  IDENTITY_STACK_ERROR_DOMAIN_OPENID4VP = 6;
+  IDENTITY_STACK_ERROR_DOMAIN_WALLET = 7;
+  IDENTITY_STACK_ERROR_DOMAIN_IDENTITY_SDK = 8;
+  IDENTITY_STACK_ERROR_DOMAIN_ZK = 9;
+  IDENTITY_STACK_ERROR_DOMAIN_CODEC = 10;
+}

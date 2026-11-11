@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "protobuf_package": "reallyme.wallet.v1",
+  "rule": "protobuf_hex and protojson are shared cross-language contract fixtures; field numbers, canonical JSON names, and byte encodings are release compatibility evidence.",
+  "cases": [
+    {
+      "id": "get-credential-request",
+      "message_type": "WalletOperationRequest",
+      "protobuf_hex": "927d150a1363726564656e7469616c2d676f6c64656e2d31",
+      "protojson": "{\"getCredentialRecord\":{\"credentialId\":\"credential-golden-1\"}}"
+    },
+    {
+      "id": "delete-credential-idempotent-request",
+      "message_type": "WalletOperationRequest",
+      "protobuf_hex": "0a20a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a27d150a1363726564656e7469616c2d676f6c64656e2d31",
+      "protojson": "{\"idempotencyKey\":\"paWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaU=\",\"deleteCredentialRecord\":{\"credentialId\":\"credential-golden-1\"}}"
+    },
+    {
+      "id": "put-encrypted-credential-request",
+      "message_type": "WalletOperationRequest",
+      "protobuf_hex": "0a205a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a8a7d9d010a9a010a1363726564656e7469616c2d676f6c64656e2d32120f6973737565722d676f6c64656e2d31180220012a020801323d0a170801120c6b65792d676f6c64656e2d3122020801288201120c0101010101010101010101011a0202032210040404040404040404040404040404043a13686f6c6465722d6b65792d676f6c64656e2d31421668747470733a2f2f6973737565722e6578616d706c65",
+      "protojson": "{\"idempotencyKey\":\"WlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlo=\",\"putCredentialRecord\":{\"record\":{\"id\":\"credential-golden-2\",\"issuerId\":\"issuer-golden-1\",\"format\":\"CREDENTIAL_FORMAT_DC_SD_JWT\",\"status\":\"CREDENTIAL_LIFECYCLE_STATUS_ACTIVE\",\"receivedAt\":{\"seconds\":\"1\"},\"encryptedPayload\":{\"header\":{\"schemaVersion\":1,\"keyHandleId\":\"key-golden-1\",\"createdAt\":{\"seconds\":\"1\"},\"encryptionAlgorithm\":\"AEAD_ALGORITHM_AES_256_GCM_SIV\"},\"nonce\":\"AQEBAQEBAQEBAQEB\",\"aad\":\"AgM=\",\"ciphertext\":\"BAQEBAQEBAQEBAQEBAQEBA==\"},\"holderKeyHandleId\":\"holder-key-golden-1\",\"signedIssuer\":\"https://issuer.example\"}}}"
+    },
+    {
+      "id": "delete-credential-success-response",
+      "message_type": "WalletOperationResponse",
+      "protobuf_hex": "0a03a27d00",
+      "protojson": "{\"result\":{\"deleteCredentialRecord\":{}}}"
+    }
+  ]
+}

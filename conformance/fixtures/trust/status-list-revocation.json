@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "fixture_id": "trust.status-list.revocation.v1",
+  "issuer": "https://issuer.example",
+  "purpose": "revocation",
+  "issued_at_unix": 1700000000,
+  "next_update_unix": 1700003600,
+  "length": 16,
+  "encoded_list_b64url": "AA",
+  "signature": {
+    "alg": "EdDSA",
+    "sig_b64url": "AQID"
+  },
+  "expected_wallet_status": "valid"
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "fixture_id": "issuer.openid4vci.offers.v1",
+  "offers": [
+    {
+      "case_id": "authorization-code",
+      "credential_issuer": "https://issuer.example",
+      "credential_configuration_ids": [
+        "eu_pid_sd_jwt_vc"
+      ],
+      "grants": {
+        "authorization_code": {
+          "issuer_state": "state-123"
+        }
+      }
+    },
+    {
+      "case_id": "pre-authorized-code",
+      "credential_issuer": "https://issuer.example",
+      "credential_configuration_ids": [
+        "eu_pid_sd_jwt_vc"
+      ],
+      "grants": {
+        "urn:ietf:params:oauth:grant-type:pre-authorized_code": {
+          "pre-authorized_code": "code-123"
+        }
+      }
+    }
+  ]
+}

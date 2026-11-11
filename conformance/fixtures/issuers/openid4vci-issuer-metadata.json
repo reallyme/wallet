@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "fixture_id": "issuer.openid4vci.metadata.v1",
+  "credential_issuer": "https://issuer.example",
+  "credential_endpoint": "https://issuer.example/credential",
+  "deferred_credential_endpoint": "https://issuer.example/deferred",
+  "nonce_endpoint": "https://issuer.example/nonce",
+  "credential_configurations_supported": {
+    "eu_pid_sd_jwt_vc": {
+      "format": "sd_jwt_vc",
+      "vct": "urn:eudi:pid:1",
+      "cryptographic_binding_methods_supported": [
+        "jwk"
+      ],
+      "credential_signing_alg_values_supported": [
+        "ES256",
+        "EdDSA"
+      ]
+    }
+  },
+  "display": [
+    {
+      "name": "Synthetic PID",
+      "locale": "en-US"
+    }
+  ]
+}

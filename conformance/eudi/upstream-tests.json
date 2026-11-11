@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "source": "eudi-fcaf",
+  "source_version": "v0.0.10",
+  "status": "local_checks_only",
+  "tracked_suites": [
+    {
+      "id": "wallet-functional",
+      "status": "local_contract_checks",
+      "local_contract": "conformance/features/wallet-capabilities.json"
+    },
+    {
+      "id": "wallet-security-controls",
+      "status": "local_evidence_ready",
+      "local_report": "conformance/reports/wallet-security-controls.json"
+    },
+    {
+      "id": "wallet-interoperability",
+      "status": "unexecuted",
+      "run_manifest": "conformance/eudi/reference-run-manifest.json"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "fixture_id": "rp.openid4vp.post-request-uri.v1",
+  "request_uri": "https://verifier.example/request.jwt",
+  "request_uri_method": "post",
+  "transport_wallet_nonce": "transport-wallet-nonce",
+  "request_object_claims": {
+    "client_id": "https://verifier.example",
+    "nonce": "presentation-nonce-0001",
+    "wallet_nonce": "jwt-wallet-nonce",
+    "dcql_query": {
+      "credentials": [
+        {
+          "id": "pid-age-check",
+          "format": "dc+sd-jwt",
+          "claims": [
+            {
+              "id": "age_over_18",
+              "path": [
+                "age_over_18"
+              ],
+              "values": [
+                true
+              ]
+            }
+          ],
+          "claim_sets": [
+            [
+              "age_over_18"
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "expected_result": "reject_wallet_nonce_mismatch"
+}

@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "reallyme-wallet-types"
+version = "0.1.0"
+description = "Validated EUDI wallet core domain types."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/Cargo.toml"]
+
+[features]
+default = ["native"]
+native = []
+wasm = []
+
+[dependencies]
+thiserror = { workspace = true }
+url = { workspace = true }
+zeroize = { workspace = true }
+
+[lints]
+workspace = true

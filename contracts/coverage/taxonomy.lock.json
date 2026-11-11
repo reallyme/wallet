@@ -1,0 +1,7 @@
+{
+  "schema": "reallyme.identity.taxonomy_source_lock.v1",
+  "repository": "reallyme/identity-taxonomy",
+  "revision": "ffb6ed33118068f852572b011ce4b83027e88264",
+  "inventory_path": "conformance/inventory/requirements.json",
+  "inventory_sha256": "44e379879e1864757f011f6fc98cc48ba201ec0ac3877869376b9a3a6111ee39"
+}

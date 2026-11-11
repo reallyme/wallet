@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "fixture_id": "eudi.reference.delivery.qr-deep-link.v1",
+  "status": "fixture_seeded",
+  "reference_lock": "conformance/eudi/reference-implementation.lock",
+  "flow": "wallet_delivery",
+  "mode": "qr_or_deep_link",
+  "wallet_core_evidence": [
+    "conformance/fixtures/lifecycle/contact-delivery.json",
+    "conformance/fixtures/relying-parties/openid4vp-post-request-uri.json"
+  ],
+  "required_wallet_core_checks": [
+    "enforce_qr_payload_size_limit",
+    "enforce_deep_link_url_size_limit",
+    "reject_expired_delivery_payload",
+    "bind_contact_delivery_transcript",
+    "reject_mismatched_contact_session_transcript"
+  ],
+  "delegated_checks": [
+    "platform_url_dispatch",
+    "native_or_web_ui_prompting",
+    "openid4vp_request_object_fetch"
+  ]
+}
