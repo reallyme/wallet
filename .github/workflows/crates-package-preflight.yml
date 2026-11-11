@@ -141,6 +141,12 @@ jobs:
         working-directory: wallet
         run: scripts/run-gitleaks.sh
 
+      # Schema provenance validation reads the locked registry archives offline.
+      # Fetch the workspace graph explicitly rather than relying on runner caches.
+      - name: Fetch locked workspace dependencies
+        working-directory: wallet
+        run: cargo fetch --locked
+
       - name: Run complete release-readiness gate
         working-directory: wallet
         run: node .release-readiness/scripts/run-consumer-check.mjs

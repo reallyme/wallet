@@ -36,6 +36,13 @@ requireText(preflightExecutable, "name: Crates Package Preflight", "preflight bu
 requireText(preflightExecutable, "version:\n", "preflight must request an exact release version");
 requireText(preflightExecutable, "node scripts/write_release_attestation.mjs", "preflight must attest reviewed packages");
 requireText(preflightExecutable, "node scripts/verify_sibling_registry_sources.mjs", "preflight must bind registry siblings to tested commits");
+const fetchDependenciesStep = preflightExecutable.indexOf(
+  "- name: Fetch locked workspace dependencies\n        working-directory: wallet\n        run: cargo fetch --locked",
+);
+const readinessGateStep = preflightExecutable.indexOf("- name: Run complete release-readiness gate");
+if (fetchDependenciesStep < 0 || readinessGateStep < 0 || fetchDependenciesStep >= readinessGateStep) {
+  fail("preflight must fetch the locked workspace dependencies before offline release checks");
+}
 requireText(releaseExecutable, "name: Crates.io Release", "release button name drifted");
 requireText(releaseExecutable, "node scripts/verify_release_attestation.mjs", "release must verify the reviewed preflight");
 requireText(releaseExecutable, "environment: crates-io", "publish must use the protected crates-io environment");
