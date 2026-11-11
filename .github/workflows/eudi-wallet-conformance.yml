@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: Copyright © 2026 ReallyMe Technologies Limited. All rights reserved
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: EUDI Wallet Conformance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eudi-wallet-conformance:
+    if: github.repository == 'reallyme/wallet' && github.ref == 'refs/heads/main'
+    uses: reallyme/identity-conformance/.github/workflows/eudi-wallet-conformance.yml@46cb1a6b2a016189f29ead608f3e5ddd460c1d07
+    with:
+      framework_commit: 46cb1a6b2a016189f29ead608f3e5ddd460c1d07
+      release_artifact_path: /protected-inputs/wallet-release
+      component_attestation_path: /protected-inputs/wallet-attestation.json
+    secrets:
+      EUDI_WALLET_DEPLOYMENT_MANIFEST_B64: ${{ secrets.EUDI_WALLET_DEPLOYMENT_MANIFEST_B64 }}

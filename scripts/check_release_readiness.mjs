@@ -9,6 +9,7 @@ import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkReadinessExecution } from "./check_readiness_execution.mjs";
+import { MANUAL_EUDI_WORKFLOW_PATH, verifyManualEudiWorkflow } from "./verify_manual_eudi_workflow.mjs";
 
 const coreUrl = process.env.RELEASE_READINESS_CORE_URL;
 if (typeof coreUrl !== "string" || coreUrl.length === 0) {
@@ -298,7 +299,15 @@ for (const workflowName of readdirSync(resolve(root, ".github/workflows"))) {
   }
   const workflowPath = `.github/workflows/${workflowName}`;
   assertNotContains(workflowPath, "reallyme/identity-taxonomy");
-  assertNotContains(workflowPath, "reallyme/identity-conformance");
+  if (workflowPath === MANUAL_EUDI_WORKFLOW_PATH) {
+    try {
+      verifyManualEudiWorkflow(readFileSync(resolve(root, workflowPath), "utf8"));
+    } catch {
+      fail("EUDI conformance must use the reviewed pinned manual caller");
+    }
+  } else {
+    assertNotContains(workflowPath, "reallyme/identity-conformance");
+  }
   assertNotContains(workflowPath, "REALLYME_CI_TOKEN");
 }
 
@@ -320,6 +329,7 @@ for (const path of [
   ".github/workflows/fuzz.yml",
   ".github/workflows/crates-package-preflight.yml",
   ".github/workflows/crates-release.yml",
+  MANUAL_EUDI_WORKFLOW_PATH,
   "crates/proto/proto-source-lock.json",
   "crates/proto/baselines/manifest.json",
   "crates/proto/baselines/README.md",

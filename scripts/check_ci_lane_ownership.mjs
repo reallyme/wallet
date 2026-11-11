@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { MANUAL_EUDI_WORKFLOW_PATH, verifyManualEudiWorkflow } from "./verify_manual_eudi_workflow.mjs";
 
 const workflowPaths = Object.freeze({
   fuzz: ".github/workflows/fuzz.yml",
@@ -13,6 +14,7 @@ const workflowPaths = Object.freeze({
   secretScan: ".github/workflows/secret-scan.yml",
   preflight: ".github/workflows/crates-package-preflight.yml",
   release: ".github/workflows/crates-release.yml",
+  manualEudi: MANUAL_EUDI_WORKFLOW_PATH,
 });
 
 const fail = (reason) => {
@@ -29,12 +31,22 @@ const workflows = Object.fromEntries(
   }),
 );
 // Public source checks must remain runnable with the ordinary read-only token.
-// Evidence aggregation is a separate consumer until its repositories are public.
+// Only the reviewed manual caller may access protected conformance inputs.
 for (const path of readdirSync(".github/workflows")) {
   if (!/\.ya?ml$/u.test(path)) continue;
-  const source = readFileSync(`.github/workflows/${path}`, "utf8");
-  if (/identity[-_]conformance|identity[-_]taxonomy|generate_wallet_taxonomy_evidence/iu.test(source)) {
-    fail("public CI must not require private evidence repositories or their generator");
+  const workflowPath = `.github/workflows/${path}`;
+  const source = readFileSync(workflowPath, "utf8");
+  if (workflowPath === MANUAL_EUDI_WORKFLOW_PATH) {
+    try {
+      verifyManualEudiWorkflow(source);
+    } catch {
+      fail("public CI must keep EUDI conformance pinned, read-only, and manual-only");
+    }
+  } else if (/identity[-_]conformance/iu.test(source)) {
+    fail("public CI must keep Identity Conformance in its reviewed manual lane");
+  }
+  if (/identity[-_]taxonomy|generate_wallet_taxonomy_evidence/iu.test(source)) {
+    fail("public CI must not require private taxonomy evidence or its generator");
   }
   if (/repository:\s*["']?reallyme\/(?:ssi|zk)(?:[\s"']|$)/iu.test(source)) {
     fail("public CI must consume SSI and ZK registry packages without source checkouts");

@@ -56,10 +56,15 @@ interfaces. Composed issuer/verifier runs belong to
 [Identity Conformance](https://github.com/reallyme/identity-conformance), with
 the deployed hosts and retained execution evidence.
 
-Public GitHub CI checks Wallet's contracts and local fixtures without fetching
+Automatic GitHub CI checks Wallet's contracts and local fixtures without fetching
 Identity Conformance or Identity Taxonomy. Taxonomy ledger regeneration is a
 separate producer operation. ZK integration tests exercise the public API and
 Wallet's injected-provider boundary without reading a ZK source checkout.
+
+The separate [manual EUDI Wallet workflow](MANUAL_EUDI_RUN.md) calls a pinned
+Identity Conformance revision on a protected self-hosted runner. The caller
+selects the exact Wallet candidate, release artifact, and component attestation.
+It does not run on pushes, pull requests, schedules, or release publication.
 
 [`external-readiness.json`](reports/external-readiness.json) and
 [`reference-run-manifest.json`](eudi/reference-run-manifest.json) identify the

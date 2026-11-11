@@ -20,7 +20,7 @@ import test from "node:test";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const checker = resolve(root, "scripts/check_ci_lane_ownership.mjs");
 
-test("public CI rejects private evidence dependencies in every workflow lane", () => {
+test("CI rejects evidence dependencies outside the reviewed manual caller", () => {
   const snapshot = mkdtempSync(resolve(tmpdir(), "wallet-ci-contract-"));
   try {
     mkdirSync(resolve(snapshot, ".github/workflows"), { recursive: true });
