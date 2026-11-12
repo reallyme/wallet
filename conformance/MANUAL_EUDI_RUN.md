@@ -6,9 +6,9 @@ GitHub-hosted Linux runners. It requires no separate machine, deployment
 secret, preinstalled release files, or crates.io publishing token. Release
 preparation and framework execution both use Ubuntu 26.04.
 
-The workflow pins Identity Conformance's reusable workflow and checkout to
-the same reviewed commit,
-[`098e748e3bbb774280fcafc944e3a745094f53c7`](https://github.com/reallyme/identity-conformance/tree/098e748e3bbb774280fcafc944e3a745094f53c7).
+The workflow pins Identity Conformance 0.2.0's reusable workflow and checkout
+to the same published release commit,
+[`ae38c5e9f9f3af956764761f6a7ad0cbda8ee92d`](https://github.com/reallyme/identity-conformance/tree/ae38c5e9f9f3af956764761f6a7ad0cbda8ee92d).
 Wallet owns its product candidate and release provenance;
 Identity Conformance owns the engineering plan, upstream standards inputs,
 execution, and result validation.
@@ -58,8 +58,11 @@ that artifact from the same workflow run. It validates the three-file contract,
 checks out the exact manifest-selected Wallet source, executes
 `reallyme-wallet-conformance`, and validates the result before upload.
 
-The result binds the framework revision, workflow revision, candidate digest,
-artifact and attestation hashes, source locks, checks, and plan assertions.
+The result binds the framework version and revision, workflow revision, candidate
+digest, artifact and attestation hashes, source locks, normative ledger digests,
+checks, and plan assertions. The 0.2.0 plan independently checks the exclusive
+Wallet Unit Attestation lifetime bound and the Wallet Provider's three
+unregistered-attribute policy choices.
 The result artifact is retained for seven days. Inspect its component identity
 to determine which release was tested; its filename also includes the workflow
 commit and run ID. Treat the result as internal engineering evidence.

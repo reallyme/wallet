@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: reallyme/identity-conformance
-          ref: 098e748e3bbb774280fcafc944e3a745094f53c7
+          ref: ae38c5e9f9f3af956764761f6a7ad0cbda8ee92d
           path: identity-conformance
           persist-credentials: false
 
@@ -46,7 +46,7 @@ jobs:
       - name: Verify published release and prepare caller inputs
         env:
           GH_TOKEN: ${{ github.token }}
-          FRAMEWORK_COMMIT: 098e748e3bbb774280fcafc944e3a745094f53c7
+          FRAMEWORK_COMMIT: ae38c5e9f9f3af956764761f6a7ad0cbda8ee92d
           EUDI_FRAMEWORK_PATH: ${{ github.workspace }}/identity-conformance
           EUDI_INPUT_DIRECTORY: ${{ runner.temp }}/eudi-wallet-conformance-inputs
         working-directory: wallet
@@ -62,7 +62,7 @@ jobs:
 
   eudi-wallet-conformance:
     needs: release-inputs
-    uses: reallyme/identity-conformance/.github/workflows/eudi-wallet-conformance.yml@098e748e3bbb774280fcafc944e3a745094f53c7
+    uses: reallyme/identity-conformance/.github/workflows/eudi-wallet-conformance.yml@ae38c5e9f9f3af956764761f6a7ad0cbda8ee92d
     with:
-      framework_commit: 098e748e3bbb774280fcafc944e3a745094f53c7
+      framework_commit: ae38c5e9f9f3af956764761f6a7ad0cbda8ee92d
       candidate_artifact_name: wallet-eudi-candidate-${{ github.run_id }}
