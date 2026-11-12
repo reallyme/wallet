@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-proto-codec"
-version = "0.1.1"
+version = "0.1.2"
 description = "Bounded protobuf codecs and typed domain conversions for ReallyMe Wallet."
 edition.workspace = true
 rust-version.workspace = true
@@ -38,12 +38,12 @@ reallyme-crypto-p256 = { workspace = true }
 openid4vci-proto = { workspace = true, features = ["generated"] }
 reallyme-crypto-proto = { workspace = true, features = ["generated"] }
 reallyme-ssi-proto = { workspace = true, features = ["generated"] }
-reallyme-wallet-attestation = { path = "../attestation", version = "0.1.1", default-features = false }
-reallyme-wallet-keystore = { path = "../keystore", version = "0.1.1", default-features = false }
-reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.1", default-features = false }
-reallyme-wallet-proto = { path = "../proto", version = "0.1.1", default-features = false, features = ["generated"] }
-reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
-reallyme-wallet-zk = { path = "../wallet-zk", version = "0.1.1", optional = true }
+reallyme-wallet-attestation = { path = "../attestation", version = "0.1.2", default-features = false }
+reallyme-wallet-keystore = { path = "../keystore", version = "0.1.2", default-features = false }
+reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.2", default-features = false }
+reallyme-wallet-proto = { path = "../proto", version = "0.1.2", default-features = false, features = ["generated"] }
+reallyme-wallet-types = { path = "../types", version = "0.1.2", default-features = false }
+reallyme-wallet-zk = { path = "../wallet-zk", version = "0.1.2", optional = true }
 reallyme-zk-api = { workspace = true, optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

@@ -71,7 +71,7 @@ fn validate_identity(policy: &Value) -> Result<(), PackagePolicyTestError> {
         || string_field(policy, "policy_id")? != "reallyme.wallet.package-policy.v1"
         || string_field(policy, "owner")? != "reallyme/wallet"
         || string_field(policy, "versioning")? != "lockstep"
-        || string_field(policy, "release_version")? != "0.1.1"
+        || string_field(policy, "release_version")? != "0.1.2"
         || string_field(policy, "maintainer_rust_toolchain")? != "1.99.0"
         || string_field(policy, "public_crate_msrv")? != "1.99"
     {

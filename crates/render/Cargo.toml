@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-render"
-version = "0.1.1"
+version = "0.1.2"
 description = "Feature-gated wallet distribution render boundary."
 edition.workspace = true
 rust-version.workspace = true
@@ -20,7 +20,7 @@ native = []
 [dependencies]
 png = "0.18"
 reallyme-codec = { workspace = true }
-reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.2", default-features = false }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 sha1 = "0.11"

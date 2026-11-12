@@ -2,6 +2,19 @@
 
 All notable changes to the Wallet Rust crates and wire contract are recorded here.
 
+## 0.1.2
+
+### Changed
+
+- Updated OpenID4VCI dependencies to 0.3.2 from crates.io, with matching schema and registry source provenance.
+- Updated the manual Wallet conformance caller to Identity Conformance 0.2.0.
+
+### Security
+
+- Validate DID, portable-key, and hardware-key record identifiers before provider reads or deletes, rejecting malformed and oversized input before host side effects or request allocation.
+- Keep traversal-validation scratch buffers bounded and zeroized on the stack.
+- Added hostile-provider regression tests for record substitution, malformed responses, revision conflicts, and invalid identifiers, plus borrowed-identifier fuzz checks.
+
 ## 0.1.1
 
 ### Changed

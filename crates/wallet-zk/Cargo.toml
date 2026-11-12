@@ -3,7 +3,7 @@
 
 [package]
 name = "reallyme-wallet-zk"
-version = "0.1.1"
+version = "0.1.2"
 description = "Optional ReallyMe Wallet integration for injected zero-knowledge proving."
 edition.workspace = true
 rust-version.workspace = true
@@ -15,8 +15,8 @@ include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/Cargo.toml", "/R
 [dependencies]
 crypto_sha2_256.workspace = true
 reallyme-zk-api = { workspace = true }
-reallyme-wallet-proto = { path = "../proto", version = "0.1.1", default-features = false, features = ["generated"] }
-reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
+reallyme-wallet-proto = { path = "../proto", version = "0.1.2", default-features = false, features = ["generated"] }
+reallyme-wallet-types = { path = "../types", version = "0.1.2", default-features = false }
 subtle.workspace = true
 thiserror.workspace = true
 zeroize.workspace = true

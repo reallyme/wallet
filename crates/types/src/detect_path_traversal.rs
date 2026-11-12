@@ -6,6 +6,8 @@
 
 use zeroize::Zeroizing;
 
+use crate::identifiers::MAX_IDENTIFIER_BYTES;
+
 /// Rounds of percent-decoding examined. A backend that decodes a key more
 /// than this many times is outside what an identifier check can protect.
 const MAX_DECODE_ROUNDS: usize = 3;
@@ -18,51 +20,65 @@ const MAX_DECODE_ROUNDS: usize = 3;
 /// identifier itself keeps its encoding, so `%2F` inside a `redirect_uri:`
 /// client identifier is accepted unless it produces a `..` segment.
 pub(crate) fn contains_path_traversal(value: &str) -> bool {
-    let mut current = Zeroizing::new(value.as_bytes().to_vec());
+    if value.len() > MAX_IDENTIFIER_BYTES {
+        return true;
+    }
+    // Identifier validation also runs on rejected input. Keep both decoding
+    // buffers bounded on the stack and wipe them on every return path.
+    let mut current = Zeroizing::new([0_u8; MAX_IDENTIFIER_BYTES]);
+    let mut decoded = Zeroizing::new([0_u8; MAX_IDENTIFIER_BYTES]);
+    let Some(initial) = current.get_mut(..value.len()) else {
+        return true;
+    };
+    initial.copy_from_slice(value.as_bytes());
+    let mut current_len = value.len();
     for _round in 0..=MAX_DECODE_ROUNDS {
-        if current
+        let Some(bytes) = current.get(..current_len) else {
+            return true;
+        };
+        if bytes
             .split(|byte| matches!(byte, b'/' | b'\\'))
             .any(|segment| segment == b"..")
         {
             return true;
         }
-        let decoded = percent_decode(&current);
-        if *decoded == *current {
+        let Some(decoded_len) = percent_decode(bytes, &mut decoded) else {
+            return true;
+        };
+        let Some(decoded_bytes) = decoded.get(..decoded_len) else {
+            return true;
+        };
+        if decoded_bytes == bytes {
             return false;
         }
-        current = decoded;
+        core::mem::swap(&mut current, &mut decoded);
+        current_len = decoded_len;
     }
     // Still changing after the last round: refuse rather than guess.
     true
 }
 
-/// Decode every `%XX` hex escape once; other bytes are copied unchanged.
-fn percent_decode(input: &[u8]) -> Zeroizing<Vec<u8>> {
-    let mut decoded = Zeroizing::new(Vec::with_capacity(input.len()));
-    let mut index = 0;
-    while let Some(&byte) = input.get(index) {
+/// Decode one bounded pass, refusing an impossible output or offset.
+fn percent_decode(input: &[u8], output: &mut [u8; MAX_IDENTIFIER_BYTES]) -> Option<usize> {
+    let mut read_index = 0_usize;
+    let mut written = 0_usize;
+    while let Some(&byte) = input.get(read_index) {
         let escaped = match (
             byte,
-            input.get(index.saturating_add(1)),
-            input.get(index.saturating_add(2)),
+            read_index.checked_add(1).and_then(|index| input.get(index)),
+            read_index.checked_add(2).and_then(|index| input.get(index)),
         ) {
             (b'%', Some(&high), Some(&low)) => hex_value(high)
                 .zip(hex_value(low))
                 .map(|(high, low)| (high << 4) | low),
             _ => None,
         };
-        match escaped {
-            Some(value) => {
-                decoded.push(value);
-                index = index.saturating_add(3);
-            }
-            None => {
-                decoded.push(byte);
-                index = index.saturating_add(1);
-            }
-        }
+        let consumed = if escaped.is_some() { 3 } else { 1 };
+        *output.get_mut(written)? = escaped.unwrap_or(byte);
+        written = written.checked_add(1)?;
+        read_index = read_index.checked_add(consumed)?;
     }
-    decoded
+    Some(written)
 }
 
 const fn hex_value(digit: u8) -> Option<u8> {

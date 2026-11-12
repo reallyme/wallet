@@ -62,11 +62,11 @@ reallyme-vp-core = { version = "=0.6.2" }
 reallyme-ssi-proto = { version = "=0.6.2", default-features = false }
 reallyme-etsi-eaa-conformance = { version = "=0.6.2", default-features = false }
 reallyme-trust-x509 = { version = "=0.6.2", default-features = false }
-reallyme-openid4vci-wallet = { version = "=0.3.1", default-features = false }
-openid4vci-proto = { package = "reallyme-openid4vci-proto", version = "=0.3.1", default-features = false }
-openid4vci-profiles = { version = "=0.3.1", default-features = false }
+reallyme-openid4vci-wallet = { version = "=0.3.2", default-features = false }
+openid4vci-proto = { package = "reallyme-openid4vci-proto", version = "=0.3.2", default-features = false }
+openid4vci-profiles = { version = "=0.3.2", default-features = false }
 reallyme-crypto-p256 = { version = "=0.3.17", default-features = false }
-openid4vci-types = { package = "reallyme-openid4vci-types", version = "=0.3.1", default-features = false }
+openid4vci-types = { package = "reallyme-openid4vci-types", version = "=0.3.2", default-features = false }
 reallyme-openid4vp-proto = { version = "=0.3.1", default-features = false }
 reallyme-openid4vp-dcql = { version = "=0.3.1", default-features = false }
 reallyme-openid4vp-types = { version = "=0.3.1", default-features = false }

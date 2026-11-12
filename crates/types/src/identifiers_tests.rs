@@ -21,6 +21,71 @@ fn rejects_empty_identifier() {
 }
 
 #[test]
+fn borrowed_identifier_conversion_preserves_owned_validation_and_exact_bytes(
+) -> Result<(), crate::WalletTypesError> {
+    let maximum = "k".repeat(256);
+    for value in [
+        "record-1",
+        "redirect_uri:https://rp.example/%2Fkey",
+        maximum.as_str(),
+    ] {
+        let borrowed = NonEmptyIdentifier::try_from(value)?;
+        let owned = NonEmptyIdentifier::new(value.to_owned())?;
+        assert_eq!(borrowed.as_str(), value);
+        assert_eq!(borrowed, owned);
+    }
+    let oversized = "k".repeat(257);
+    for (value, reason) in [
+        ("", WalletTypesErrorReason::EmptyIdentifier),
+        ("../record", WalletTypesErrorReason::InvalidIdentifier),
+        (
+            "folder/%2e%2e/record",
+            WalletTypesErrorReason::InvalidIdentifier,
+        ),
+        (
+            "folder/%252e%252e/record",
+            WalletTypesErrorReason::InvalidIdentifier,
+        ),
+        ("line\nbreak", WalletTypesErrorReason::InvalidIdentifier),
+        ("nul\0byte", WalletTypesErrorReason::InvalidIdentifier),
+        ("record\\slot", WalletTypesErrorReason::InvalidIdentifier),
+        (
+            oversized.as_str(),
+            WalletTypesErrorReason::IdentifierTooLong,
+        ),
+    ] {
+        assert!(
+            matches!(NonEmptyIdentifier::try_from(value), Err(error) if error.reason == reason)
+        );
+        assert!(
+            matches!(NonEmptyIdentifier::new(value.to_owned()), Err(error) if error.reason == reason)
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn traversal_detection_is_bounded_and_keeps_non_traversal_encoding() {
+    use crate::detect_path_traversal::contains_path_traversal;
+
+    for value in [
+        "../record",
+        "folder/%2e%2e/record",
+        "folder/%252e%252e/record",
+        "folder/%25252e%25252e/record",
+        "folder/%2525252e%2525252e/record",
+        "folder/%2%65%2%65/record",
+    ] {
+        assert!(contains_path_traversal(value));
+    }
+    for value in ["record-1", "https://rp.example/%2Fkey", "%zz", "%"] {
+        assert!(!contains_path_traversal(value));
+    }
+    assert!(!contains_path_traversal(&"k".repeat(256)));
+    assert!(contains_path_traversal(&"k".repeat(257)));
+}
+
+#[test]
 fn identifier_and_attribute_names_reject_unsafe_display_and_path_syntax() {
     for malformed in [
         "../record",

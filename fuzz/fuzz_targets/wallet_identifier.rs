@@ -4,7 +4,8 @@
 
 //! Fuzz bounded wallet identifier constructors on arbitrary UTF-8 text.
 //! Property: storage, log, relying-party, and attribute identifiers must reject
-//! empty or oversized input with typed errors and must never panic.
+//! empty or oversized input with typed errors and must never panic. Borrowed
+//! provider-boundary identifiers must preserve the owned constructor's policy.
 
 #![no_main]
 
@@ -13,7 +14,10 @@ use reallyme_wallet_types::{AttributeName, NonEmptyIdentifier};
 
 fuzz_target!(|data: &[u8]| {
     if let Ok(text) = core::str::from_utf8(data) {
-        let _ = NonEmptyIdentifier::new(text.to_owned());
+        assert_eq!(
+            NonEmptyIdentifier::new(text.to_owned()),
+            NonEmptyIdentifier::try_from(text)
+        );
         let _ = AttributeName::new(text.to_owned());
     }
 });

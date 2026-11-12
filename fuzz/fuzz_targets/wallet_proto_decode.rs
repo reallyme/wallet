@@ -15,15 +15,15 @@ use reallyme_wallet_proto_codec::decode::{
     decode_hardware_key_binding_record, decode_key_attestation_evidence,
     decode_openid4vci_issuance_commit, decode_portable_key_storage_record,
     decode_presentation_copy, decode_qtsp_decision_record, decode_transaction_log_entry,
-    decode_verifier_entitlement, decode_wallet_operation_request,
+    decode_verifier_entitlement, decode_wallet_lifecycle_evidence_record,
+    decode_wallet_lifecycle_record, decode_wallet_operation_request,
     decode_wallet_operation_response, decode_wallet_provider_response,
-    decode_wallet_lifecycle_evidence_record, decode_wallet_lifecycle_record,
     decode_wallet_unit_attestation,
 };
 
 use reallyme_wallet_proto_codec::policy_records::{
-    decode_credential_reuse_state, decode_consent_receipt,
-    decode_transaction_history_record, decode_flow_execution_record,
+    decode_consent_receipt, decode_credential_reuse_state, decode_flow_execution_record,
+    decode_transaction_history_record,
 };
 
 fuzz_target!(|data: &[u8]| {

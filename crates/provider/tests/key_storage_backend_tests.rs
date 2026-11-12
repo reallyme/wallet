@@ -20,6 +20,9 @@ use reallyme_wallet_provider::{
 use reallyme_wallet_runtime::{RecordRevision, RuntimeErrorReason};
 use zeroize::Zeroizing;
 
+#[path = "key_storage/adversarial.rs"]
+mod adversarial;
+
 #[derive(Clone, Copy)]
 enum SaveResponse {
     Exact,

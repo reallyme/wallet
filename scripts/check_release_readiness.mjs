@@ -556,7 +556,7 @@ assertContains("Cargo.toml", 'reallyme-vp-core = { version = "=0.6.2"');
 assertContains("Cargo.toml", 'reallyme-ssi-proto = { version = "=0.6.2"');
 assertContains("Cargo.toml", 'reallyme-etsi-eaa-conformance = { version = "=0.6.2"');
 assertContains("Cargo.toml", 'reallyme-trust-x509 = { version = "=0.6.2"');
-assertContains("Cargo.toml", 'reallyme-openid4vci-wallet = { version = "=0.3.1"');
+assertContains("Cargo.toml", 'reallyme-openid4vci-wallet = { version = "=0.3.2"');
 assertContains("Cargo.toml", 'reallyme-openid4vp-wallet = { version = "=0.3.1"');
 assertContains("Cargo.toml", 'reallyme-zk-api = { version = "=0.3.2" }');
 assertNotContains("Cargo.toml", 'path = "../ssi/');

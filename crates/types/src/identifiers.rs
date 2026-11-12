@@ -10,7 +10,7 @@ use crate::detect_path_traversal::contains_path_traversal;
 use crate::{WalletTypesError, WalletTypesErrorReason};
 use zeroize::{ZeroizeOnDrop, Zeroizing};
 
-const MAX_IDENTIFIER_BYTES: usize = 256;
+pub(crate) const MAX_IDENTIFIER_BYTES: usize = 256;
 /// Maximum exact issuer-claim length accepted by the SD-JWT receipt boundary.
 pub const MAX_SIGNED_CREDENTIAL_ISSUER_BYTES: usize = 2_048;
 
@@ -30,32 +30,7 @@ impl NonEmptyIdentifier {
         // Validation failures must wipe the input owner as well as successful
         // identifiers; otherwise malformed personal data survives deallocation.
         let mut value = Zeroizing::new(value);
-        if value.is_empty() {
-            return Err(WalletTypesError::new(
-                WalletTypesErrorReason::EmptyIdentifier,
-            ));
-        }
-
-        if value.len() > MAX_IDENTIFIER_BYTES {
-            return Err(WalletTypesError::new(
-                WalletTypesErrorReason::IdentifierTooLong,
-            ));
-        }
-
-        // Identifiers cross storage and display boundaries. Reject control and
-        // direction-changing characters and `..` segments before either use,
-        // including segments hidden behind percent-encoding. Other encoding,
-        // such as `%2F` in a `redirect_uri:` client identifier, is kept.
-        if !value
-            .bytes()
-            .all(|byte| byte.is_ascii_graphic() && byte != b'\\')
-            || contains_path_traversal(&value)
-        {
-            return Err(WalletTypesError::new(
-                WalletTypesErrorReason::InvalidIdentifier,
-            ));
-        }
-
+        validate_identifier(value.as_str())?;
         Ok(Self(core::mem::take(&mut *value)))
     }
 
@@ -64,6 +39,41 @@ impl NonEmptyIdentifier {
     pub fn as_str(&self) -> &str {
         self.0.as_str()
     }
+}
+
+impl TryFrom<&str> for NonEmptyIdentifier {
+    type Error = WalletTypesError;
+
+    /// Validate borrowed input before allocating its zeroizing owner.
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        validate_identifier(value)?;
+        Ok(Self(value.to_owned()))
+    }
+}
+
+fn validate_identifier(value: &str) -> Result<(), WalletTypesError> {
+    if value.is_empty() {
+        return Err(WalletTypesError::new(
+            WalletTypesErrorReason::EmptyIdentifier,
+        ));
+    }
+    if value.len() > MAX_IDENTIFIER_BYTES {
+        return Err(WalletTypesError::new(
+            WalletTypesErrorReason::IdentifierTooLong,
+        ));
+    }
+    // Storage identities retain the same control-character and traversal rules
+    // whether supplied as owned data or borrowed at a provider boundary.
+    if !value
+        .bytes()
+        .all(|byte| byte.is_ascii_graphic() && byte != b'\\')
+        || contains_path_traversal(value)
+    {
+        return Err(WalletTypesError::new(
+            WalletTypesErrorReason::InvalidIdentifier,
+        ));
+    }
+    Ok(())
 }
 
 /// Identifier for a credential stored in wallet inventory.

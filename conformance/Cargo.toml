@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-conformance"
-version = "0.1.1"
+version = "0.1.2"
 description = "EUDI wallet-core conformance fixtures and golden flow tests."
 edition.workspace = true
 rust-version.workspace = true
@@ -38,8 +38,8 @@ openid4vci-types = { workspace = true, optional = true }
 reallyme-openid-oauth = { workspace = true, optional = true }
 reallyme-credential-status = { workspace = true, optional = true }
 reallyme-ssi-proto = { workspace = true, features = ["generated"] }
-reallyme-wallet = { path = "../crates/wallet", version = "0.1.1", default-features = false }
-reallyme-wallet-zk = { path = "../crates/wallet-zk", version = "0.1.1", optional = true }
+reallyme-wallet = { path = "../crates/wallet", version = "0.1.2", default-features = false }
+reallyme-wallet-zk = { path = "../crates/wallet-zk", version = "0.1.2", optional = true }
 reallyme-zk-api = { workspace = true, optional = true }
 secrecy = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }

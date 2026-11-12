@@ -15,6 +15,7 @@ use reallyme_wallet_proto_codec::{
     validate_portable_key_storage_record,
 };
 use reallyme_wallet_runtime::{RecordRevision, RuntimeResult};
+use reallyme_wallet_types::NonEmptyIdentifier;
 
 use crate::provider_backend::ProtobufProviderBackend;
 use crate::provider_call_support::{
@@ -85,8 +86,9 @@ where
         &mut self,
         record_id: &str,
     ) -> RuntimeResult<VersionedKeyStorageRecord<pb::DidStorageRecord>> {
+        let record_id = require_record_id(record_id, ProviderMethod::GetDidStorageRecord)?;
         let mut request = pb::GetDidStorageRecordProviderRequest::default();
-        request.record_id = record_id.to_owned();
+        request.record_id = record_id.as_str().to_owned();
         match self.call(provider_request(request.into()))? {
             pb::wallet_provider_result::Result::GetDidStorageRecord(response) => {
                 let record = response
@@ -96,7 +98,7 @@ where
                     .ok_or_else(|| runtime_rejected(ProviderMethod::GetDidStorageRecord))?;
                 validate_did_storage_record(&record)
                     .map_err(|_| runtime_rejected(ProviderMethod::GetDidStorageRecord))?;
-                if record.record_id != record_id {
+                if record.record_id != record_id.as_str() {
                     return Err(runtime_rejected(ProviderMethod::GetDidStorageRecord));
                 }
                 let revision =
@@ -117,8 +119,9 @@ where
             Some(expected_revision),
             ProviderMethod::DeleteDidStorageRecord,
         )?;
+        let record_id = require_record_id(record_id, ProviderMethod::DeleteDidStorageRecord)?;
         let mut request = pb::DeleteDidStorageRecordProviderRequest::default();
-        request.record_id = record_id.to_owned();
+        request.record_id = record_id.as_str().to_owned();
         request.expected_revision = MessageField::some(revision_to_proto(expected_revision));
         match self.call(provider_request(request.into()))? {
             pb::wallet_provider_result::Result::DeleteDidStorageRecord(_) => Ok(()),
@@ -166,8 +169,9 @@ where
         &mut self,
         record_id: &str,
     ) -> RuntimeResult<VersionedKeyStorageRecord<pb::PortableKeyStorageRecord>> {
+        let record_id = require_record_id(record_id, ProviderMethod::GetPortableKeyStorageRecord)?;
         let mut request = pb::GetPortableKeyStorageRecordProviderRequest::default();
-        request.record_id = record_id.to_owned();
+        request.record_id = record_id.as_str().to_owned();
         match self.call(provider_request(request.into()))? {
             pb::wallet_provider_result::Result::GetPortableKeyStorageRecord(response) => {
                 let record =
@@ -176,7 +180,7 @@ where
                     })?;
                 validate_portable_key_storage_record(&record)
                     .map_err(|_| runtime_rejected(ProviderMethod::GetPortableKeyStorageRecord))?;
-                if record.record_id != record_id {
+                if record.record_id != record_id.as_str() {
                     return Err(runtime_rejected(
                         ProviderMethod::GetPortableKeyStorageRecord,
                     ));
@@ -203,8 +207,10 @@ where
             Some(expected_revision),
             ProviderMethod::DeletePortableKeyStorageRecord,
         )?;
+        let record_id =
+            require_record_id(record_id, ProviderMethod::DeletePortableKeyStorageRecord)?;
         let mut request = pb::DeletePortableKeyStorageRecordProviderRequest::default();
-        request.record_id = record_id.to_owned();
+        request.record_id = record_id.as_str().to_owned();
         request.expected_revision = MessageField::some(revision_to_proto(expected_revision));
         match self.call(provider_request(request.into()))? {
             pb::wallet_provider_result::Result::DeletePortableKeyStorageRecord(_) => Ok(()),
@@ -254,8 +260,9 @@ where
         &mut self,
         record_id: &str,
     ) -> RuntimeResult<VersionedKeyStorageRecord<pb::HardwareKeyBindingRecord>> {
+        let record_id = require_record_id(record_id, ProviderMethod::GetHardwareKeyBindingRecord)?;
         let mut request = pb::GetHardwareKeyBindingRecordProviderRequest::default();
-        request.record_id = record_id.to_owned();
+        request.record_id = record_id.as_str().to_owned();
         match self.call(provider_request(request.into()))? {
             pb::wallet_provider_result::Result::GetHardwareKeyBindingRecord(response) => {
                 let record =
@@ -264,7 +271,7 @@ where
                     })?;
                 validate_hardware_key_binding_record(&record)
                     .map_err(|_| runtime_rejected(ProviderMethod::GetHardwareKeyBindingRecord))?;
-                if record.record_id != record_id {
+                if record.record_id != record_id.as_str() {
                     return Err(runtime_rejected(
                         ProviderMethod::GetHardwareKeyBindingRecord,
                     ));
@@ -291,8 +298,10 @@ where
             Some(expected_revision),
             ProviderMethod::DeleteHardwareKeyBindingRecord,
         )?;
+        let record_id =
+            require_record_id(record_id, ProviderMethod::DeleteHardwareKeyBindingRecord)?;
         let mut request = pb::DeleteHardwareKeyBindingRecordProviderRequest::default();
-        request.record_id = record_id.to_owned();
+        request.record_id = record_id.as_str().to_owned();
         request.expected_revision = MessageField::some(revision_to_proto(expected_revision));
         match self.call(provider_request(request.into()))? {
             pb::wallet_provider_result::Result::DeleteHardwareKeyBindingRecord(_) => Ok(()),
@@ -301,6 +310,12 @@ where
             )),
         }
     }
+}
+
+// A provider acknowledgement cannot authorize an invalid storage identity.
+// Use the shared bounded identifier before allocating or sending the request.
+fn require_record_id(record_id: &str, method: ProviderMethod) -> RuntimeResult<NonEmptyIdentifier> {
+    NonEmptyIdentifier::try_from(record_id).map_err(|_| runtime_rejected(method))
 }
 
 fn require_changed_revision<P>(

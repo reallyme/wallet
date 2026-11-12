@@ -33,12 +33,12 @@ registry release before it can be published.
 ## Publication gate
 
 The seventeen Wallet Rust crates in the approved release graph are authorized
-by package policy for version `0.1.1`, with `rust-version = "1.99"`.
+by package policy for version `0.1.2`, with `rust-version = "1.99"`.
 Development and release checks use the pinned Rust 1.99.0 toolchain. This policy
 classification does not establish that dependencies or packages are ready to
 publish.
 
-Wallet builds use the published OpenID4VCI and OpenID4VP 0.3.1 packages,
+Wallet builds use the published OpenID4VCI 0.3.2 and OpenID4VP 0.3.1 packages,
 ZK 0.3.2, and SSI 0.6.2, including ETSI EAA conformance. Both Cargo lockfiles
 record external dependencies from crates.io. Release preflight checks the protocol
 and ZK archives against Cargo.lock and the reviewed source revisions.

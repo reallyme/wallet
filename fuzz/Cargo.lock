@@ -707,9 +707,9 @@ dependencies = [
 
 [[package]]
 name = "reallyme-openid4vci-proto"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab618329ec44e63680518eeba0c47b0cffcb5c6b5f5588189a51322e2523f0db"
+checksum = "aecacec1eadc658a049da018f47cc3173717b3d7af8950ba2932532032b42b4b"
 dependencies = [
  "buffa",
  "serde",
@@ -742,7 +742,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-attestation"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "reallyme-wallet-keystore",
  "reallyme-wallet-types",
@@ -753,7 +753,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-keystore"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "reallyme-wallet-lifecycle",
  "reallyme-wallet-types",
@@ -763,7 +763,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-lifecycle"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "reallyme-wallet-types",
  "thiserror",
@@ -772,7 +772,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-proto"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "buffa",
  "reallyme-crypto-proto",
@@ -785,7 +785,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-proto-codec"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "buffa",
  "reallyme-crypto-p256",
@@ -806,7 +806,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-types"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "thiserror",
  "url",

@@ -7,7 +7,7 @@
       "additional_packages": [
         "openid4vci-profiles"
       ],
-      "commit": "aecc9dbc7e6c0ee9cf5815ff81c380db0825e28b"
+      "commit": "34e0759d642b2c6a43cb291d963c457d6172d991"
     },
     {
       "directory": "openid4vp",
