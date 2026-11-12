@@ -160,7 +160,7 @@ bounded QR-safe text for a host renderer.
 
 ## Development
 
-Use Rust 1.99.0, pinned in `rust-toolchain.toml`. A Wallet checkout builds with
+Use Rust 1.100.0, pinned in `rust-toolchain.toml`. A Wallet checkout builds with
 external dependencies from crates.io. The workspace and fuzz lockfiles record
 the resolved versions and checksums. Release preflight verifies the protocol
 and ZK archives against the reviewed [source revisions](scripts/sibling-source-provenance.json).
@@ -188,8 +188,16 @@ dependency and fuzz checks are also available:
 ```sh
 cargo deny check
 scripts/audit_committed_lockfiles.sh
-cargo +nightly-2026-09-15 fuzz build -Z cargo-lints
+cargo +nightly-2026-09-15 fuzz build
 ```
+
+Release preflight requires a manually dispatched Fuzz run for the exact release
+commit, including all four 300-second campaigns. The 16-run push and pull-request
+smoke checks do not satisfy this release requirement.
+
+Run `actionlint .github/workflows/*.yml` from the repository root to validate all
+workflows. It loads the narrow Ubuntu 26.04 compatibility entry in
+`.github/actionlint.yaml` automatically.
 
 Schema generation and freshness checks run in the separate protobuf CI lane.
 Canonical Wallet schemas live under `crates/proto/proto/reallyme/wallet/v1`;

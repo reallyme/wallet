@@ -53,7 +53,7 @@ if (
   policy?.schema_version !== 1
   || policy.policy_id !== "reallyme.wallet.package-policy.v1"
   || policy.release_version !== "0.1.2"
-  || policy.maintainer_rust_toolchain !== "1.99.0"
+  || policy.maintainer_rust_toolchain !== "1.100.0"
   || policy.public_crate_msrv !== "1.99"
   || !Array.isArray(policy.authorized_public_packages)
   || !Array.isArray(policy.intended_rust_release_order)
@@ -94,7 +94,7 @@ if (
 
 const toolchain = readFileSync(resolve(root, "rust-toolchain.toml"), "utf8");
 for (const required of [
-  'channel = "1.99.0"',
+  'channel = "1.100.0"',
   'components = ["clippy", "rustfmt"]',
   'targets = ["wasm32-unknown-unknown"]',
   'profile = "minimal"',
@@ -256,8 +256,8 @@ if (mode === "--check-wasm") {
   const rustcVerbose = run("rustc", ["--version", "--verbose"], {
     reason: "maintainer rustc is unavailable",
   });
-  if (!/^release: 1\.99\.0$/mu.test(rustcVerbose)) {
-    fail("Wasm lane must run with exactly Rust 1.99.0");
+  if (!/^release: 1\.100\.0$/mu.test(rustcVerbose)) {
+    fail("Wasm lane must run with exactly Rust 1.100.0");
   }
   const checkArguments = [
     "check",

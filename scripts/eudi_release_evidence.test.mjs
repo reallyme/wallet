@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import {
-  buildEudiDeploymentInputs, derivePreflightChecks, EudiReleaseEvidenceError,
+  buildEudiDeploymentInputs, derivePreflightChecks, deriveReleaseToolchain, EudiReleaseEvidenceError,
   sha256, verifyPublishedRelease, verifyRegistryVersion,
 } from "./eudi_release_evidence.mjs";
 
@@ -83,8 +83,42 @@ test("registry name, version, checksum and non-yanked state must all match", () 
 
 const material = () => ({
   version: "0.1.0", releaseSha: identity.releaseSha, bundleHash: "b".repeat(64), cargoLockHash: "c".repeat(64),
+  toolchainVersion: "1.99.0",
   sourceLocks: { eudi_sources_sha256: "d".repeat(64), eudi_legal_sources_sha256: "e".repeat(64), eudi_publications_sha256: "f".repeat(64) },
   checks: derivePreflightChecks(jobs(), identity).checks, createdAt: "2026-11-12T00:00:00.000Z",
+});
+
+test("release compiler comes from matching immutable source pins, including historical builds", () => {
+  for (const version of ["1.99.0", "1.100.0"]) {
+    const source = `[toolchain]\nchannel = "${version}"\nprofile = "minimal"\n`;
+    const workflow = `          toolchain: ${version}\n`;
+    const toolchainVersion = deriveReleaseToolchain(source, workflow);
+    const result = buildEudiDeploymentInputs({ ...material(), toolchainVersion });
+    assert.deepEqual(JSON.parse(result.attestationBytes).toolchain, { identifier: "rust", version });
+  }
+});
+
+test("floating, inconsistent, duplicate, misplaced and oversized compiler pins fail closed", () => {
+  const source = '[toolchain]\nchannel = "1.100.0"\n';
+  const workflow = "          toolchain: 1.100.0\n";
+  for (const [candidate, preflight] of [
+    [source.replace("1.100.0", "stable"), workflow],
+    [source, workflow.replace("1.100.0", "1.99.0")],
+    [source + 'channel = "1.100.0"\n', workflow],
+    ['channel = "1.100.0"\n[toolchain]\n', workflow],
+    [source, workflow + workflow],
+    [source, "          toolchain: stable\n"],
+    [source + "#".repeat(16_384), workflow],
+  ]) {
+    assert.throws(() => deriveReleaseToolchain(candidate, preflight), {
+      name: "EudiReleaseEvidenceError", code: "invalid_release_toolchain",
+    });
+  }
+  for (const toolchainVersion of [undefined, "stable", "1.0100.0", "1.100.0\n"]) {
+    assert.throws(() => buildEudiDeploymentInputs({ ...material(), toolchainVersion }), {
+      name: "EudiReleaseEvidenceError", code: "invalid_deployment_material",
+    });
+  }
 });
 
 test("manifest and component attestation bind the same exact candidate and bytes", () => {
@@ -94,10 +128,35 @@ test("manifest and component attestation bind the same exact candidate and bytes
   const deployment = JSON.parse(deploymentBytes);
   assert.equal(deployment.component_attestation_sha256, sha256(attestationBytes));
   assert.equal(deployment.component.commit, attestation.component.source_commit);
+  assert.deepEqual(deployment.component, {
+    component_id: "wallet", repository: "https://github.com/reallyme/wallet",
+    release_ref: "reallyme-wallet-v0.1.0", commit: identity.releaseSha,
+  });
+  assert.equal(deployment.component.release_ref, attestation.release.source_ref);
   assert.equal(deployment.release_artifact.sha256, attestation.artifacts[0].sha256);
   assert.equal(attestation.release.source_ref, "reallyme-wallet-v0.1.0");
   assert.deepEqual(attestation.checks, input.checks);
   assert.deepEqual(deployment.source_locks, input.sourceLocks);
+});
+
+test("release references follow the exact candidate version across release increments", () => {
+  for (const version of ["0.1.1", "0.1.2", "1.0.0", "12.34.56"]) {
+    const input = { ...material(), version };
+    const { deploymentBytes, attestationBytes } = buildEudiDeploymentInputs(input);
+    const deployment = JSON.parse(deploymentBytes);
+    const attestation = JSON.parse(attestationBytes);
+    assert.equal(deployment.component.release_ref, `reallyme-wallet-v${version}`);
+    assert.equal(deployment.component.release_ref, attestation.release.source_ref);
+    assert.equal(deployment.component.commit, input.releaseSha);
+  }
+});
+
+test("noncanonical or non-release versions cannot become deployment references", () => {
+  for (const version of [null, 1, "main", "00.1.0", "0.01.0", "0.1.00", "0.1.2-rc.1"]) {
+    assert.throws(() => buildEudiDeploymentInputs({ ...material(), version }), {
+      name: "EudiReleaseEvidenceError", code: "invalid_deployment_material",
+    });
+  }
 });
 
 test("missing, duplicated, failed or invented check categories cannot form an attestation", () => {

@@ -11,9 +11,20 @@ const FULL_SHA_PATTERN = /^[0-9a-f]{40}$/u;
 const INTEGER_PATTERN = /^(?:0|[1-9][0-9]*)$/u;
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
 const MAX_OUTPUT_BYTES = 1_048_576;
+const MAX_COMMAND_TIMEOUT_MS = 60_000;
 const MAX_WAIT_SECONDS = 7_200;
 const MAX_POLL_SECONDS = 300;
 const DEFAULT_POLL_SECONDS = 20;
+const MAX_JOB_COUNT = 100;
+const MAX_STEP_COUNT = 100;
+const MAX_NAME_CHARACTERS = 256;
+const REQUIRED_FUZZ_JOBS = Object.freeze([
+  "fuzz target build",
+  "scheduled fuzz (wallet_proto_decode)",
+  "scheduled fuzz (wallet_proto_json)",
+  "scheduled fuzz (wallet_identifier)",
+  "scheduled fuzz (wallet_state_machine)",
+]);
 
 export const REQUIRED_WORKFLOWS = Object.freeze([
   Object.freeze({ outputName: "rust_ci_run_id", workflowFile: "rust-ci.yml" }),
@@ -52,6 +63,7 @@ const runJson = (arguments_, code) => {
   const result = spawnSync("gh", arguments_, {
     encoding: "utf8",
     maxBuffer: MAX_OUTPUT_BYTES,
+    timeout: MAX_COMMAND_TIMEOUT_MS,
     stdio: ["ignore", "pipe", "ignore"],
   });
   if (result.error !== undefined || result.status !== 0 || typeof result.stdout !== "string") {
@@ -99,7 +111,9 @@ export const selectRequiredCiRun = (value, expected) => {
     .map(validateRun)
     .filter((run) =>
       run.workflowId === expected.workflowId &&
-      ["push", "workflow_dispatch"].includes(run.event) &&
+      (expected.workflowFile === "fuzz.yml"
+        ? run.event === "workflow_dispatch"
+        : ["push", "workflow_dispatch"].includes(run.event)) &&
       run.headBranch === "main" && run.headSha === expected.releaseSha &&
       run.path === `.github/workflows/${expected.workflowFile}`,
     )
@@ -115,23 +129,73 @@ export const selectRequiredCiRun = (value, expected) => {
   return latest;
 };
 
-const resolveRequiredCi = ({ repository, releaseSha }) => REQUIRED_WORKFLOWS.map((requirement) => {
-  const workflow = runJson(
+/** A successful smoke build cannot stand in for all time-boxed campaigns. */
+export const verifyFuzzCampaignJobs = (value, run) => {
+  const rejected = () => fail("invalid-required-fuzz-campaigns", "fuzz.yml");
+  if (!isRecord(run) || !Number.isSafeInteger(run.id) || run.id < 1 ||
+      typeof run.headSha !== "string" || !FULL_SHA_PATTERN.test(run.headSha) ||
+      run.event !== "workflow_dispatch" ||
+      run.runAttempt !== 1 || run.headBranch !== "main" ||
+      run.path !== ".github/workflows/fuzz.yml" || run.status !== "completed" ||
+      run.conclusion !== "success" || !isRecord(value) || !Array.isArray(value.jobs) ||
+      value.total_count !== value.jobs.length || value.jobs.length > MAX_JOB_COUNT ||
+      value.jobs.length !== REQUIRED_FUZZ_JOBS.length) rejected();
+  const seenNames = new Set();
+  const seenIds = new Set();
+  for (const job of value.jobs) {
+    if (!isRecord(job) || !Number.isSafeInteger(job.id) || job.id < 1 || seenIds.has(job.id) ||
+        typeof job.name !== "string" || job.name.length > MAX_NAME_CHARACTERS ||
+        !REQUIRED_FUZZ_JOBS.includes(job.name) || seenNames.has(job.name) ||
+        job.run_id !== run.id || job.run_attempt !== 1 || job.head_sha !== run.headSha ||
+        job.status !== "completed" || job.conclusion !== "success" ||
+        !Array.isArray(job.steps) || job.steps.length > MAX_STEP_COUNT) rejected();
+    seenIds.add(job.id);
+    seenNames.add(job.name);
+    const requiredSteps = job.name === "fuzz target build"
+      ? ["Build fuzz targets", "Upload scheduled fuzz executables", "Record staged fuzz executable digests"]
+      : ["Download fuzz executables", "Run time-boxed fuzz target"];
+    const steps = new Map();
+    const numbers = new Set();
+    for (const step of job.steps) {
+      if (!isRecord(step) || typeof step.name !== "string" || step.name.length === 0 ||
+          step.name.length > MAX_NAME_CHARACTERS || steps.has(step.name) ||
+          step.status !== "completed" || !["success", "skipped"].includes(step.conclusion) ||
+          !Number.isSafeInteger(step.number) || step.number < 1 || numbers.has(step.number)) rejected();
+      steps.set(step.name, step);
+      numbers.add(step.number);
+    }
+    for (const name of requiredSteps) {
+      const step = steps.get(name);
+      if (step?.status !== "completed" || step.conclusion !== "success") rejected();
+    }
+  }
+};
+
+export const resolveRequiredCi = ({ repository, releaseSha, query = runJson }) => REQUIRED_WORKFLOWS.map((requirement) => {
+  const workflow = query(
     ["api", `repos/${repository}/actions/workflows/${requirement.workflowFile}`],
     `required-ci-workflow-query-failed:${requirement.workflowFile}`,
   );
   if (!isRecord(workflow) || !Number.isSafeInteger(workflow.id) || workflow.id < 1) {
     fail("invalid-required-ci-workflow-response", requirement.workflowFile);
   }
-  const runs = runJson(
+  const runs = query(
     ["api", `repos/${repository}/actions/workflows/${workflow.id}/runs?branch=main&head_sha=${releaseSha}&per_page=100`],
     `required-ci-run-list-query-failed:${requirement.workflowFile}`,
   );
-  return selectRequiredCiRun(runs, {
+  const selected = selectRequiredCiRun(runs, {
     releaseSha,
     workflowFile: requirement.workflowFile,
     workflowId: workflow.id,
   });
+  if (requirement.workflowFile === "fuzz.yml") {
+    const jobs = query(
+      ["api", `repos/${repository}/actions/runs/${selected.id}/attempts/1/jobs?per_page=100`],
+      "required-fuzz-jobs-query-failed:fuzz.yml",
+    );
+    verifyFuzzCampaignJobs(jobs, selected);
+  }
+  return selected;
 });
 
 const isWaitable = (error) => error instanceof RequiredCiError &&

@@ -10,7 +10,7 @@ readonly selected_target="${WALLET_FUZZ_TARGET:-}"
 readonly run_count="${WALLET_FUZZ_RUNS:-}"
 readonly max_total_time="${WALLET_FUZZ_MAX_TOTAL_TIME:-300}"
 readonly rss_limit_mb="${WALLET_FUZZ_RSS_LIMIT_MB:-4096}"
-readonly -a all_targets=(wallet_proto_decode wallet_proto_json wallet_identifier)
+readonly -a all_targets=(wallet_proto_decode wallet_proto_json wallet_identifier wallet_state_machine)
 
 validate_uint() {
   local value="$1"

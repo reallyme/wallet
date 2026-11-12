@@ -36,6 +36,7 @@ url = { workspace = true }
 zeroize = { workspace = true }
 
 [dev-dependencies]
+reallyme-trust-core = { version = "=0.6.2", default-features = false, features = ["native"] }
 reallyme-openid4vp-wallet = { workspace = true, features = ["jose", "native"] }
 reallyme-crypto = { version = "=0.3.17", default-features = false, features = ["native", "p256", "jwk"] }
 reallyme-jose = { version = "=0.4.6", default-features = false, features = ["native"] }

@@ -24,6 +24,8 @@ non_kebab_case_bins = "allow"
 
 [dependencies]
 libfuzzer-sys = "0.4"
+thiserror = "2.0"
+reallyme-wallet = { path = "../crates/wallet", version = "0.1.2", default-features = false, features = ["native"] }
 reallyme-wallet-proto-codec = { path = "../crates/proto-codec", version = "0.1.2", default-features = false, features = ["native"] }
 reallyme-wallet-proto = { path = "../crates/proto", version = "0.1.2", default-features = false }
 reallyme-wallet-types = { path = "../crates/types", version = "0.1.2", default-features = false }
@@ -45,6 +47,13 @@ bench = false
 [[bin]]
 name = "wallet_identifier"
 path = "fuzz_targets/wallet_identifier.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "wallet_state_machine"
+path = "fuzz_targets/wallet_state_machine.rs"
 test = false
 doc = false
 bench = false

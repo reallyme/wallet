@@ -6,9 +6,9 @@ GitHub-hosted Linux runners. It requires no separate machine, deployment
 secret, preinstalled release files, or crates.io publishing token. Release
 preparation and framework execution both use Ubuntu 26.04.
 
-The workflow pins Identity Conformance 0.2.0's reusable workflow and checkout
+The workflow pins Identity Conformance 0.3.0's reusable workflow and checkout
 to the same published release commit,
-[`ae38c5e9f9f3af956764761f6a7ad0cbda8ee92d`](https://github.com/reallyme/identity-conformance/tree/ae38c5e9f9f3af956764761f6a7ad0cbda8ee92d).
+[`a5757aff326475e6d9aaad1b08cb62f47fc3a417`](https://github.com/reallyme/identity-conformance/tree/a5757aff326475e6d9aaad1b08cb62f47fc3a417).
 Wallet owns its product candidate and release provenance;
 Identity Conformance owns the engineering plan, upstream standards inputs,
 execution, and result validation.
@@ -43,8 +43,15 @@ The preparation job:
    bounded check-evidence records. It binds that bundle, the release Cargo.lock,
    framework source locks, and attestation bytes into a deployment manifest.
 
+The deployment component carries both `release_ref` (`reallyme-wallet-v<version>`)
+and the resolved source commit. The release reference matches the component
+attestation's `release.source_ref`; it is never inferred from the workflow branch.
+
 The derived component attestation summarizes the existing release-preflight
-checks; it does not claim that the EUDI plan has already run. Its check-evidence
+checks; it does not claim that the EUDI plan has already run. The compiler version
+is resolved from the exact release commit's `rust-toolchain.toml` and preflight
+workflow; both pins must agree. Historical releases retain their observed compiler
+when a newer workflow prepares their evidence. Its check-evidence
 hashes refer to records inside the bundle. Raw process output, credentials, and
 private deployment information are not collected.
 

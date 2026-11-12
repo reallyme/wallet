@@ -37,11 +37,11 @@ node scripts/check_rust_release_policy.mjs --check-wasm
 cargo deny check
 scripts/audit_committed_lockfiles.sh
 node scripts/check_rust_package_surfaces.mjs
-npm exec --yes --ignore-scripts --package=github:reallyme/release-readiness#9cf40c7da1def8a8d809af51789284097c572dd5 -- \
+npm exec --yes --ignore-scripts --package=github:reallyme/release-readiness#18a6d91d99837e80f92e41fe04effb0b043d754e -- \
   reallyme-release-readiness
 
 if ! cargo fuzz --version >/dev/null 2>&1; then
   printf 'required cargo subcommand is missing: cargo-fuzz\n' >&2
   exit 127
 fi
-cargo +nightly-2026-09-15 fuzz build -Z cargo-lints
+cargo +nightly-2026-09-15 fuzz build

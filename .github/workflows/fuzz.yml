@@ -14,6 +14,7 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "crates/**"
+      - "conformance/tests/state_machine_models/**"
       - "fuzz/**"
       - "scripts/run-fuzz-smoke.sh"
       - "!**/*.md"
@@ -25,6 +26,7 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "crates/**"
+      - "conformance/tests/state_machine_models/**"
       - "fuzz/**"
       - "scripts/run-fuzz-smoke.sh"
       - "!**/*.md"
@@ -92,6 +94,7 @@ jobs:
     # cargo fuzz run wallet_proto_decode
     # cargo fuzz run wallet_proto_json
     # cargo fuzz run wallet_identifier
+    # cargo fuzz run wallet_state_machine
     # Building once and executing the immutable binaries avoids rebuilding the
     # same source independently in every scheduled matrix cell.
     needs: build
@@ -105,6 +108,7 @@ jobs:
           - wallet_proto_decode
           - wallet_proto_json
           - wallet_identifier
+          - wallet_state_machine
     steps:
       - name: Checkout wallet
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

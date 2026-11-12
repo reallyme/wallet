@@ -10,13 +10,15 @@ import { fileURLToPath } from "node:url";
 import { verifyAttestationDocument, verifyAttestedCrateArchives, verifyWorkflowRun } from "./verify_release_attestation.mjs";
 import { verifyReleaseTag } from "./verify_release_tag.mjs";
 import {
-  buildEudiDeploymentInputs, derivePreflightChecks, EudiReleaseEvidenceError,
+  buildEudiDeploymentInputs, derivePreflightChecks, deriveReleaseToolchain, EudiReleaseEvidenceError,
   failEudiEvidence, isRecord, sha256, verifyPublishedRelease, verifyRegistryVersion,
 } from "./eudi_release_evidence.mjs";
 
 const REPOSITORY = "reallyme/wallet";
 const MAX_COMMAND_BYTES = 2_097_152;
 const MAX_JSON_BYTES = 1_048_576;
+const MAX_TOOLCHAIN_SOURCE_BYTES = 16_384;
+const MAX_SOURCE_BASE64_CHARACTERS = 32_768;
 const MAX_ARCHIVE_BYTES = 16_777_216;
 const COMMAND_TIMEOUT_MS = 120_000;
 const FULL_SHA = /^[0-9a-f]{40}$/u;
@@ -41,6 +43,20 @@ const regularBytes = (path, maximum) => {
     failEudiEvidence("invalid_release_file");
   }
   return readFileSync(path);
+};
+const releaseSourceBytes = (path, releaseSha) => {
+  const source = github(`repos/${REPOSITORY}/contents/${path}?ref=${releaseSha}`);
+  if (!isRecord(source) || source.encoding !== "base64" || typeof source.content !== "string" ||
+      source.content.length > MAX_SOURCE_BASE64_CHARACTERS ||
+      !Number.isSafeInteger(source.size) || source.size < 1 || source.size > MAX_TOOLCHAIN_SOURCE_BYTES) {
+    failEudiEvidence("invalid_release_source");
+  }
+  const encoded = source.content.replaceAll("\n", "");
+  const bytes = Buffer.from(encoded, "base64");
+  if (bytes.length !== source.size || bytes.toString("base64") !== encoded) {
+    failEudiEvidence("invalid_release_source");
+  }
+  return bytes;
 };
 
 /** Materialize caller inputs from public, signed release evidence only. */
@@ -131,13 +147,17 @@ export const prepareEudiReleaseInputs = async ({ env = process.env } = {}) => {
     if (lockBytes.length !== lock.size || lockBytes.toString("base64") !== encodedLock) {
       failEudiEvidence("invalid_release_lock");
     }
+    const toolchainVersion = deriveReleaseToolchain(
+      releaseSourceBytes("rust-toolchain.toml", releaseSha).toString("utf8"),
+      releaseSourceBytes(".github/workflows/crates-package-preflight.yml", releaseSha).toString("utf8"),
+    );
     // New output directories prevent stale inputs from a prior candidate being reused.
     mkdirSync(output, { mode: 0o700 });
     const bundle = join(output, "wallet-release");
     command("tar", ["-cf", bundle, "-C", scratch, "--", ...expectedFiles, ...evidence.map((item) => item.file)]);
     const { attestationBytes, deploymentBytes } = buildEudiDeploymentInputs({
       version, releaseSha, bundleHash: sha256(regularBytes(bundle, MAX_ARCHIVE_BYTES * 2)),
-      cargoLockHash: sha256(lockBytes), sourceLocks, checks, createdAt: new Date().toISOString(),
+      cargoLockHash: sha256(lockBytes), sourceLocks, checks, createdAt: new Date().toISOString(), toolchainVersion,
     });
     writeFileSync(join(output, "wallet-attestation.json"), attestationBytes, { flag: "wx", mode: 0o600 });
     writeFileSync(join(output, "deployment.json"), deploymentBytes, { flag: "wx", mode: 0o600 });

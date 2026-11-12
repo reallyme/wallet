@@ -48,6 +48,19 @@ external-default-features = "allow"
 deny = []
 skip = [
     { crate = "base64@0.22.1", reason = "buffa still requires the earlier base64 line" },
+    # These exact duplicates enter through the same Wallet/SSI cryptography
+    # graph reviewed by the workspace policy; new versions still fail closed.
+    { crate = "block-buffer@0.10.4", reason = "the older digest line remains in transitive cryptography" },
+    { crate = "cpufeatures@0.2.17", reason = "the older keccak line remains in transitive cryptography" },
+    { crate = "crypto-common@0.1.7", reason = "the older digest line remains in transitive cryptography" },
+    { crate = "digest@0.10.7", reason = "the older sha3 line remains in transitive cryptography" },
+    { crate = "generic-array@0.14.7", reason = "the older digest and block-buffer lines remain transitive" },
+    { crate = "getrandom@0.2.17", reason = "Arkworks 0.6 via Poseidon2 retains rand 0.8 while current Crypto uses getrandom 0.4" },
+    { crate = "hashbrown@0.15.5", reason = "buffa still requires the earlier hashbrown line" },
+    { crate = "keccak@0.1.6", reason = "the older sha3 line remains in transitive cryptography" },
+    { crate = "rand_core@0.6.4", reason = "Arkworks 0.6 via Poseidon2 retains rand 0.8 while current Crypto uses rand_core 0.10" },
+    { crate = "sha3@0.10.9", reason = "reallyme-crypto-kmac still requires the earlier sha3 line" },
+    { crate = "synstructure@0.13.2", reason = "x509-parser 0.18.1 depends on the asn1-rs 0.7 derive line" },
     { crate = "syn@2.0.119", reason = "older derive macros still require the syn 2 line" },
 ]
 skip-tree = []

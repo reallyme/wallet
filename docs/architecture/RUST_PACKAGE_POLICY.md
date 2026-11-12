@@ -34,7 +34,7 @@ registry release before it can be published.
 
 The seventeen Wallet Rust crates in the approved release graph are authorized
 by package policy for version `0.1.2`, with `rust-version = "1.99"`.
-Development and release checks use the pinned Rust 1.99.0 toolchain. This policy
+Development and release checks use the pinned Rust 1.100.0 toolchain. This policy
 classification does not establish that dependencies or packages are ready to
 publish.
 

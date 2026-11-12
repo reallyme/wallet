@@ -46,6 +46,9 @@ fuzz/corpus/*
 !fuzz/corpus/wallet_proto_json/
 fuzz/corpus/wallet_proto_json/*
 !fuzz/corpus/wallet_proto_json/*.json
+!fuzz/corpus/wallet_state_machine/
+fuzz/corpus/wallet_state_machine/*
+!fuzz/corpus/wallet_state_machine/*.seed
 fuzz/target/
 
 # Generated Rust/source artifacts

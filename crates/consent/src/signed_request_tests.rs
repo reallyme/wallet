@@ -16,11 +16,9 @@ use crate::{
 use reallyme_codec::base64url::bytes_to_base64url;
 use reallyme_openid4vp_types::AuthorizationRequestObject;
 use reallyme_openid4vp_wallet::{
-    verify_signed_request_object, BoundedX509CertificateChain, JoseRequestObjectVerification,
-    JoseRequestObjectVerificationResolver, JoseSignedRequestObjectVerifier,
-    TrustedX509RequestObjectSigner, VerifiedPlatformOrigin, VerifiedWalletRequest,
-    WalletAuthorizationRequest, WalletError, WalletErrorReason, WalletInvocationContext,
-    X509RequestObjectTrustDecision, X509TrustDecisionContext,
+    verify_signed_request_object, BoundedX509CertificateChain,
+    JoseRequestObjectVerificationResolver, JoseSignedRequestObjectVerifier, VerifiedPlatformOrigin,
+    VerifiedWalletRequest, WalletAuthorizationRequest, WalletErrorReason, WalletInvocationContext,
 };
 use reallyme_wallet_types::{
     AttributeName, ConsentAction, ConsentActionKind, ConsentCapture, ConsentDecision,
@@ -42,54 +40,14 @@ impl TrustedConsentClock for Clock {
         time(self.0)
     }
 }
-fn key() -> (Vec<u8>, reallyme_jose::Jwk) {
-    let (public, _) =
-        reallyme_crypto::p256::generate_p256_keypair_from_secret_key(&SECRET).expect("test key");
-    let jwk = reallyme_crypto::jwk::p256_public_key_to_jwk(
-        &public,
-        reallyme_crypto::jwk::JwkOptions {
-            alg: true,
-            use_sig: true,
-            use_enc: false,
-            kid: Some("test-key".into()),
-        },
-    )
-    .expect("test JWK");
-    (
-        public,
-        serde_json::from_value(
-            serde_json::to_value(reallyme_crypto::jwk::Jwk::Ec(jwk)).expect("test JWK encodes"),
-        )
-        .expect("test JWK decodes"),
-    )
-}
-struct Resolver;
-impl JoseRequestObjectVerificationResolver for Resolver {
-    fn resolve_request_object_verification(
-        &self,
-        _: &str,
-        _: Option<&reallyme_openid4vp_types::ClientIdentifier>,
-        chain: Option<&BoundedX509CertificateChain>,
-        _: u64,
-    ) -> Result<JoseRequestObjectVerification, WalletError> {
-        let (public, jwk) = key();
-        let context = X509TrustDecisionContext::new(1, [1; 32], [2; 32], 10, 100)?;
-        // The trust provider is a fixture; the published JOSE boundary still
-        // checks the real signature, certificate digest, key and request.
-        let signer = TrustedX509RequestObjectSigner::new(
-            chain
-                .cloned()
-                .ok_or_else(|| WalletError::new(WalletErrorReason::MissingX509CertificateChain))?,
-            public.clone(),
-            vec![],
-            context,
-        )?;
-        Ok(JoseRequestObjectVerification::new(jwk, public)
-            .with_x509_trust_decision(X509RequestObjectTrustDecision::Trusted(signer)))
-    }
-}
+#[path = "verify_consent_certificate_tests.rs"]
+mod certificate_verification;
+#[path = "consent_certificate_material_tests.rs"]
+mod certificates;
+use certificate_verification::Resolver;
+
 fn request(state: &str) -> AuthorizationRequestObject {
-    let hash = bytes_to_base64url(&crypto_sha2_256::digest(b"test").into_bytes());
+    let hash = bytes_to_base64url(&crypto_sha2_256::digest(certificates::LEAF_DER).into_bytes());
     let client = format!("x509_hash:{hash}");
     serde_json::from_value(serde_json::json!({
         "client_id": client, "iss": client, "aud": ["wallet"],
@@ -102,7 +60,7 @@ fn request(state: &str) -> AuthorizationRequestObject {
 fn signed(state: &str) -> String {
     let protected = bytes_to_base64url(
         &serde_json::to_vec(&serde_json::json!({
-            "alg":"ES256", "typ":"oauth-authz-req+jwt", "kid":"test-key", "x5c":["dGVzdA=="]
+            "alg":"ES256", "typ":"oauth-authz-req+jwt", "kid":"test-key", "x5c":[certificates::LEAF_BASE64]
         }))
         .expect("test header"),
     );
@@ -115,7 +73,7 @@ fn signed(state: &str) -> String {
 }
 fn verified(state: &str) -> VerifiedWalletRequest {
     verify_signed_request_object(
-        &JoseSignedRequestObjectVerifier::new(Resolver, "wallet".into()),
+        &JoseSignedRequestObjectVerifier::new(Resolver::trusted(), "wallet".into()),
         &signed(state),
         &WalletInvocationContext::DigitalCredentialsApi(
             VerifiedPlatformOrigin::from_browser_security_context("https://rp.example".into())
@@ -277,4 +235,47 @@ fn both_public_capture_forms_share_the_signed_verifier_nonce() {
         assert_eq!(store.0.len(), 1);
         assert_eq!(store.1.len(), usize::from(receipt_first));
     }
+}
+
+#[test]
+fn certificate_path_requires_the_configured_root_and_actual_signature() {
+    let chain = BoundedX509CertificateChain::new(vec![certificates::LEAF_DER.to_vec()])
+        .expect("bounded real certificate");
+    assert!(Resolver::trusted()
+        .resolve_request_object_verification("", None, Some(&chain), 11)
+        .is_ok());
+    let wrong = Resolver::with_root(certificates::OTHER_ROOT_PEM)
+        .resolve_request_object_verification("", None, Some(&chain), 11);
+    assert!(
+        matches!(wrong, Err(error) if error.reason() == WalletErrorReason::X509CertificatePathRejected)
+    );
+
+    let mut tampered = certificates::LEAF_DER.to_vec();
+    *tampered.last_mut().expect("nonempty certificate") ^= 1;
+    let chain = BoundedX509CertificateChain::new(vec![tampered]).expect("bounded bytes");
+    let result =
+        Resolver::trusted().resolve_request_object_verification("", None, Some(&chain), 11);
+    assert!(
+        matches!(result, Err(error) if error.reason() == WalletErrorReason::X509CertificatePathRejected)
+    );
+}
+
+#[test]
+fn certificate_validity_and_der_are_not_replaced_by_trust_receipts() {
+    let chain = BoundedX509CertificateChain::new(vec![certificates::LEAF_DER.to_vec()])
+        .expect("bounded real certificate");
+    for now in [9, 101] {
+        let result =
+            Resolver::trusted().resolve_request_object_verification("", None, Some(&chain), now);
+        assert!(
+            matches!(result, Err(error) if error.reason() == WalletErrorReason::X509CertificatePathRejected)
+        );
+    }
+    let malformed = BoundedX509CertificateChain::new(vec![b"test".to_vec()])
+        .expect("bounded bytes still require DER validation");
+    let result =
+        Resolver::trusted().resolve_request_object_verification("", None, Some(&malformed), 11);
+    assert!(
+        matches!(result, Err(error) if error.reason() == WalletErrorReason::MalformedX509CertificateChain)
+    );
 }

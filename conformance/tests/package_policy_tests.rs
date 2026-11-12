@@ -20,6 +20,19 @@ fn package_policy_matches_the_workspace_and_authorizes_only_the_release_graph(
     let policy = read_json(&root, POLICY_PATH)?;
     validate_identity(&policy)?;
     validate_authorization_gate(&policy)?;
+    let workspace =
+        std::fs::read_to_string(root.join("Cargo.toml")).map_err(|_| PackagePolicyTestError::Io)?;
+    let workspace_package = workspace
+        .split("[workspace.package]")
+        .nth(1)
+        .and_then(|value| value.split("\n[").next())
+        .ok_or(PackagePolicyTestError::InvalidManifest)?;
+    if !workspace_package
+        .lines()
+        .any(|line| line.trim() == "publish = false")
+    {
+        return Err(PackagePolicyTestError::InvalidManifest);
+    }
 
     let packages = policy
         .get("workspace_packages")
@@ -40,7 +53,12 @@ fn package_policy_matches_the_workspace_and_authorizes_only_the_release_graph(
             return Err(PackagePolicyTestError::InvalidPolicy);
         }
 
-        validate_manifest(&root.join(manifest), name, publish)?;
+        validate_manifest(
+            &root.join(manifest),
+            name,
+            publish,
+            string_field(&policy, "release_version")?,
+        )?;
         match classification {
             "intended_rust_release" => {
                 if !publish {
@@ -72,7 +90,7 @@ fn validate_identity(policy: &Value) -> Result<(), PackagePolicyTestError> {
         || string_field(policy, "owner")? != "reallyme/wallet"
         || string_field(policy, "versioning")? != "lockstep"
         || string_field(policy, "release_version")? != "0.1.2"
-        || string_field(policy, "maintainer_rust_toolchain")? != "1.99.0"
+        || string_field(policy, "maintainer_rust_toolchain")? != "1.100.0"
         || string_field(policy, "public_crate_msrv")? != "1.99"
     {
         return Err(PackagePolicyTestError::InvalidPolicy);
@@ -106,6 +124,7 @@ fn validate_manifest(
     path: &Path,
     expected_name: &str,
     expected_publish: bool,
+    expected_version: &str,
 ) -> Result<(), PackagePolicyTestError> {
     let manifest = std::fs::read_to_string(path).map_err(|_| PackagePolicyTestError::Io)?;
     let package = manifest
@@ -117,17 +136,27 @@ fn validate_manifest(
         .lines()
         .find_map(|line| quoted_value(line, "name = "))
         .ok_or(PackagePolicyTestError::InvalidManifest)?;
+    // Private members may inherit the fail-closed workspace default checked
+    // above. Public packages must opt in explicitly in their own manifest.
     let publish = package
         .lines()
-        .find_map(|line| line.trim().strip_prefix("publish = "))
+        .find_map(|line| {
+            let line = line.trim();
+            line.strip_prefix("publish = ")
+                .or_else(|| (line == "publish.workspace = true").then_some("false"))
+        })
         .ok_or(PackagePolicyTestError::InvalidManifest)?;
     let expected_publish_value = if expected_publish { "true" } else { "false" };
     if name != expected_name
         || publish != expected_publish_value
         || !manifest.contains("[lints]\nworkspace = true")
         || (expected_publish
-            && (!package.contains("version.workspace = true")
-                || !package.contains("rust-version.workspace = true")))
+            && (!package
+                .lines()
+                .any(|line| quoted_value(line, "version = ") == Some(expected_version))
+                || !package
+                    .lines()
+                    .any(|line| line.trim() == "rust-version.workspace = true")))
     {
         return Err(PackagePolicyTestError::InvalidManifest);
     }

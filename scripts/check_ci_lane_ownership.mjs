@@ -153,7 +153,7 @@ requireText(
   "matrix:\n        target:",
   "scheduled fuzzing must isolate targets in a matrix",
 );
-for (const target of ["wallet_proto_decode", "wallet_proto_json", "wallet_identifier"]) {
+for (const target of ["wallet_proto_decode", "wallet_proto_json", "wallet_identifier", "wallet_state_machine"]) {
   requireCount(
     workflows.fuzz,
     `          - ${target}`,

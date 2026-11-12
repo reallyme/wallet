@@ -32,6 +32,8 @@ const fixture = (scenario = "success") => {
     const manifest = { schema: "reallyme.wallet.crates_preflight.v3", crates: archives,
       prerequisites: { fuzz: 1, protobuf_ci: 2, rust_ci: 3 }, repository: "reallyme/wallet",
       workflow: "crates-package-preflight.yml", run_id: 42, run_attempt: 1, release_sha: sha, version: policy.release_version };
+    const toolchainSource = readFileSync(new URL("../rust-toolchain.toml", import.meta.url), "utf8");
+    const preflightSource = readFileSync(new URL("../.github/workflows/crates-package-preflight.yml", import.meta.url), "utf8");
     const calls = join(root, "calls.json");
     const preload = join(root, "preload.mjs");
     writeFileSync(preload, `
@@ -43,6 +45,8 @@ const scenario = ${JSON.stringify(scenario)};
 const manifest = ${JSON.stringify(manifest)};
 const sha = ${JSON.stringify(sha)};
 const framework = ${JSON.stringify(frameworkSha)};
+const toolchainSource = ${JSON.stringify(toolchainSource)};
+const preflightSource = ${JSON.stringify(preflightSource)};
 const calls = [];
 const ok = {status:0,stdout:"",stderr:""};
 const answer = (value) => ({...ok,stdout:JSON.stringify(value)});
@@ -68,6 +72,19 @@ cp.spawnSync = (program,args) => {
   if(endpoint.includes("actions/workflows")) return answer({id:5});
   if(endpoint.includes("/jobs?")) return answer({total_count:1,jobs:[{id:9,run_id:42,run_attempt:1,head_sha:sha,name:"Review crates.io packages",status:"completed",conclusion:"success",steps:["Check formatting","Clippy","Test all features","Check protobuf boundaries and generated source","Check dependency policy","Security advisory audit","Inspect normalized crate tarballs and dry-run publication","Check Identity Wasm participant lane"].map((name,index)=>({name,number:index+1,status:"completed",conclusion:scenario==="failed-step" && index===0 ? "failure":"success"}))}]});
   if(endpoint.includes("actions/runs")) return answer({id:42,workflow_id:5,event:"workflow_dispatch",head_branch:"main",head_sha:scenario==="wrong-preflight-commit" ? "f".repeat(40):sha,status:"completed",conclusion:"success",run_attempt:1,path:".github/workflows/crates-package-preflight.yml"});
+  if(endpoint.includes("contents/rust-toolchain.toml")) {
+    const text=scenario==="historical-toolchain" ? toolchainSource.replaceAll("1.100.0","1.99.0") : scenario==="floating-toolchain" ? toolchainSource.replace("1.100.0","stable") : toolchainSource;
+    const source={encoding:"base64",content:Buffer.from(text).toString("base64"),size:Buffer.byteLength(text)};
+    if(scenario==="invalid-source-encoding") source.content+="!";
+    if(scenario==="invalid-source-size") source.size+=1;
+    if(scenario==="oversized-source") source.content="A".repeat(32_769);
+    if(scenario==="invalid-source-object") return answer([]);
+    return answer(source);
+  }
+  if(endpoint.includes("contents/.github/workflows/crates-package-preflight.yml")) {
+    const text=scenario==="historical-toolchain" || scenario==="mismatched-toolchain" ? preflightSource.replaceAll("1.100.0","1.99.0") : preflightSource;
+    return answer({encoding:"base64",content:Buffer.from(text).toString("base64"),size:Buffer.byteLength(text)});
+  }
   if(endpoint.includes("contents/Cargo.lock")) return answer({encoding:"base64",content:Buffer.from("fixture cargo lock").toString("base64")+(scenario==="invalid-lock-encoding" ? "!":""),size:18});
   return {...ok,status:99};
 };
@@ -99,14 +116,22 @@ test("hosted input preparation verifies all 18 signatures before binding real CI
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.calls.filter((call) => call[0] === "gh" && call[1] === "attestation").length, 18);
   assert.equal(result.deployment.component.commit, sha);
+  assert.deepEqual(result.deployment.component, {
+    component_id: "wallet", repository: "https://github.com/reallyme/wallet",
+    release_ref: `reallyme-wallet-v${policy.release_version}`, commit: sha,
+  });
+  assert.equal(result.deployment.component.release_ref, result.attestation.release.source_ref);
   assert.equal(result.attestation.checks.length, 7);
   assert.equal(result.attestation.release.version, policy.release_version);
+  assert.deepEqual(result.attestation.toolchain, { identifier: "rust", version: "1.100.0" });
   assert.equal(result.calls.some((call) => call[0] === "cargo"), false);
   assert.ok(result.calls.findIndex((call) => call[1] === "attestation") < result.calls.findIndex((call) => call[0] === "tar"));
 });
 
 for (const scenario of ["draft-release", "dirty-framework", "tampered-archive", "signature-failure",
-  "wrong-preflight-commit", "failed-step", "wrong-tag", "yanked", "registry-mismatch", "invalid-lock-encoding"]) {
+  "wrong-preflight-commit", "failed-step", "wrong-tag", "yanked", "registry-mismatch", "invalid-lock-encoding",
+  "floating-toolchain", "mismatched-toolchain", "invalid-source-encoding", "invalid-source-size",
+  "oversized-source", "invalid-source-object"]) {
   test(`${scenario} fails before creating deployment evidence`, () => {
     const result = fixture(scenario);
     assert.equal(result.status, 1, result.stderr);
@@ -116,3 +141,13 @@ for (const scenario of ["draft-release", "dirty-framework", "tampered-archive", 
     assert.doesNotMatch(result.stderr, /fixture-only-not-a-credential/u);
   });
 }
+
+test("historical release evidence retains its actual compiler under a newer caller", () => {
+  const result = fixture("historical-toolchain");
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(result.attestation.toolchain, { identifier: "rust", version: "1.99.0" });
+  assert.ok(result.calls.some(call => call[0] === "gh" && call[1] === "api" &&
+    call[2] === `repos/reallyme/wallet/contents/rust-toolchain.toml?ref=${sha}`));
+  assert.ok(result.calls.some(call => call[0] === "gh" && call[1] === "api" &&
+    call[2] === `repos/reallyme/wallet/contents/.github/workflows/crates-package-preflight.yml?ref=${sha}`));
+});

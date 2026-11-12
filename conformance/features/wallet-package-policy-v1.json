@@ -4,7 +4,7 @@
   "owner": "reallyme/wallet",
   "versioning": "lockstep",
   "release_version": "0.1.2",
-  "maintainer_rust_toolchain": "1.99.0",
+  "maintainer_rust_toolchain": "1.100.0",
   "public_crate_msrv": "1.99",
   "authorized_public_packages": [
     "reallyme-wallet-types",

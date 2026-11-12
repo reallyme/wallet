@@ -38,7 +38,7 @@ const shared = createReleaseReadinessContext({
 
 shared.assertReallyMeReleasePackagePolicy({
   scriptPath: "scripts/check_release_readiness.mjs",
-  version: "0.6.9",
+  version: "0.7.0",
 });
 shared.assertWorkflowActionsPinned();
 shared.assertNodeWorkflowJobsPinNode({ nodeVersion: "26" });
@@ -293,6 +293,14 @@ const assertExecutable = (path) => {
 };
 
 assertPathAbsent(".github/workflows/taxonomy-coverage.yml");
+assertFile(".github/actionlint.yaml");
+const actionlintConfiguration = readText(".github/actionlint.yaml")
+  .split(/\r?\n/u)
+  .filter((line) => line.trim() !== "" && !line.trimStart().startsWith("#"))
+  .join("\n");
+if (actionlintConfiguration !== "self-hosted-runner:\n  labels:\n    - ubuntu-26.04") {
+  fail("actionlint compatibility configuration must allow only ubuntu-26.04");
+}
 for (const workflowName of readdirSync(resolve(root, ".github/workflows"))) {
   if (!workflowName.endsWith(".yml") && !workflowName.endsWith(".yaml")) {
     continue;
@@ -527,7 +535,7 @@ assertContains("Cargo.toml", '"crates/wallet"');
 assertNotContains("Cargo.toml", "[package]");
 assertContains("Cargo.toml", 'license = "MIT OR Apache-2.0"');
 assertContains("Cargo.toml", 'rust-version = "1.99"');
-assertContains("rust-toolchain.toml", 'channel = "1.99.0"');
+assertContains("rust-toolchain.toml", 'channel = "1.100.0"');
 assertContains(
   "crates/wallet/Cargo.toml",
   'include = ["/LICENSE-MIT", "/LICENSE-APACHE", "/src/**/*.rs", "/tests/**/*.rs", "/Cargo.toml"]',
@@ -548,7 +556,6 @@ assertContains(
   "Cargo.toml",
   'compression_brotli = { package = "reallyme-compression-brotli", version = "=0.6.2" }',
 );
-assertContains("Cargo.toml", 'reallyme-credential = { version = "=0.6.2"');
 assertContains("Cargo.toml", 'reallyme-openid-oauth = { version = "=0.6.2"');
 assertContains("Cargo.toml", 'reallyme-disclosure-policy = { version = "=0.6.2"');
 assertContains("Cargo.toml", 'reallyme-credential-status = { version = "=0.6.2"');
@@ -609,14 +616,15 @@ assertContains(
   ".github/workflows/rust-ci.yml",
   "node scripts/check_rust_release_policy.mjs --check-msrv",
 );
-assertOccurrenceCount(".github/workflows/rust-ci.yml", "toolchain: 1.99.0", 4);
+assertOccurrenceCount(".github/workflows/rust-ci.yml", "toolchain: 1.100.0", 3);
+assertOccurrenceCount(".github/workflows/rust-ci.yml", "toolchain: 1.99.0", 1);
 
 for (const workflow of [
   ".github/workflows/protobuf-ci.yml",
   ".github/workflows/crates-package-preflight.yml",
   ".github/workflows/crates-release.yml",
 ]) {
-  assertOccurrenceCount(workflow, "toolchain: 1.99.0", 1);
+  assertOccurrenceCount(workflow, "toolchain: 1.100.0", 1);
 }
 assertContains("crates/proto-codec/Cargo.toml", 'name = "reallyme-wallet-proto-codec"');
 assertContains("crates/proto/Cargo.toml", '"/baselines/**/*"');
@@ -1202,6 +1210,7 @@ for (const target of [
   "wallet_proto_decode",
   "wallet_proto_json",
   "wallet_identifier",
+  "wallet_state_machine",
 ]) {
   assertContains("fuzz/Cargo.toml", `name = "${target}"`);
   assertFile(`fuzz/fuzz_targets/${target}.rs`);
@@ -1232,7 +1241,7 @@ for (const workflow of [".github/workflows/rust-ci.yml"]) {
   assertContains(workflow, "runs-on: ubuntu-24.04");
   assertNotContains(workflow, "swift-actions/setup-swift");
   assertContains(workflow, "repository: reallyme/release-readiness");
-  assertContains(workflow, "ref: 9cf40c7da1def8a8d809af51789284097c572dd5");
+  assertContains(workflow, "ref: 18a6d91d99837e80f92e41fe04effb0b043d754e");
   assertContains(
     workflow,
     "node .release-readiness/scripts/run-consumer-check.mjs --policy-only",
@@ -1250,7 +1259,7 @@ assertContains(
 );
 assertContains(
   ".github/workflows/crates-package-preflight.yml",
-  "ref: 9cf40c7da1def8a8d809af51789284097c572dd5",
+  "ref: 18a6d91d99837e80f92e41fe04effb0b043d754e",
 );
 assertContains(
   ".github/workflows/crates-package-preflight.yml",
