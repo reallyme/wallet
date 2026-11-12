@@ -1,84 +1,82 @@
 # Manual EUDI Wallet engineering conformance
 
 [EUDI Wallet Conformance](../.github/workflows/eudi-wallet-conformance.yml)
-is a manually dispatched release-qualification lane. It calls the reusable
-workflow in Identity Conformance at
-[`46cb1a6b2a016189f29ead608f3e5ddd460c1d07`](https://github.com/reallyme/identity-conformance/tree/46cb1a6b2a016189f29ead608f3e5ddd460c1d07).
-Both the reusable workflow reference and its framework checkout use that commit.
+is a manual release-qualification lane that runs entirely on standard
+GitHub-hosted Linux runners. It requires no separate machine, deployment
+secret, preinstalled release files, or crates.io publishing token.
 
-The selected framework revision includes caller-owned candidate manifests after
-the initial framework 0.1.0 release. The framework owns the plan and upstream
-standards inputs; Wallet's operator supplies the candidate. No framework-owned
-product BOM or reference baseline selects the Wallet release implicitly.
+The workflow pins Identity Conformance's reusable workflow and checkout to
+the same reviewed commit,
+[`098e748e3bbb774280fcafc944e3a745094f53c7`](https://github.com/reallyme/identity-conformance/tree/098e748e3bbb774280fcafc944e3a745094f53c7).
+Wallet owns its product candidate and release provenance;
+Identity Conformance owns the engineering plan, upstream standards inputs,
+execution, and result validation.
 
-## Runner and protected inputs
-
-Prepare an ephemeral Linux x64 self-hosted runner with all four labels:
-`self-hosted`, `linux`, `x64`, and `eudi-wallet-conformance`. Restrict its runner
-group to trusted repositories and workflows. The Wallet caller accepts only
-manual dispatches from this repository's `main` branch.
-
-Before the job starts, materialize these regular files outside the Actions
-workspace; directories and symlinks are not accepted:
-
-| Path | Contents |
-| --- | --- |
-| `/protected-inputs/wallet-release` | The reviewed Wallet release bundle, matching the manifest's artifact SHA-256 |
-| `/protected-inputs/wallet-attestation.json` | The component attestation for that exact bundle and Wallet commit |
-
-Configure the repository Actions secret
-`EUDI_WALLET_DEPLOYMENT_MANIFEST_B64` with the Base64-encoded deployment
-manifest. Base64 is transport encoding; keep the manifest and its decoded
-contents protected. Do not put secrets, credentials, or private execution
-evidence in this repository.
-
-The manifest must satisfy the pinned framework's
-[deployment schema](https://github.com/reallyme/identity-conformance/blob/46cb1a6b2a016189f29ead608f3e5ddd460c1d07/schemas/eudi-wallet-deployment-manifest.schema.json):
-
-- Identify component `wallet`, repository `https://github.com/reallyme/wallet`,
-  and a full public source commit.
-- Identify the release bundle and component attestation by their exact hashes.
-- Bind the EUDI source, legal-source, and publication locks from the selected
-  framework revision.
-- Declare the framework's required evidence policy. The attestation must contain
-  passing format, lint, unit, integration, vector, security, and build evidence.
-
-The tested source commit comes from the protected manifest. It may differ from
-the workflow's own commit when qualifying an earlier published release. Source,
-artifact, and attestation must identify the same candidate. The runner refuses
-a dirty source checkout or an unavailable candidate; it does not substitute
-`main` or a reference baseline.
-
-## Run and interpret the result
+## Run
 
 In GitHub Actions, select **EUDI Wallet Conformance**, choose **Run workflow**,
-and select `main`. There are no free-form dispatch inputs or inherited secrets.
-The workflow is not triggered by pushes, pull requests, schedules, or releases,
-and it is not a prerequisite of ordinary source CI or crates.io publication.
+and select `main`. The workflow runs only on manual dispatch in `reallyme/wallet`
+from `main`. It is not triggered by pushes, pull requests, schedules, workflow
+completion, or publication, and it is not an ordinary source-CI prerequisite.
 
-The reusable workflow executes `reallyme-wallet-conformance` against the exact
-source and validates the internal result before uploading it. The result binds
-the framework revision, workflow revision, candidate digest, artifact and
-attestation hashes, source locks, checks, and plan assertions. Its artifact name
-uses the workflow commit; inspect the result's component identity to determine
-which Wallet release was tested. Treat result artifacts as internal evidence.
+The selected release version comes from Wallet's approved package policy. The
+candidate source commit comes from the signed release preflight and must match
+the published release tag. It may differ from the workflow's own commit: adding
+CI support does not change which source was published as Wallet 0.1.0.
 
-This lane produces engineering conformance evidence. It does not execute the
-complete external EUDI device/testbed suites or establish EU or OpenID
-Foundation certification. Those composed and external assessments retain their
-own plans, deployment prerequisites, and accepted execution evidence.
+## Verified release preparation
+
+The preparation job:
+
+1. Downloads the published release's preflight manifest and complete 17-crate set.
+2. Verifies exact package names, sizes, hashes, source commit, immutable release
+   tag, successful first-attempt preflight run, and signed GitHub provenance for
+   the manifest and every crate. Self-hosted build provenance is refused.
+3. Checks that each crates.io version is available, is not yanked, and has the
+   same immutable checksum as its reviewed release archive.
+4. Reads the exact successful preflight job steps and derives the component
+   attestation's format, lint, unit, integration, vector, security, and build
+   evidence from those observed results. Missing, duplicated, skipped, failed,
+   or substituted steps fail preparation; passing claims are never assumed.
+5. Bundles the verified release archives, original preflight manifest, and
+   bounded check-evidence records. It binds that bundle, the release Cargo.lock,
+   framework source locks, and attestation bytes into a deployment manifest.
+
+The derived component attestation summarizes the existing release-preflight
+checks; it does not claim that the EUDI plan has already run. Its check-evidence
+hashes refer to records inside the bundle. Raw process output, credentials, and
+private deployment information are not collected.
+
+Wallet uploads exactly three files as a one-day Actions artifact:
+`deployment.json`, `wallet-release`, and `wallet-attestation.json`.
+
+## Framework execution and results
+
+After preparation succeeds, the pinned reusable framework workflow downloads
+that artifact from the same workflow run. It validates the three-file contract,
+checks out the exact manifest-selected Wallet source, executes
+`reallyme-wallet-conformance`, and validates the result before upload.
+
+The result binds the framework revision, workflow revision, candidate digest,
+artifact and attestation hashes, source locks, checks, and plan assertions.
+The result artifact is retained for seven days. Inspect its component identity
+to determine which release was tested; its filename also includes the workflow
+commit and run ID. Treat the result as internal engineering evidence.
+
+This lane does not execute the complete external EUDI device/testbed suites or
+establish EU or OpenID Foundation certification. Those composed and external
+assessments retain their own plans and accepted execution evidence.
 
 ## Local validation
 
-`node --test scripts/*.test.mjs` exercises the manual-workflow security contract,
-including refusal of automatic triggers, mutable or mismatched framework pins,
-write permissions, inherited secrets, additional jobs, and substituted paths.
-`node scripts/check_ci_lane_ownership.mjs` also enforces that contract while
-keeping automatic source CI independent of Identity Conformance.
+`node --test scripts/*.test.mjs` checks the release-input preparation and the
+manual-workflow contract. Negative cases cover automatic triggers, mutable or
+mismatched pins, write permissions, extra jobs, secret injection, skipped
+preparation, tampered archives, invalid signatures, wrong candidates, yanked
+versions, and substituted registry checksums or CI results.
 
-Workflow linting and source tests do not validate protected deployment inputs.
-For a local execution, use an exact checkout of the pinned framework and the
-same reviewed manifest, release bundle, and component attestation. Run its
-deployment validator, EUDI Wallet runner, and execution-result validator as
-defined in the reusable workflow. Do not manufacture release attestations or
-treat test fixtures as evidence for a published release.
+`node scripts/check_ci_lane_ownership.mjs` keeps automatic source CI independent
+of Identity Conformance. Actionlint checks the caller and pinned reusable
+workflow together. A local release execution must use the same public release
+and cryptographically verified evidence; synthetic fixtures are test inputs,
+not qualification evidence.

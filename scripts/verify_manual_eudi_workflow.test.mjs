@@ -13,10 +13,12 @@ import {
 
 const source = readFileSync(new URL(`../${MANUAL_EUDI_WORKFLOW_PATH}`, import.meta.url), "utf8");
 
-test("the manual caller pins the workflow and framework checkout to the same commit", () => {
+test("hosted preparation and execution use one immutable framework revision", () => {
   const result = verifyManualEudiWorkflow(source);
   assert.match(result.frameworkCommit, /^[0-9a-f]{40}$/u);
   assert.deepEqual(verifyManualEudiWorkflow(source.replaceAll("\n", "\r\n")), result);
+  assert.equal((source.match(new RegExp(result.frameworkCommit, "gu")) ?? []).length, 4);
+  assert.doesNotMatch(source, /self-hosted|secrets:|\/protected-inputs/u);
 });
 
 for (const [name, before, after] of [
@@ -28,11 +30,12 @@ for (const [name, before, after] of [
   ["dispatch inputs", "  workflow_dispatch:", "  workflow_dispatch:\n    inputs:\n      arbitrary_path:\n        type: string"],
   ["write permission", "  contents: read", "  contents: write"],
   ["identity token", "  contents: read", "  contents: read\n  id-token: write"],
-  ["inherited secrets", "    secrets:\n      EUDI_WALLET_DEPLOYMENT_MANIFEST_B64: ${{ secrets.EUDI_WALLET_DEPLOYMENT_MANIFEST_B64 }}", "    secrets: inherit"],
-  ["another secret", "${{ secrets.EUDI_WALLET_DEPLOYMENT_MANIFEST_B64 }}", "${{ secrets.CARGO_REGISTRY_TOKEN }}"],
-  ["relative artifact path", "/protected-inputs/wallet-release", "./wallet-release"],
-  ["artifact directory traversal", "/protected-inputs/wallet-release", "/protected-inputs/../wallet-release"],
-  ["attestation substitution", "/protected-inputs/wallet-attestation.json", "${{ inputs.attestation_path }}"],
+  ["inherited secrets", "    needs: release-inputs", "    needs: release-inputs\n    secrets: inherit"],
+  ["publishing token", "${{ github.token }}", "${{ secrets.CARGO_REGISTRY_TOKEN }}"],
+  ["dedicated machine", "runs-on: ubuntu-24.04", "runs-on: self-hosted"],
+  ["artifact substitution", "candidate_artifact_name: wallet-eudi-candidate-${{ github.run_id }}", "candidate_artifact_name: other"],
+  ["unverified candidate", "    needs: release-inputs", "    needs: []"],
+  ["credential persistence", "persist-credentials: false", "persist-credentials: true"],
   ["non-main dispatch", "github.ref == 'refs/heads/main'", "github.ref != ''"],
   ["fork dispatch", "github.repository == 'reallyme/wallet'", "github.repository != ''"],
   ["another job", "jobs:", "jobs:\n  extra:\n    runs-on: self-hosted\n    steps:\n      - run: true"],

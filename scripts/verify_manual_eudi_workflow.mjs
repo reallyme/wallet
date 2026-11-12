@@ -3,9 +3,11 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+import { createHash } from "node:crypto";
+
 export const MANUAL_EUDI_WORKFLOW_PATH = ".github/workflows/eudi-wallet-conformance.yml";
 const MAX_WORKFLOW_CHARACTERS = 16_384;
-const REUSABLE_WORKFLOW = "reallyme/identity-conformance/.github/workflows/eudi-wallet-conformance.yml";
+const REVIEWED_WORKFLOW_SHA256 = "1da7ec1042b12bc0688363eb14ff52d0a04206ff0bb86fb2fae3490b27e3c42c";
 
 export class ManualEudiWorkflowError extends Error {
   constructor() {
@@ -15,38 +17,21 @@ export class ManualEudiWorkflowError extends Error {
   }
 }
 
-/** Accept only the reviewed manual caller, without permitting extra YAML keys. */
+/** Accept only the reviewed hosted caller, without allowing extra YAML keys. */
 export const verifyManualEudiWorkflow = (source) => {
   if (typeof source !== "string" || source.length > MAX_WORKFLOW_CHARACTERS) {
     throw new ManualEudiWorkflowError();
   }
   const executable = source.split(/\r?\n/u)
     .filter((line) => line.trim().length !== 0 && !/^\s*#/u.test(line))
-    .map((line) => line.trimEnd())
+    .map((line) => line.replace(/\s+#.*$/u, "").trimEnd())
     .join("\n");
   const reference = /^    uses: reallyme\/identity-conformance\/\.github\/workflows\/eudi-wallet-conformance\.yml@([0-9a-f]{40})$/mu.exec(executable);
   if (reference === null) throw new ManualEudiWorkflowError();
-  const frameworkCommit = reference[1];
-  // This narrow contract keeps protected runner inputs out of automatic lanes.
-  // Exact keys and indentation also reject aliases, additional jobs, inherited
-  // secrets, and a checkout revision different from the reusable workflow pin.
-  const expected = [
-    "name: EUDI Wallet Conformance",
-    "on:",
-    "  workflow_dispatch:",
-    "permissions:",
-    "  contents: read",
-    "jobs:",
-    "  eudi-wallet-conformance:",
-    "    if: github.repository == 'reallyme/wallet' && github.ref == 'refs/heads/main'",
-    `    uses: ${REUSABLE_WORKFLOW}@${frameworkCommit}`,
-    "    with:",
-    `      framework_commit: ${frameworkCommit}`,
-    "      release_artifact_path: /protected-inputs/wallet-release",
-    "      component_attestation_path: /protected-inputs/wallet-attestation.json",
-    "    secrets:",
-    "      EUDI_WALLET_DEPLOYMENT_MANIFEST_B64: ${{ secrets.EUDI_WALLET_DEPLOYMENT_MANIFEST_B64 }}",
-  ].join("\n");
-  if (executable !== expected) throw new ManualEudiWorkflowError();
-  return { frameworkCommit };
+  // A whole-workflow contract rejects unreviewed triggers, duplicate YAML keys,
+  // extra jobs, secrets and command edits. Actionlint validates the YAML and the
+  // reusable input contract separately. Pin changes require explicit review.
+  const digest = createHash("sha256").update(executable).digest("hex");
+  if (digest !== REVIEWED_WORKFLOW_SHA256) throw new ManualEudiWorkflowError();
+  return { frameworkCommit: reference[1] };
 };

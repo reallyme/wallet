@@ -31,7 +31,7 @@ const workflows = Object.fromEntries(
   }),
 );
 // Public source checks must remain runnable with the ordinary read-only token.
-// Only the reviewed manual caller may access protected conformance inputs.
+// Only the reviewed manual caller may execute the external conformance plan.
 for (const path of readdirSync(".github/workflows")) {
   if (!/\.ya?ml$/u.test(path)) continue;
   const workflowPath = `.github/workflows/${path}`;
@@ -40,7 +40,7 @@ for (const path of readdirSync(".github/workflows")) {
     try {
       verifyManualEudiWorkflow(source);
     } catch {
-      fail("public CI must keep EUDI conformance pinned, read-only, and manual-only");
+      fail("public CI must keep hosted EUDI conformance pinned, read-only, and manual-only");
     }
   } else if (/identity[-_]conformance/iu.test(source)) {
     fail("public CI must keep Identity Conformance in its reviewed manual lane");
