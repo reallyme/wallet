@@ -27,6 +27,30 @@ clients and platform bindings belong to Identity.
 These values come from `crates/proto-codec/src/limits.rs`. Transport adapters may
 impose tighter request limits.
 
+## Registration policy, SSI plans, and wire decisions
+
+ARF `EW-DM-44-027` assigns the unregistered-attribute policy to the Wallet
+Provider. Wallet's trusted Rust configuration selects `WarnAndAllowAll`,
+`RegisteredOnly`, or `RejectRequest`. SSI supplies the disclosure or derivation
+satisfaction plan; Wallet applies the provider's registration policy to the
+resulting consent options. A derivation with unregistered inputs is refused
+under `RegisteredOnly`, because deleting an input would change the proof.
+
+The protobuf `DisclosurePolicyDecision` is the evaluation result, not that
+provider configuration. It carries domain results `Allowed`, `Denied`, and
+`AllowedWithUnregisteredRequest` through the corresponding
+`DISCLOSURE_POLICY_DECISION_*` wire values. Both a permitted full request and a
+permitted registered-only subset retain the warning result when the original
+request over-asked. Conversion into the Wallet domain rejects unspecified or
+unknown decision values. A decoded decision or consent request is evidence;
+it does not reconstruct the proof-bearing preparation or authorize disclosure.
+
+Wallet Unit Attestation decoding likewise returns an unverified owner. The
+attestation verifier applies the exclusive technical lifetime bound after
+decoding and before cryptographic promotion; protobuf timestamps do not bypass
+the Wallet policy. These checks use the current wire contract without adding
+caller-controlled provider policy or duplicating SSI-owned claim semantics.
+
 ## Persisted state
 
 `FlowSnapshot.state` contains a versioned protobuf state message. Schema version

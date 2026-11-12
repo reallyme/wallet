@@ -23,6 +23,9 @@ use std::collections::BTreeSet;
 #[path = "capture_claim_namespace_tests.rs"]
 mod claim_namespace_tests;
 
+#[path = "capture_policy_plan_tests.rs"]
+mod policy_plan_tests;
+
 fn attr(value: &str) -> Result<AttributeName, WalletTypesError> {
     AttributeName::new(value.to_owned())
 }

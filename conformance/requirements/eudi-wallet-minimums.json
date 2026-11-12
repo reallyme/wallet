@@ -98,11 +98,16 @@
       "evidence": [
         "crates/consent/src/validate_registration_certificate.rs",
         "crates/consent/src/evaluate.rs",
-        "crates/consent/src/capture.rs"
+        "crates/consent/src/capture.rs",
+        "crates/consent/src/apply_unregistered_attribute_policy.rs",
+        "crates/consent/src/plan_actions.rs",
+        "crates/proto-codec/src/convert_consent_log.rs"
       ],
       "test_evidence": [
         "conformance/tests/relying_party_entitlement_tests.rs",
         "conformance/tests/sdk_contract_tests.rs",
+        "crates/consent/src/capture_policy_plan_tests.rs",
+        "crates/proto-codec/tests/convert/policy_boundaries.rs",
         "crates/runtime/src/handle_tests.rs"
       ],
       "conformance_case_ids": [
@@ -111,6 +116,7 @@
       ],
       "limitations": [
         "Entitlement evaluation is available through the Rust consent API; the v1 EvaluateVerifierEntitlement wire operation is unsupported because a request cannot carry the certificate verifier.",
+        "UnregisteredAttributePolicy is trusted Wallet Provider configuration; protobuf DisclosurePolicyDecision carries evaluation evidence, not a caller-selected provider policy. SSI satisfaction plans remain subject to Wallet registration and consent checks.",
         "Requested attributes outside the registration are reported for a user warning, and the Wallet Provider's policy allows all of them, keeps registered attributes only, or rejects the request (ARF EW-DM-44-027, legacy RPRC_21). Intended use and relying-party intermediaries are not modelled."
       ]
     },
@@ -157,6 +163,7 @@
       "test_evidence": [
         "conformance/tests/wallet_unit_attestation_tests.rs",
         "conformance/tests/issuance_flow_tests.rs",
+        "crates/proto-codec/tests/convert/policy_boundaries.rs",
         "crates/runtime/src/handle_tests.rs"
       ],
       "conformance_case_ids": [

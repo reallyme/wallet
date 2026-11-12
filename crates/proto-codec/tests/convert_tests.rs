@@ -28,8 +28,13 @@ use reallyme_wallet_proto_codec::convert::{
 use reallyme_wallet_types as wallet;
 use thiserror::Error;
 
+#[path = "convert/policy_boundaries.rs"]
+mod policy_boundaries;
+
 #[derive(Debug, Error)]
 enum ConvertFixtureError {
+    #[error("protobuf")]
+    Protobuf(#[from] reallyme_wallet_proto_codec::ProtoError),
     #[error("wallet_types")]
     WalletTypes(#[from] wallet::WalletTypesError),
     #[error("lifecycle")]
