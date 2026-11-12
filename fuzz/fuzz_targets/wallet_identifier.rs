@@ -10,14 +10,13 @@
 #![no_main]
 
 use libfuzzer_sys::fuzz_target;
-use reallyme_wallet_types::{AttributeName, NonEmptyIdentifier};
+use reallyme_wallet_types::AttributeName;
+
+mod wallet_identifier_tests;
 
 fuzz_target!(|data: &[u8]| {
     if let Ok(text) = core::str::from_utf8(data) {
-        assert_eq!(
-            NonEmptyIdentifier::new(text.to_owned()),
-            NonEmptyIdentifier::try_from(text)
-        );
+        wallet_identifier_tests::check_constructor_equivalence(text);
         let _ = AttributeName::new(text.to_owned());
     }
 });
