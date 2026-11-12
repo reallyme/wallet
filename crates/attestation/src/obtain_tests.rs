@@ -257,25 +257,28 @@ fn key_evidence_age_bound_is_inclusive_at_three_hundred_seconds() -> Result<(), 
 }
 
 #[test]
-fn attestation_lifetime_bound_is_inclusive_at_one_day() -> Result<(), WalletTypesError> {
-    let at_bound = obtain_wallet_unit_attestation(
-        &Provider,
-        &Verifier,
-        validated_evidence(evidence_issued_at(10)?)?,
-        timestamp(10 + 86_400)?,
-        timestamp(15)?,
-    );
-    assert!(at_bound.is_ok());
-    let past_bound = obtain_wallet_unit_attestation(
-        &Provider,
-        &Verifier,
-        validated_evidence(evidence_issued_at(10)?)?,
-        timestamp(10 + 86_401)?,
-        timestamp(15)?,
-    );
-    assert!(matches!(
-        past_bound,
-        Err(error) if error.reason == AttestationErrorReason::InvalidValidityWindow
-    ));
+fn attestation_technical_lifetime_is_strictly_less_than_one_day() -> Result<(), WalletTypesError> {
+    for (lifetime, accepted) in [(86_399_i64, true), (86_400, false), (86_401, false)] {
+        let valid_until = 10_i64.checked_add(lifetime).ok_or_else(|| {
+            WalletTypesError::new(
+                reallyme_wallet_types::WalletTypesErrorReason::TimestampOutOfRange,
+            )
+        })?;
+        let result = obtain_wallet_unit_attestation(
+            &Provider,
+            &Verifier,
+            validated_evidence(evidence_issued_at(10)?)?,
+            timestamp(valid_until)?,
+            timestamp(15)?,
+        );
+        if accepted {
+            assert!(result.is_ok(), "lifetime: {lifetime}");
+        } else {
+            assert!(matches!(
+                result,
+                Err(error) if error.reason == AttestationErrorReason::InvalidValidityWindow
+            ));
+        }
+    }
     Ok(())
 }

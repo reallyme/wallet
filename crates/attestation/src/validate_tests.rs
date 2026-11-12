@@ -18,6 +18,7 @@ fn timestamp(seconds: i64) -> Result<UnixTimestamp, WalletTypesError> {
 
 fn attestation_with_evidence(
     evidence_bytes: Vec<u8>,
+    valid_until: UnixTimestamp,
 ) -> Result<WalletUnitAttestation, WalletTypesError> {
     let unverified = UnverifiedWalletUnitAttestation::new(
         id("wua-1")?,
@@ -27,7 +28,7 @@ fn attestation_with_evidence(
             issued_at: timestamp(10)?,
             challenge: [7; 32],
         },
-        timestamp(20)?,
+        valid_until,
         vec![0xA5],
     )
     .map_err(|_| {
@@ -40,7 +41,25 @@ fn attestation_with_evidence(
 }
 
 fn attestation() -> Result<WalletUnitAttestation, WalletTypesError> {
-    attestation_with_evidence(vec![1, 2, 3])
+    attestation_with_evidence(vec![1, 2, 3], timestamp(20)?)
+}
+
+#[test]
+fn validation_rejects_one_day_even_for_a_previously_verified_record() -> Result<(), WalletTypesError>
+{
+    for (valid_until, accepted) in [(86_409, true), (86_410, false), (86_411, false)] {
+        let attestation = attestation_with_evidence(vec![1, 2, 3], timestamp(valid_until)?)?;
+        let result = validate_wallet_unit_attestation(&attestation, timestamp(15)?);
+        if accepted {
+            assert!(result.is_ok());
+        } else {
+            assert!(matches!(
+                result,
+                Err(error) if error.reason == AttestationErrorReason::InvalidValidityWindow
+            ));
+        }
+    }
+    Ok(())
 }
 
 #[test]

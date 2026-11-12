@@ -12,7 +12,9 @@ use crate::{
     WalletUnitAttestation,
 };
 
-const MAX_WALLET_UNIT_ATTESTATION_LIFETIME_SECONDS: i64 = 86_400;
+// ARF v3.0.0 §6.5.3.5 requires WIA technical validity to be less than
+// 24 hours. This bound is exclusive; revocation maintenance is a separate period.
+const WALLET_UNIT_ATTESTATION_LIFETIME_LIMIT_SECONDS: i64 = 86_400;
 
 /// Validate that a wallet unit attestation is usable at a point in time.
 pub fn validate_wallet_unit_attestation(
@@ -51,7 +53,7 @@ fn validate_fields(
         .as_seconds()
         .checked_sub(evidence.issued_at.as_seconds())
         .ok_or_else(|| AttestationError::new(AttestationErrorReason::InvalidValidityWindow))?;
-    if lifetime > MAX_WALLET_UNIT_ATTESTATION_LIFETIME_SECONDS {
+    if lifetime >= WALLET_UNIT_ATTESTATION_LIFETIME_LIMIT_SECONDS {
         return Err(AttestationError::new(
             AttestationErrorReason::InvalidValidityWindow,
         ));

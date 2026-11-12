@@ -5,9 +5,10 @@
 //! Wallet unit attestation lifecycle conformance tests.
 
 use reallyme_wallet::attestation::{
-    obtain_wallet_unit_attestation, rotate_wallet_unit_attestation, AttestationError,
-    AttestationErrorReason, AttestationResult, UnverifiedWalletUnitAttestation,
-    WalletUnitAttestationProvider, WalletUnitAttestationVerifier,
+    obtain_wallet_unit_attestation, rotate_wallet_unit_attestation,
+    verify_wallet_unit_attestation_for_key, AttestationError, AttestationErrorReason,
+    AttestationResult, UnverifiedWalletUnitAttestation, WalletUnitAttestationProvider,
+    WalletUnitAttestationVerifier,
 };
 use reallyme_wallet::keystore::{
     verify_key_attestation_evidence, KeyAttestationEvidence, KeyAttestationEvidenceVerifier,
@@ -116,6 +117,65 @@ fn eudi_wua_rejects_reusing_the_same_attestation_id() -> Result<(), TestError> {
         result,
         Err(error) if error.reason == AttestationErrorReason::ReplacementNotAvailable
     ));
+    Ok(())
+}
+
+#[test]
+fn eudi_wua_technical_lifetime_has_an_exclusive_twenty_four_hour_bound() -> Result<(), TestError> {
+    let current = obtain_wallet_unit_attestation(
+        &Provider {
+            attestation_id: "wua-1",
+        },
+        &Verifier,
+        validated_key_attestation(10, &[1, 2, 3])?,
+        timestamp(30)?,
+        timestamp(20)?,
+    )?;
+    let provider = Provider {
+        attestation_id: "wua-2",
+    };
+    let handle = wallet::KeyHandleId::new("key-1".to_owned())?;
+    for (lifetime, accepted) in [(86_399_i64, true), (86_400, false), (86_401, false)] {
+        let until = |issued_at: i64| -> Result<wallet::UnixTimestamp, TestError> {
+            let seconds = issued_at.checked_add(lifetime).ok_or_else(|| {
+                AttestationError::new(AttestationErrorReason::InvalidValidityWindow)
+            })?;
+            Ok(timestamp(seconds)?)
+        };
+        let obtained = obtain_wallet_unit_attestation(
+            &provider,
+            &Verifier,
+            validated_key_attestation(10, &[1, 2, 3])?,
+            until(10)?,
+            timestamp(20)?,
+        );
+        let restored = verify_wallet_unit_attestation_for_key(
+            provider
+                .obtain_wallet_unit_attestation(key_attestation(10, &[1, 2, 3])?, until(10)?)?,
+            &Verifier,
+            timestamp(20)?,
+            &handle,
+            &[1; 32],
+        );
+        let fresh = validated_key_attestation(20, &[4, 5, 6])?;
+        let rotated = rotate_wallet_unit_attestation(
+            &current,
+            provider.obtain_wallet_unit_attestation(fresh.evidence().clone(), until(20)?)?,
+            &fresh,
+            timestamp(25)?,
+            &Verifier,
+        );
+        for result in [obtained, restored, rotated] {
+            if accepted {
+                assert!(result.is_ok(), "lifetime: {lifetime}");
+            } else {
+                assert!(matches!(
+                    result,
+                    Err(error) if error.reason == AttestationErrorReason::InvalidValidityWindow
+                ));
+            }
+        }
+    }
     Ok(())
 }
 

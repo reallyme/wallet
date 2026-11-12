@@ -166,7 +166,7 @@
       "limitations": [
         "Wallet verifies, binds, and rotates Wallet Unit Attestations through injected providers; acquiring Wallet Instance and key attestations from the Wallet Provider is owned by Identity and the wallet provider.",
         "Wallet Unit and WSCD revocation state is not yet represented; see wallet-unit-revocation-state in the scope ownership contract.",
-        "Attestation lifetime is capped at 24 hours by Wallet policy."
+        "Wallet's attestation policy requires a technical lifetime strictly less than 24 hours, following ARF v3.0.0 section 6.5.3.5; this does not define the revocation maintenance period."
       ]
     },
     {
