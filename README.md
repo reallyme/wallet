@@ -5,9 +5,8 @@
 **Wallet inventory, lifecycle, consent, attestation, and audit state**
 
 [![Rust CI](https://github.com/reallyme/wallet/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/reallyme/wallet/actions/workflows/rust-ci.yml)
-[![Fuzz](https://github.com/reallyme/wallet/actions/workflows/fuzz.yml/badge.svg)](https://github.com/reallyme/wallet/actions/workflows/fuzz.yml)
-[![MSRV](https://img.shields.io/badge/MSRV-1.99-475569)](Cargo.toml)
-[![Security Policy](https://img.shields.io/badge/security-policy-0f766e)](SECURITY.md)
+[![EUDI Wallet Conformance](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml/badge.svg)](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml)
+[![crates.io](https://img.shields.io/crates/v/reallyme-wallet.svg)](https://crates.io/crates/reallyme-wallet)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
 
 [Identity](https://github.com/reallyme/identity) · [SSI](https://github.com/reallyme/ssi) · [OpenID4VCI](https://github.com/reallyme/openid4vci) · [OpenID4VP](https://github.com/reallyme/openid4vp) · **Wallet** · [ZK](https://github.com/reallyme/zk)

@@ -3,7 +3,8 @@
 [EUDI Wallet Conformance](../.github/workflows/eudi-wallet-conformance.yml)
 is a manual release-qualification lane that runs entirely on standard
 GitHub-hosted Linux runners. It requires no separate machine, deployment
-secret, preinstalled release files, or crates.io publishing token.
+secret, preinstalled release files, or crates.io publishing token. Release
+preparation and framework execution both use Ubuntu 26.04.
 
 The workflow pins Identity Conformance's reusable workflow and checkout to
 the same reviewed commit,

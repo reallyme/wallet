@@ -15,7 +15,7 @@ permissions:
 jobs:
   release-inputs:
     if: github.repository == 'reallyme/wallet' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - name: Checkout Wallet workflow implementation

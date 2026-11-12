@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
 
 export const MANUAL_EUDI_WORKFLOW_PATH = ".github/workflows/eudi-wallet-conformance.yml";
 const MAX_WORKFLOW_CHARACTERS = 16_384;
-const REVIEWED_WORKFLOW_SHA256 = "1da7ec1042b12bc0688363eb14ff52d0a04206ff0bb86fb2fae3490b27e3c42c";
+const REVIEWED_WORKFLOW_SHA256 = "8e3eeef8716b36a50c6f331a938e1ea63fc4631bd4fab0713e0791f5a9926d95";
 
 export class ManualEudiWorkflowError extends Error {
   constructor() {

@@ -32,7 +32,7 @@ for (const [name, before, after] of [
   ["identity token", "  contents: read", "  contents: read\n  id-token: write"],
   ["inherited secrets", "    needs: release-inputs", "    needs: release-inputs\n    secrets: inherit"],
   ["publishing token", "${{ github.token }}", "${{ secrets.CARGO_REGISTRY_TOKEN }}"],
-  ["dedicated machine", "runs-on: ubuntu-24.04", "runs-on: self-hosted"],
+  ["dedicated machine", "runs-on: ubuntu-26.04", "runs-on: self-hosted"],
   ["artifact substitution", "candidate_artifact_name: wallet-eudi-candidate-${{ github.run_id }}", "candidate_artifact_name: other"],
   ["unverified candidate", "    needs: release-inputs", "    needs: []"],
   ["credential persistence", "persist-credentials: false", "persist-credentials: true"],
