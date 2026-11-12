@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-proto"
-version = "0.1.0"
+version = "0.1.1"
 description = "Generated message-only protobuf contract for ReallyMe Wallet."
 edition.workspace = true
 rust-version.workspace = true

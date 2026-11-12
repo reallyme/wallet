@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-types"
-version = "0.1.0"
+version = "0.1.1"
 description = "Validated EUDI wallet core domain types."
 edition.workspace = true
 rust-version.workspace = true

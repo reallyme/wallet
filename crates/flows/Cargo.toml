@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-flows"
-version = "0.1.0"
+version = "0.1.1"
 description = "Headless issuance and presentation state machines for ReallyMe wallet core."
 edition.workspace = true
 rust-version.workspace = true
@@ -35,7 +35,7 @@ native = [
 crypto_core = { workspace = true }
 crypto_hmac = { workspace = true }
 crypto_sha2_256 = { workspace = true }
-reallyme-wallet-storage = { path = "../storage", version = "0.1.0", default-features = false }
+reallyme-wallet-storage = { path = "../storage", version = "0.1.1", default-features = false }
 buffa = { workspace = true }
 openid4vci-proto = { workspace = true, features = ["generated"] }
 openid4vci-profiles = { workspace = true }
@@ -46,11 +46,11 @@ reallyme-etsi-eaa-conformance = { workspace = true }
 reallyme-openid-oauth = { workspace = true }
 reallyme-codec = { workspace = true, features = ["base64url", "jcs"] }
 reallyme-disclosure-policy = { workspace = true }
-reallyme-wallet-attestation = { path = "../attestation", version = "0.1.0", default-features = false }
-reallyme-wallet-consent = { path = "../consent", version = "0.1.0", default-features = false }
-reallyme-wallet-inventory = { path = "../inventory", version = "0.1.0", default-features = false }
-reallyme-wallet-keystore = { path = "../keystore", version = "0.1.0", default-features = false }
-reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+reallyme-wallet-attestation = { path = "../attestation", version = "0.1.1", default-features = false }
+reallyme-wallet-consent = { path = "../consent", version = "0.1.1", default-features = false }
+reallyme-wallet-inventory = { path = "../inventory", version = "0.1.1", default-features = false }
+reallyme-wallet-keystore = { path = "../keystore", version = "0.1.1", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
 secrecy = { workspace = true }
 thiserror = { workspace = true }
 zeroize = { workspace = true }

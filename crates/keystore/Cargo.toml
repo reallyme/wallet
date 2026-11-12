@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-keystore"
-version = "0.1.0"
+version = "0.1.1"
 description = "WSCD/WSCA key-handle boundary for ReallyMe wallet core."
 edition.workspace = true
 rust-version.workspace = true
@@ -19,8 +19,8 @@ native = []
 wasm = []
 
 [dependencies]
-reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.0", default-features = false }
-reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.1", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
 

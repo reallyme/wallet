@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-http"
-version = "0.1.0"
+version = "0.1.1"
 description = "Native HTTP adapters for the ReallyMe Wallet protobuf runtime."
 edition.workspace = true
 rust-version.workspace = true
@@ -41,9 +41,9 @@ crypto_sha2_256 = { workspace = true, optional = true }
 reallyme-codec = { workspace = true, optional = true }
 reallyme-openid4vp-types = { workspace = true, optional = true }
 reallyme-openid4vp-wallet = { workspace = true, optional = true }
-reallyme-wallet-proto = { path = "../proto", version = "0.1.0", default-features = false, features = ["generated"] }
-reallyme-wallet-proto-codec = { path = "../proto-codec", version = "0.1.0", default-features = false }
-reallyme-wallet-runtime = { path = "../runtime", version = "0.1.0", default-features = false }
+reallyme-wallet-proto = { path = "../proto", version = "0.1.1", default-features = false, features = ["generated"] }
+reallyme-wallet-proto-codec = { path = "../proto-codec", version = "0.1.1", default-features = false }
+reallyme-wallet-runtime = { path = "../runtime", version = "0.1.1", default-features = false }
 serde = { workspace = true, features = ["derive"], optional = true }
 serde_json = { workspace = true, optional = true }
 subtle = { workspace = true, optional = true }
@@ -54,8 +54,8 @@ zeroize = { workspace = true }
 
 [dev-dependencies]
 buffa = { workspace = true }
-reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.0", default-features = false, features = ["native"] }
-reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false, features = ["native"] }
+reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.1", default-features = false, features = ["native"] }
+reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false, features = ["native"] }
 tokio = { workspace = true, features = ["macros", "net", "rt-multi-thread"] }
 tower = { workspace = true, features = ["util"] }
 

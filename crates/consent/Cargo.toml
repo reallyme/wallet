@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-consent"
-version = "0.1.0"
+version = "0.1.1"
 description = "Relying-party entitlement and consent policy boundary for ReallyMe wallet core."
 edition.workspace = true
 rust-version.workspace = true
@@ -25,8 +25,8 @@ reallyme-disclosure-policy = { workspace = true }
 reallyme-openid4vp-types = { workspace = true }
 reallyme-openid4vp-wallet = { workspace = true }
 reallyme-vp-core = { workspace = true }
-reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
-reallyme-wallet-storage = { path = "../storage", version = "0.1.0", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
+reallyme-wallet-storage = { path = "../storage", version = "0.1.1", default-features = false }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 subtle = { workspace = true }

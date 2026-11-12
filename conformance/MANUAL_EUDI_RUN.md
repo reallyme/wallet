@@ -23,7 +23,7 @@ completion, or publication, and it is not an ordinary source-CI prerequisite.
 The selected release version comes from Wallet's approved package policy. The
 candidate source commit comes from the signed release preflight and must match
 the published release tag. It may differ from the workflow's own commit: adding
-CI support does not change which source was published as Wallet 0.1.0.
+CI support does not change the source identity of an existing published release.
 
 ## Verified release preparation
 

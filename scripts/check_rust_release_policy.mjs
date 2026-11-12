@@ -52,7 +52,7 @@ try {
 if (
   policy?.schema_version !== 1
   || policy.policy_id !== "reallyme.wallet.package-policy.v1"
-  || policy.release_version !== "0.1.0"
+  || policy.release_version !== "0.1.1"
   || policy.maintainer_rust_toolchain !== "1.99.0"
   || policy.public_crate_msrv !== "1.99"
   || !Array.isArray(policy.authorized_public_packages)

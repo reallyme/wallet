@@ -230,7 +230,7 @@ tokens, or production wallet, issuer, or verifier data in reports.
 ## Versioning
 
 Wallet is in pre-1.0 development. The seventeen Rust crates in the approved
-release set use version `0.1.0` and declare Rust 1.99 as their minimum supported
+release set use version `0.1.1` and declare Rust 1.99 as their minimum supported
 version. Conformance tooling is not published. Publication requires matching
 registry dependencies, packaged-source tests, and release preflight; the
 package manifest alone does not establish release readiness.

@@ -546,19 +546,19 @@ assertContains("Cargo.toml", '"crates/provider"');
 assertContains("Cargo.toml", '"crates/wallet-zk"');
 assertContains(
   "Cargo.toml",
-  'compression_brotli = { package = "reallyme-compression-brotli", version = "=0.6.1" }',
+  'compression_brotli = { package = "reallyme-compression-brotli", version = "=0.6.2" }',
 );
-assertContains("Cargo.toml", 'reallyme-credential = { version = "=0.6.1"');
-assertContains("Cargo.toml", 'reallyme-openid-oauth = { version = "=0.6.1"');
-assertContains("Cargo.toml", 'reallyme-disclosure-policy = { version = "=0.6.1"');
-assertContains("Cargo.toml", 'reallyme-credential-status = { version = "=0.6.1"');
-assertContains("Cargo.toml", 'reallyme-vp-core = { version = "=0.6.1"');
-assertContains("Cargo.toml", 'reallyme-ssi-proto = { version = "=0.6.1"');
-assertContains("Cargo.toml", 'reallyme-etsi-eaa-conformance = { version = "=0.6.1"');
-assertContains("Cargo.toml", 'reallyme-trust-x509 = { version = "=0.6.1"');
-assertContains("Cargo.toml", 'reallyme-openid4vci-wallet = { version = "=0.3.0"');
-assertContains("Cargo.toml", 'reallyme-openid4vp-wallet = { version = "=0.3.0"');
-assertContains("Cargo.toml", 'reallyme-zk-api = { version = "=0.3.0" }');
+assertContains("Cargo.toml", 'reallyme-credential = { version = "=0.6.2"');
+assertContains("Cargo.toml", 'reallyme-openid-oauth = { version = "=0.6.2"');
+assertContains("Cargo.toml", 'reallyme-disclosure-policy = { version = "=0.6.2"');
+assertContains("Cargo.toml", 'reallyme-credential-status = { version = "=0.6.2"');
+assertContains("Cargo.toml", 'reallyme-vp-core = { version = "=0.6.2"');
+assertContains("Cargo.toml", 'reallyme-ssi-proto = { version = "=0.6.2"');
+assertContains("Cargo.toml", 'reallyme-etsi-eaa-conformance = { version = "=0.6.2"');
+assertContains("Cargo.toml", 'reallyme-trust-x509 = { version = "=0.6.2"');
+assertContains("Cargo.toml", 'reallyme-openid4vci-wallet = { version = "=0.3.1"');
+assertContains("Cargo.toml", 'reallyme-openid4vp-wallet = { version = "=0.3.1"');
+assertContains("Cargo.toml", 'reallyme-zk-api = { version = "=0.3.2" }');
 assertNotContains("Cargo.toml", 'path = "../ssi/');
 assertNotContains("Cargo.toml", 'path = "../crypto/');
 assertNotContains("Cargo.toml", 'path = "../openid4vci/');

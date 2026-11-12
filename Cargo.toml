@@ -37,14 +37,14 @@ publish = false
 axum = { version = "0.8", default-features = false, features = ["http1", "json", "tokio"] }
 buffa = { version = "0.9.2", features = ["json"] }
 buffa-types = { version = "0.9.2", features = ["json"] }
-compression_brotli = { package = "reallyme-compression-brotli", version = "=0.6.1" }
+compression_brotli = { package = "reallyme-compression-brotli", version = "=0.6.2" }
 crypto_core = { package = "reallyme-crypto-core", version = "=0.3.17", default-features = false }
 crypto_hmac = { package = "reallyme-crypto-hmac", version = "=0.3.17", default-features = false }
 crypto_sha2_256 = { package = "reallyme-crypto-sha2-256", version = "=0.3.17", default-features = false }
 crypto-csprng = { package = "reallyme-crypto-csprng", version = "=0.3.17", default-features = false }
 reallyme-crypto-proto = { version = "=0.3.17", default-features = false }
 reallyme-codec = { version = "=0.3.2", default-features = false, features = ["base64url"] }
-reallyme-credential = { version = "=0.6.1", default-features = false }
+reallyme-credential = { version = "=0.6.2", default-features = false }
 secrecy = "0.10.3"
 subtle = "2.6.1"
 serde = "1.0"
@@ -55,23 +55,23 @@ tokio = "1.53"
 tower = "0.5"
 url = "2.5"
 zeroize = { version = "1.9", features = ["derive"] }
-reallyme-openid-oauth = { version = "=0.6.1", default-features = false }
-reallyme-disclosure-policy = { version = "=0.6.1" }
-reallyme-credential-status = { version = "=0.6.1", default-features = false }
-reallyme-vp-core = { version = "=0.6.1" }
-reallyme-ssi-proto = { version = "=0.6.1", default-features = false }
-reallyme-etsi-eaa-conformance = { version = "=0.6.1", default-features = false }
-reallyme-trust-x509 = { version = "=0.6.1", default-features = false }
-reallyme-openid4vci-wallet = { version = "=0.3.0", default-features = false }
-openid4vci-proto = { package = "reallyme-openid4vci-proto", version = "=0.3.0", default-features = false }
-openid4vci-profiles = { version = "=0.3.0", default-features = false }
+reallyme-openid-oauth = { version = "=0.6.2", default-features = false }
+reallyme-disclosure-policy = { version = "=0.6.2" }
+reallyme-credential-status = { version = "=0.6.2", default-features = false }
+reallyme-vp-core = { version = "=0.6.2" }
+reallyme-ssi-proto = { version = "=0.6.2", default-features = false }
+reallyme-etsi-eaa-conformance = { version = "=0.6.2", default-features = false }
+reallyme-trust-x509 = { version = "=0.6.2", default-features = false }
+reallyme-openid4vci-wallet = { version = "=0.3.1", default-features = false }
+openid4vci-proto = { package = "reallyme-openid4vci-proto", version = "=0.3.1", default-features = false }
+openid4vci-profiles = { version = "=0.3.1", default-features = false }
 reallyme-crypto-p256 = { version = "=0.3.17", default-features = false }
-openid4vci-types = { package = "reallyme-openid4vci-types", version = "=0.3.0", default-features = false }
-reallyme-openid4vp-proto = { version = "=0.3.0", default-features = false }
-reallyme-openid4vp-dcql = { version = "=0.3.0", default-features = false }
-reallyme-openid4vp-types = { version = "=0.3.0", default-features = false }
-reallyme-openid4vp-wallet = { version = "=0.3.0", default-features = false }
-reallyme-zk-api = { version = "=0.3.0" }
+openid4vci-types = { package = "reallyme-openid4vci-types", version = "=0.3.1", default-features = false }
+reallyme-openid4vp-proto = { version = "=0.3.1", default-features = false }
+reallyme-openid4vp-dcql = { version = "=0.3.1", default-features = false }
+reallyme-openid4vp-types = { version = "=0.3.1", default-features = false }
+reallyme-openid4vp-wallet = { version = "=0.3.1", default-features = false }
+reallyme-zk-api = { version = "=0.3.2" }
 
 [profile.release]
 lto = true

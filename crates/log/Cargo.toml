@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-log"
-version = "0.1.0"
+version = "0.1.1"
 description = "User-visible transaction and QTSP decision log for ReallyMe wallet core."
 edition.workspace = true
 rust-version.workspace = true
@@ -19,10 +19,10 @@ native = ["reallyme-wallet-storage/native", ]
 wasm = ["reallyme-wallet-storage/wasm"]
 
 [dependencies]
-reallyme-wallet-storage = { path = "../storage", version = "0.1.0", default-features = false }
+reallyme-wallet-storage = { path = "../storage", version = "0.1.1", default-features = false }
 crypto_sha2_256 = { workspace = true }
 reallyme-codec = { workspace = true }
-reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
 

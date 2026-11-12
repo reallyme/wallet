@@ -2,6 +2,19 @@
 
 All notable changes to the Wallet Rust crates and wire contract are recorded here.
 
+## 0.1.1
+
+### Changed
+
+- Updated the Rust dependency graph to SSI 0.6.2, ZK 0.3.2, and OpenID4VCI and OpenID4VP 0.3.1, using crates.io packages.
+- Updated imported protobuf source provenance and registry release provenance for the new dependency cohort.
+
+### Security
+
+- Wallet Unit Attestation technical validity must be strictly less than 24 hours, including acquisition, restoration, rotation, and verification after protobuf decoding.
+- Added regression coverage connecting SSI satisfaction plans to all three Wallet Provider policies for unregistered requested attributes, preserving warnings and enforcing the authorized disclosure scope.
+- Added protobuf boundary tests for policy decision values, rejected unknown values, and preserved consent request bindings.
+
 ## 0.1.0
 
 First public release.

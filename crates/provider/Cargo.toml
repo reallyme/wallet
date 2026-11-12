@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-provider"
-version = "0.1.0"
+version = "0.1.1"
 description = "Versioned provider policy and correlation validation for ReallyMe Wallet adapters."
 edition.workspace = true
 rust-version.workspace = true
@@ -32,11 +32,11 @@ wasm = [
 
 [dependencies]
 buffa = { workspace = true }
-reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.0", default-features = false }
-reallyme-wallet-proto = { path = "../proto", version = "0.1.0", default-features = false }
-reallyme-wallet-proto-codec = { path = "../proto-codec", version = "0.1.0", default-features = false }
-reallyme-wallet-runtime = { path = "../runtime", version = "0.1.0", default-features = false }
-reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.1", default-features = false }
+reallyme-wallet-proto = { path = "../proto", version = "0.1.1", default-features = false }
+reallyme-wallet-proto-codec = { path = "../proto-codec", version = "0.1.1", default-features = false }
+reallyme-wallet-runtime = { path = "../runtime", version = "0.1.1", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
 

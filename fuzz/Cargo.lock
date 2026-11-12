@@ -707,9 +707,9 @@ dependencies = [
 
 [[package]]
 name = "reallyme-openid4vci-proto"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4ae3cc5d653b0003301b4693f6407b54c251329766eb807da2a538987596773"
+checksum = "ab618329ec44e63680518eeba0c47b0cffcb5c6b5f5588189a51322e2523f0db"
 dependencies = [
  "buffa",
  "serde",
@@ -718,9 +718,9 @@ dependencies = [
 
 [[package]]
 name = "reallyme-openid4vp-proto"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49d2307796844002a97c50c9f8fc2a675f5e9833e2a97eb5e0d1363beae8a0af"
+checksum = "fce75439e41bac807b843a30ded0a004daec99a5c4b3a2b377e887926f7bb0a7"
 dependencies = [
  "buffa",
  "serde",
@@ -729,9 +729,9 @@ dependencies = [
 
 [[package]]
 name = "reallyme-ssi-proto"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19d7bf491dfb8d9c30b2ea89640a491422e09c2d5b07f2d6ea81eb41a650a4e7"
+checksum = "9fca1cd25c7a36693df6d627ce4275b5179d06fe8bd7aad3a525db2e54bafc42"
 dependencies = [
  "buffa",
  "buffa-types",
@@ -742,7 +742,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-attestation"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "reallyme-wallet-keystore",
  "reallyme-wallet-types",
@@ -753,7 +753,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-keystore"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "reallyme-wallet-lifecycle",
  "reallyme-wallet-types",
@@ -763,7 +763,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-lifecycle"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "reallyme-wallet-types",
  "thiserror",
@@ -772,7 +772,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-proto"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "buffa",
  "reallyme-crypto-proto",
@@ -785,7 +785,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-proto-codec"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "buffa",
  "reallyme-crypto-p256",
@@ -806,7 +806,7 @@ dependencies = [
 
 [[package]]
 name = "reallyme-wallet-types"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "thiserror",
  "url",

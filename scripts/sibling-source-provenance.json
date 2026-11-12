@@ -7,19 +7,19 @@
       "additional_packages": [
         "openid4vci-profiles"
       ],
-      "commit": "5c42fa25d2ab8f4487019a7689c6416b7be25cbe"
+      "commit": "aecc9dbc7e6c0ee9cf5815ff81c380db0825e28b"
     },
     {
       "directory": "openid4vp",
       "package_prefix": "reallyme-openid4vp-",
       "additional_packages": [],
-      "commit": "04b752b611c9431875e6e9979186319e5f366a56"
+      "commit": "bf6582d89b87fdf545ad9bef433af90b81dd7200"
     },
     {
       "directory": "zk",
       "package_prefix": "reallyme-zk-",
       "additional_packages": [],
-      "commit": "8d586811784572ee5422edf363c763c9aab45e74"
+      "commit": "532cb92995438a4d798ff632c41b2c4eee60f2dd"
     }
   ]
 }

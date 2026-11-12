@@ -4,7 +4,7 @@
     {
       "name": "reallyme-ssi",
       "repository": "https://github.com/reallyme/ssi.git",
-      "revision": "43dddafe1c9be46260c01334bcf3d9e34f5c066a",
+      "revision": "78752d5dcd0184d4c8917308354ce5b932d55d4e",
       "revision_state": "clean_commit",
       "files": [
         {
@@ -41,8 +41,8 @@
         }
       ],
       "crate_name": "reallyme-ssi-proto",
-      "crate_version": "0.6.1",
-      "crate_checksum": "19d7bf491dfb8d9c30b2ea89640a491422e09c2d5b07f2d6ea81eb41a650a4e7"
+      "crate_version": "0.6.2",
+      "crate_checksum": "9fca1cd25c7a36693df6d627ce4275b5179d06fe8bd7aad3a525db2e54bafc42"
     },
     {
       "name": "reallyme-crypto",
@@ -62,7 +62,7 @@
     {
       "name": "reallyme-openid4vci",
       "repository": "https://github.com/reallyme/openid4vci.git",
-      "revision": "5c42fa25d2ab8f4487019a7689c6416b7be25cbe",
+      "revision": "aecc9dbc7e6c0ee9cf5815ff81c380db0825e28b",
       "revision_state": "clean_commit",
       "files": [
         {
@@ -71,13 +71,13 @@
         }
       ],
       "crate_name": "reallyme-openid4vci-proto",
-      "crate_version": "0.3.0",
-      "crate_checksum": "e4ae3cc5d653b0003301b4693f6407b54c251329766eb807da2a538987596773"
+      "crate_version": "0.3.1",
+      "crate_checksum": "ab618329ec44e63680518eeba0c47b0cffcb5c6b5f5588189a51322e2523f0db"
     },
     {
       "name": "reallyme-openid4vp",
       "repository": "https://github.com/reallyme/openid4vp.git",
-      "revision": "04b752b611c9431875e6e9979186319e5f366a56",
+      "revision": "bf6582d89b87fdf545ad9bef433af90b81dd7200",
       "revision_state": "clean_commit",
       "files": [
         {
@@ -86,8 +86,8 @@
         }
       ],
       "crate_name": "reallyme-openid4vp-proto",
-      "crate_version": "0.3.0",
-      "crate_checksum": "49d2307796844002a97c50c9f8fc2a675f5e9833e2a97eb5e0d1363beae8a0af"
+      "crate_version": "0.3.1",
+      "crate_checksum": "fce75439e41bac807b843a30ded0a004daec99a5c4b3a2b377e887926f7bb0a7"
     }
   ]
 }

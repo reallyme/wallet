@@ -24,9 +24,9 @@ non_kebab_case_bins = "allow"
 
 [dependencies]
 libfuzzer-sys = "0.4"
-reallyme-wallet-proto-codec = { path = "../crates/proto-codec", version = "0.1.0", default-features = false, features = ["native"] }
-reallyme-wallet-proto = { path = "../crates/proto", version = "0.1.0", default-features = false }
-reallyme-wallet-types = { path = "../crates/types", version = "0.1.0", default-features = false }
+reallyme-wallet-proto-codec = { path = "../crates/proto-codec", version = "0.1.1", default-features = false, features = ["native"] }
+reallyme-wallet-proto = { path = "../crates/proto", version = "0.1.1", default-features = false }
+reallyme-wallet-types = { path = "../crates/types", version = "0.1.1", default-features = false }
 
 [[bin]]
 name = "wallet_proto_decode"

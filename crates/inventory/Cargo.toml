@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-inventory"
-version = "0.1.0"
+version = "0.1.1"
 description = "Credential lifecycle and unlinkable batch-pool inventory for ReallyMe wallet core."
 edition.workspace = true
 rust-version.workspace = true
@@ -18,9 +18,9 @@ default = ["native"]
 native = ["reallyme-wallet-storage/native", "reallyme-credential-status/native"]
 
 [dependencies]
-reallyme-wallet-storage = { path = "../storage", version = "0.1.0", default-features = false }
+reallyme-wallet-storage = { path = "../storage", version = "0.1.1", default-features = false }
 reallyme-credential-status = { workspace = true }
-reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
 thiserror = { workspace = true }
 
 [lints]

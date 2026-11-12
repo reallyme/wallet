@@ -4,7 +4,7 @@
 
 [package]
 name = "reallyme-wallet-runtime"
-version = "0.1.0"
+version = "0.1.1"
 description = "Canonical protobuf operation runtime for ReallyMe wallet-core."
 edition.workspace = true
 rust-version.workspace = true
@@ -38,13 +38,13 @@ wasm = [
 buffa = { workspace = true }
 crypto_sha2_256 = { workspace = true }
 reallyme-ssi-proto = { workspace = true, features = ["generated"] }
-reallyme-wallet-consent = { path = "../consent", version = "0.1.0", default-features = false }
-reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.0", default-features = false }
-reallyme-wallet-log = { path = "../log", version = "0.1.0", default-features = false }
-reallyme-wallet-proto = { path = "../proto", version = "0.1.0", default-features = false, features = ["generated"] }
-reallyme-wallet-proto-codec = { path = "../proto-codec", version = "0.1.0", default-features = false }
-reallyme-wallet-storage = { path = "../storage", version = "0.1.0", default-features = false }
-reallyme-wallet-types = { path = "../types", version = "0.1.0", default-features = false }
+reallyme-wallet-consent = { path = "../consent", version = "0.1.1", default-features = false }
+reallyme-wallet-lifecycle = { path = "../lifecycle", version = "0.1.1", default-features = false }
+reallyme-wallet-log = { path = "../log", version = "0.1.1", default-features = false }
+reallyme-wallet-proto = { path = "../proto", version = "0.1.1", default-features = false, features = ["generated"] }
+reallyme-wallet-proto-codec = { path = "../proto-codec", version = "0.1.1", default-features = false }
+reallyme-wallet-storage = { path = "../storage", version = "0.1.1", default-features = false }
+reallyme-wallet-types = { path = "../types", version = "0.1.1", default-features = false }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
 
