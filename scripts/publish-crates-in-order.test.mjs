@@ -258,13 +258,17 @@ test("non-retryable publication errors fail immediately", () => {
 });
 
 test("release policy accepts only compatible requirements at the approved version", () => {
+  // A fixed future version eventually becomes the approved release. Derive a
+  // different valid patch version so this remains a rejection test after bumps.
+  const [major, minor, patch] = releaseVersion.split(".");
+  const unapprovedVersion = `${major}.${minor}.${BigInt(patch) + 1n}`;
   for (const [requirement, version, accepted] of [
     [`^${releaseVersion}`, releaseVersion, true],
     [`=${releaseVersion}`, releaseVersion, true],
     [releaseVersion, releaseVersion, true],
     ["^0.0.1", releaseVersion, false],
     [`^${releaseVersion}junk`, releaseVersion, false],
-    ["^0.1.2", "0.1.2", false],
+    [`^${unapprovedVersion}`, unapprovedVersion, false],
   ]) {
     const result = runFixture({ mode: "order", requirement, version });
     assert.equal(result.status === 0, accepted, `${requirement} / ${version}`);
