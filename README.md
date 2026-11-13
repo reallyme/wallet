@@ -5,8 +5,9 @@
 **Wallet inventory, lifecycle, consent, attestation, and audit state**
 
 [![Rust CI](https://github.com/reallyme/wallet/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/reallyme/wallet/actions/workflows/rust-ci.yml)
-[![Wallet EU engineering status](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml)
-[![Last successful engineering run](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Freallyme%2Fwallet%2Factions%2Fworkflows%2Feudi-wallet-conformance.yml%2Fruns%3Fstatus%3Dsuccess%26event%3Dworkflow_dispatch%26branch%3Dmain%26per_page%3D1&query=%24.workflow_runs%5B0%5D.display_title&label=Last+successful+engineering+run&color=1d4ed8&cacheSeconds=300)](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml?query=event%3Aworkflow_dispatch+branch%3Amain+is%3Asuccess)
+[![EU Conformance](https://img.shields.io/github/actions/workflow/status/reallyme/wallet/eudi-wallet-conformance.yml?branch=main&event=workflow_dispatch&label=EU%20Conformance)](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml)
+[![OIDF Conformance](https://img.shields.io/badge/OIDF_Conformance-pending-yellow)](conformance/README.md#oidf-wallet-harness)
+[![Identity-Conformance Passed](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fapi.github.com%2Frepos%2Freallyme%2Fwallet%2Factions%2Fworkflows%2Feudi-wallet-conformance.yml%2Fruns%3Fstatus%3Dsuccess%26event%3Dworkflow_dispatch%26branch%3Dmain%26per_page%3D1&search=%22display_title%22%5Cs%2A%3A%5Cs%2A%22Identity%28%3F%3A-%7C+%29Conformance+%28v%28%3F%3A0%7C%5B1-9%5D%5B0-9%5D%2A%29%5C.%28%3F%3A0%7C%5B1-9%5D%5B0-9%5D%2A%29%5C.%28%3F%3A0%7C%5B1-9%5D%5B0-9%5D%2A%29%29&replace=%241+-+Wallet&label=Identity-Conformance+Passed&color=brightgreen&cacheSeconds=300)](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml?query=event%3Aworkflow_dispatch+branch%3Amain+is%3Asuccess)
 [![crates.io](https://img.shields.io/crates/v/reallyme-wallet.svg)](https://crates.io/crates/reallyme-wallet)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
 

@@ -72,23 +72,32 @@ test("invalid and oversized input has a fixed domain error", () => {
 
 test("README framework indicator uses successful manual main runs without hard-coded version claims", () => {
   const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
-  const indicator = /\[!\[Last successful engineering run\]\(([^)]+)\)\]\(([^)]+)\)/u.exec(readme);
+  const indicator = /\[!\[Identity-Conformance Passed\]\(([^)]+)\)\]\(([^)]+)\)/u.exec(readme);
   assert.notEqual(indicator, null);
   const badge = new URL(indicator[1]);
   assert.equal(badge.origin, "https://img.shields.io");
-  assert.equal(badge.pathname, "/badge/dynamic/json");
+  assert.equal(badge.pathname, "/badge/dynamic/regex");
   const api = new URL(badge.searchParams.get("url"));
   assert.equal(api.origin, "https://api.github.com");
   assert.equal(api.pathname, "/repos/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml/runs");
   assert.deepEqual(Object.fromEntries(api.searchParams), {
     status: "success", event: "workflow_dispatch", branch: "main", per_page: "1",
   });
-  assert.equal(badge.searchParams.get("query"), "$.workflow_runs[0].display_title");
-  assert.equal(badge.searchParams.get("label"), "Last successful engineering run");
+  assert.equal(badge.searchParams.get("label"), "Identity-Conformance Passed");
+  assert.equal(badge.searchParams.get("replace"), "$1 - Wallet");
+  const extraction = new RegExp(badge.searchParams.get("search"), "u");
+  for (const title of ["Identity Conformance v0.3.3 · Wallet candidate", "Identity-Conformance v0.3.4 - Wallet"]) {
+    const captured = extraction.exec(JSON.stringify({ display_title: title }));
+    assert.notEqual(captured, null);
+    assert.match(captured[1], /^v[0-9]+\.[0-9]+\.[0-9]+$/u);
+  }
+  assert.equal(extraction.exec(JSON.stringify({ display_title: "Unrelated v0.3.3" })), null);
   const history = new URL(indicator[2]);
   assert.equal(history.origin, "https://github.com");
   assert.equal(history.pathname, "/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml");
   assert.equal(history.searchParams.get("query"), "event:workflow_dispatch branch:main is:success");
-  assert.ok(readme.indexOf("[![Wallet EU engineering status]") < indicator.index);
+  assert.ok(readme.indexOf("[![EU Conformance]") < indicator.index);
+  assert.match(readme, /\[!\[OIDF Conformance\]\(https:\/\/img\.shields\.io\/badge\/OIDF_Conformance-pending-yellow\)/u);
+  assert.doesNotMatch(readme, /last successful engineering run|Wallet candidate/iu);
   assert.doesNotMatch(indicator[0], /v[0-9]+\.[0-9]+\.[0-9]+/u);
 });

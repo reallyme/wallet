@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
-name: Wallet EU engineering (Identity Conformance)
-run-name: Identity Conformance ${{ inputs.framework_release_override || inputs.framework_release }} · Wallet ${{ inputs.target_mode }}
+name: EU Conformance
+run-name: Identity-Conformance ${{ inputs.framework_release_override || inputs.framework_release }} - Wallet
 
 on:
   workflow_dispatch:
     inputs:
       framework_release:
-        description: Framework release (menu snapshot; use override for another release)
+        description: Identity-Conformance release (use override for another version)
         required: true
         default: v0.3.3
         type: choice
@@ -18,28 +18,28 @@ on:
           - v0.3.2
           - v0.3.1
       framework_release_override:
-        description: Optional published framework release tag, for example v0.3.4
+        description: Optional Identity-Conformance release tag, for example v0.3.4
         required: false
         type: string
-      target_mode:
-        description: Candidate commit or explicitly selected published Wallet release
+      target:
+        description: Test a Wallet code commit or a published Wallet release
         required: true
-        default: candidate
+        default: code
         type: choice
         options:
-          - candidate
-          - published
+          - code
+          - release
       target_commit:
-        description: Required candidate full commit SHA (published must be blank)
+        description: Required full Wallet commit SHA for code tests (release must be blank)
         required: false
         type: string
       preflight_run_id:
-        description: Required candidate package preflight run ID (published must be blank)
+        description: Required package preflight run ID for code tests (release must be blank)
         required: false
         type: string
 
       wallet_release:
-        description: Required in published mode, for example reallyme-wallet-v0.1.2 (candidate must be blank)
+        description: Required for release tests, for example reallyme-wallet-v0.1.2 (code must be blank)
         required: false
         type: string
 
@@ -54,7 +54,7 @@ concurrency:
 
 jobs:
   conformance:
-    name: Wallet EU engineering · Identity Conformance ${{ inputs.framework_release_override || inputs.framework_release }}
+    name: EU Conformance · Identity-Conformance ${{ inputs.framework_release_override || inputs.framework_release }}
     if: github.repository == 'reallyme/wallet' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-26.04
     timeout-minutes: 150
@@ -128,7 +128,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           FRAMEWORK_COMMIT: ${{ steps.framework.outputs.commit }}
-          TARGET_MODE: ${{ inputs.target_mode }}
+          TARGET_MODE: ${{ inputs.target == 'code' && 'candidate' || inputs.target == 'release' && 'published' || 'invalid' }}
           EUDI_WALLET_RELEASE: ${{ inputs.wallet_release }}
           EUDI_TARGET_COMMIT: ${{ inputs.target_commit }}
           PREFLIGHT_RUN_ID: ${{ inputs.preflight_run_id }}
@@ -331,14 +331,14 @@ jobs:
             --output "${statement}"
           discovered="$(jq -er '.test_execution.discovered_test_count' "${result}")"
           passed="$(jq -er '.test_execution.passed_test_count' "${result}")"
-          printf '## Wallet EU engineering passed — Identity Conformance %s\n\nTarget: **Wallet %s · %s @ %s**\n\nFramework commit: **%s**\n\nWorkspace tests: **%s/%s**\n' \
-            "${FRAMEWORK_RELEASE_TAG}" "${TARGET_VERSION}" "${TARGET_MODE}" "${TARGET_COMMIT}" \
+          printf '## EU Conformance passed — Identity-Conformance %s\n\nTarget: **Wallet %s @ %s**\n\nFramework commit: **%s**\n\nWorkspace tests: **%s/%s**\n' \
+            "${FRAMEWORK_RELEASE_TAG}" "${TARGET_VERSION}" "${TARGET_COMMIT}" \
             "${FRAMEWORK_COMMIT}" "${passed}" "${discovered}" >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload Wallet conformance evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: wallet-eu-engineering-identity-conformance-${{ steps.framework.outputs.tag }}-wallet-${{ steps.prepare.outputs.target_version }}-${{ steps.prepare.outputs.target_mode }}-${{ steps.prepare.outputs.target_commit }}-${{ github.run_id }}
+          name: wallet-eu-conformance-identity-conformance-${{ steps.framework.outputs.tag }}-wallet-${{ steps.prepare.outputs.target_version }}-${{ steps.prepare.outputs.target_commit }}-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/eudi-wallet-conformance-result.json
             ${{ runner.temp }}/wallet-conformance-statement.json
