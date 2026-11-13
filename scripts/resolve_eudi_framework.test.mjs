@@ -4,9 +4,11 @@
 
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { authenticateFrameworkCheckout, FrameworkSelectionError, REQUIRED_FRAMEWORK_INPUTS, resolvePublishedFramework } from "./resolve_eudi_framework.mjs";
 
@@ -44,6 +46,23 @@ test("unbounded, malformed and injectable references are rejected before network
   for (const reference of [null, {}, undefined, "", "latest", "main", "v01.2.3", "v0.3.3\n", "v0.3.3;true", "A".repeat(40)]) {
     assert.throws(() => run(reference), FrameworkSelectionError);
   }
+});
+
+test("dispatch requires a release tag so successful run names always identify a framework version", () => {
+  const root = mkdtempSync(join(tmpdir(), "wallet-framework-release-input-"));
+  try {
+    const output = join(root, "outputs");
+    const result = spawnSync(process.execPath,
+      [fileURLToPath(new URL("./resolve_eudi_framework.mjs", import.meta.url))], {
+        encoding: "utf8", timeout: 10_000,
+        env: { ...process.env, GITHUB_REPOSITORY: "reallyme/wallet", GITHUB_REF: "refs/heads/main",
+          GITHUB_OUTPUT: output, EUDI_VERIFY_FRAMEWORK: "0", EUDI_FRAMEWORK_REF: tag,
+          EUDI_FRAMEWORK_OVERRIDE: commit },
+      });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /framework_reference_invalid/u);
+    assert.equal(existsSync(output), false);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 for (const [name, mutate] of [

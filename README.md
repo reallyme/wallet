@@ -5,7 +5,8 @@
 **Wallet inventory, lifecycle, consent, attestation, and audit state**
 
 [![Rust CI](https://github.com/reallyme/wallet/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/reallyme/wallet/actions/workflows/rust-ci.yml)
-[![EUDI Wallet Conformance](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml/badge.svg)](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml)
+[![Wallet EU engineering status](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml)
+[![Last successful engineering run](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Freallyme%2Fwallet%2Factions%2Fworkflows%2Feudi-wallet-conformance.yml%2Fruns%3Fstatus%3Dsuccess%26event%3Dworkflow_dispatch%26branch%3Dmain%26per_page%3D1&query=%24.workflow_runs%5B0%5D.display_title&label=Last+successful+engineering+run&color=1d4ed8&cacheSeconds=300)](https://github.com/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml?query=event%3Aworkflow_dispatch+branch%3Amain+is%3Asuccess)
 [![crates.io](https://img.shields.io/crates/v/reallyme-wallet.svg)](https://crates.io/crates/reallyme-wallet)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
 

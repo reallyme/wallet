@@ -160,7 +160,11 @@ if (process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.
         manifestPath: process.env.EUDI_FRAMEWORK_MANIFEST, commit: process.env.FRAMEWORK_COMMIT,
         tag: process.env.FRAMEWORK_TAG, manifestSha256: process.env.FRAMEWORK_MANIFEST_SHA256 });
     } else {
-      const selected = resolvePublishedFramework({ reference: process.env.EUDI_FRAMEWORK_OVERRIDE || process.env.EUDI_FRAMEWORK_REF });
+      const reference = process.env.EUDI_FRAMEWORK_OVERRIDE || process.env.EUDI_FRAMEWORK_REF;
+      // Dispatch titles and their public history badge identify release versions.
+      // A raw commit can be resolved internally but is not a release-tag input.
+      if (typeof reference !== "string" || !RELEASE_TAG.test(reference)) fail("framework_reference_invalid");
+      const selected = resolvePublishedFramework({ reference });
       appendFileSync(process.env.GITHUB_OUTPUT,
         `commit=${selected.commit}\ntag=${selected.tag}\nmanifest_sha256=${selected.manifestSha256}\n`, "utf8");
     }

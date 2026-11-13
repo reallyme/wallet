@@ -1,6 +1,6 @@
 # Manual EUDI Wallet engineering conformance
 
-[EUDI Wallet Conformance](../.github/workflows/eudi-wallet-conformance.yml)
+[Wallet EU engineering (Identity Conformance)](../.github/workflows/eudi-wallet-conformance.yml)
 is a manual engineering-conformance lane that runs entirely on standard
 GitHub-hosted Linux runners. It requires no separate machine, deployment
 secret, preinstalled release files, or crates.io publishing token. Release
@@ -18,7 +18,7 @@ execution, and result validation.
 
 ## Run
 
-In GitHub Actions, select **EUDI Wallet Conformance**, choose **Run workflow**,
+In GitHub Actions, select **Wallet EU engineering (Identity Conformance)**, choose **Run workflow**,
 and select `main`. Select the framework release, or enter its exact `vX.Y.Z`
 tag in **framework_release_override**. For `candidate` (the default), enter the
 full Wallet SHA in **target_commit** and its exact retained signed package
@@ -53,6 +53,24 @@ The bootstrap requires every framework entry point before executing any of them.
 Older releases may reject newer Wallet evidence; selection does not imply
 compatibility with every historical target. Releases before `v0.3.1` lack the
 required CLI contract and are not advertised as menu choices.
+
+## Run names and badges
+
+Runs identify the framework explicitly, for example
+**Identity Conformance v0.3.3 · Wallet candidate**. A run title identifies the
+selected release and target mode; GitHub's status icon supplies its outcome.
+The successful summary and evidence artifact name use the authenticated framework
+release tag and include the Wallet target version. Full framework, target, and
+dispatcher commits remain in the statement and result.
+
+The README shows two distinct indicators. The workflow-status badge reports the
+latest run's outcome. **Last successful engineering run** reads GitHub's live
+public workflow history, filtered to successful manual runs on `main`, and shows
+that run's title. Its link opens the matching successful-run history, where each
+run retains its statement and result. A later failure remains visible in the
+workflow-status badge while the historical indicator keeps the previous success.
+The indicators describe engineering workflow execution, not a product conformity
+or certification badge. Shields and GitHub image caching can delay refreshes.
 
 ## Verified package preparation
 

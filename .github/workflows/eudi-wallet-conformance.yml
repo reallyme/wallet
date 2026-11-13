@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
-name: EUDI Wallet Conformance
-run-name: Wallet ${{ inputs.target_mode }} · ${{ inputs.framework_release_override || inputs.framework_release }} · ${{ inputs.target_commit || inputs.wallet_release }}
+name: Wallet EU engineering (Identity Conformance)
+run-name: Identity Conformance ${{ inputs.framework_release_override || inputs.framework_release }} · Wallet ${{ inputs.target_mode }}
 
 on:
   workflow_dispatch:
@@ -54,6 +54,7 @@ concurrency:
 
 jobs:
   conformance:
+    name: Wallet EU engineering · Identity Conformance ${{ inputs.framework_release_override || inputs.framework_release }}
     if: github.repository == 'reallyme/wallet' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-26.04
     timeout-minutes: 150
@@ -304,6 +305,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           RUN_ATTEMPT: ${{ github.run_attempt }}
           FRAMEWORK_RELEASE_TAG: ${{ steps.framework.outputs.tag }}
+          FRAMEWORK_COMMIT: ${{ steps.framework.outputs.commit }}
           TARGET_MODE: ${{ steps.prepare.outputs.target_mode }}
           TARGET_VERSION: ${{ steps.prepare.outputs.target_version }}
           TARGET_COMMIT: ${{ steps.prepare.outputs.target_commit }}
@@ -329,14 +331,14 @@ jobs:
             --output "${statement}"
           discovered="$(jq -er '.test_execution.discovered_test_count' "${result}")"
           passed="$(jq -er '.test_execution.passed_test_count' "${result}")"
-          printf '## EU Wallet Engineering passed\n\nTarget: **%s %s @ %s**\n\nIdentity Conformance: **%s**\n\nWorkspace tests: **%s/%s**\n' \
-            "${TARGET_MODE}" "${TARGET_VERSION}" "${TARGET_COMMIT}" \
-            "${FRAMEWORK_RELEASE_TAG}" "${passed}" "${discovered}" >> "${GITHUB_STEP_SUMMARY}"
+          printf '## Wallet EU engineering passed — Identity Conformance %s\n\nTarget: **Wallet %s · %s @ %s**\n\nFramework commit: **%s**\n\nWorkspace tests: **%s/%s**\n' \
+            "${FRAMEWORK_RELEASE_TAG}" "${TARGET_VERSION}" "${TARGET_MODE}" "${TARGET_COMMIT}" \
+            "${FRAMEWORK_COMMIT}" "${passed}" "${discovered}" >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload Wallet conformance evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: eudi-wallet-conformance-${{ steps.prepare.outputs.target_commit }}-${{ github.run_id }}
+          name: wallet-eu-engineering-identity-conformance-${{ steps.framework.outputs.tag }}-wallet-${{ steps.prepare.outputs.target_version }}-${{ steps.prepare.outputs.target_mode }}-${{ steps.prepare.outputs.target_commit }}-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/eudi-wallet-conformance-result.json
             ${{ runner.temp }}/wallet-conformance-statement.json

@@ -69,3 +69,26 @@ test("invalid and oversized input has a fixed domain error", () => {
       error instanceof ManualEudiWorkflowError && error.code === "invalid_manual_eudi_wallet_workflow");
   }
 });
+
+test("README framework indicator uses successful manual main runs without hard-coded version claims", () => {
+  const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
+  const indicator = /\[!\[Last successful engineering run\]\(([^)]+)\)\]\(([^)]+)\)/u.exec(readme);
+  assert.notEqual(indicator, null);
+  const badge = new URL(indicator[1]);
+  assert.equal(badge.origin, "https://img.shields.io");
+  assert.equal(badge.pathname, "/badge/dynamic/json");
+  const api = new URL(badge.searchParams.get("url"));
+  assert.equal(api.origin, "https://api.github.com");
+  assert.equal(api.pathname, "/repos/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml/runs");
+  assert.deepEqual(Object.fromEntries(api.searchParams), {
+    status: "success", event: "workflow_dispatch", branch: "main", per_page: "1",
+  });
+  assert.equal(badge.searchParams.get("query"), "$.workflow_runs[0].display_title");
+  assert.equal(badge.searchParams.get("label"), "Last successful engineering run");
+  const history = new URL(indicator[2]);
+  assert.equal(history.origin, "https://github.com");
+  assert.equal(history.pathname, "/reallyme/wallet/actions/workflows/eudi-wallet-conformance.yml");
+  assert.equal(history.searchParams.get("query"), "event:workflow_dispatch branch:main is:success");
+  assert.ok(readme.indexOf("[![Wallet EU engineering status]") < indicator.index);
+  assert.doesNotMatch(indicator[0], /v[0-9]+\.[0-9]+\.[0-9]+/u);
+});
