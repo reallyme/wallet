@@ -109,9 +109,12 @@ export const derivePreflightChecks = (value, { runId, releaseSha }) => {
 };
 
 export const buildEudiDeploymentInputs = ({
-  version, releaseSha, bundleHash, cargoLockHash, sourceLocks, checks, createdAt, toolchainVersion,
+  target, bundleHash, cargoLockHash, sourceLocks, checks, createdAt, toolchainVersion,
 }) => {
-  if (typeof version !== "string" || !RELEASE_VERSION.test(version) || !FULL_SHA.test(releaseSha) ||
+  if (!isRecord(target) || !["candidate", "published"].includes(target.mode) ||
+      typeof target.version !== "string" || !RELEASE_VERSION.test(target.version) ||
+      typeof target.commit !== "string" || !FULL_SHA.test(target.commit) ||
+      !positiveInteger(target.preflight_run_id) ||
       typeof toolchainVersion !== "string" || !RELEASE_VERSION.test(toolchainVersion) ||
       toolchainVersion.length > MAX_TOOLCHAIN_VERSION_CHARACTERS ||
       !SHA256.test(bundleHash) || !SHA256.test(cargoLockHash) || !isRecord(sourceLocks) ||
@@ -122,6 +125,15 @@ export const buildEudiDeploymentInputs = ({
       typeof createdAt !== "string" || !Number.isFinite(Date.parse(createdAt))) {
     failEudiEvidence("invalid_deployment_material");
   }
+  const expectedTargetKeys = target.mode === "published"
+    ? ["commit", "mode", "preflight_run_id", "release_id", "release_ref", "version"]
+    : ["commit", "mode", "preflight_run_id", "version"];
+  if (Object.keys(target).sort().join(",") !== expectedTargetKeys.join(",") ||
+      (target.mode === "published" &&
+        (!positiveInteger(target.release_id) ||
+          target.release_ref !== `reallyme-wallet-v${target.version}`))) {
+    failEudiEvidence("invalid_deployment_material");
+  }
   const categories = new Set();
   for (const check of checks) {
     if (!isRecord(check) || !Object.hasOwn(REQUIRED_STEPS, check.category) ||
@@ -130,12 +142,14 @@ export const buildEudiDeploymentInputs = ({
         categories.has(check.category)) failEudiEvidence("invalid_deployment_material");
     categories.add(check.category);
   }
-  const releaseRef = `reallyme-wallet-v${version}`;
   const attestation = {
-    schema: "reallyme.identity.component_attestation.v1", classification: "internal",
-    component: { component_id: "wallet", repository: "https://github.com/reallyme/wallet", source_commit: releaseSha },
-    release: { version, source_ref: releaseRef },
-    artifacts: [{ artifact_id: "wallet-release-bundle", kind: "archive", sha256: bundleHash }],
+    schema: "reallyme.identity.wallet_component_attestation.v2", classification: "internal",
+    component: {
+      component_id: "wallet", repository: "https://github.com/reallyme/wallet",
+      source_commit: target.commit,
+    },
+    target,
+    artifacts: [{ artifact_id: "wallet-package-bundle", kind: "archive", sha256: bundleHash }],
     dependency_lock: { kind: "cargo", sha256: cargoLockHash },
     // The release's two compiler pins were checked against its exact source SHA.
     toolchain: { identifier: "rust", version: toolchainVersion },
@@ -147,12 +161,13 @@ export const buildEudiDeploymentInputs = ({
   };
   const attestationBytes = `${JSON.stringify(attestation, null, 2)}\n`;
   const deployment = {
-    schema: "reallyme.identity.eudi_wallet_deployment_manifest.v1", plan_id: "eudi-wallet-engineering-v1",
+    schema: "reallyme.identity.eudi_wallet_deployment_manifest.v2", plan_id: "eudi-wallet-engineering-v1",
     component: {
       component_id: "wallet", repository: "https://github.com/reallyme/wallet",
-      release_ref: releaseRef, commit: releaseSha,
+      commit: target.commit,
     },
-    release_artifact: { artifact_id: "wallet-release-bundle", kind: "archive", sha256: bundleHash },
+    target,
+    package_bundle: { artifact_id: "wallet-package-bundle", kind: "archive", sha256: bundleHash },
     component_attestation_sha256: sha256(attestationBytes), source_locks: sourceLocks,
     evidence_policy: {
       contains_sensitive_data: false, raw_process_output_retained: false,

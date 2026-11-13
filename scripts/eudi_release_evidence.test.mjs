@@ -82,7 +82,10 @@ test("registry name, version, checksum and non-yanked state must all match", () 
 });
 
 const material = () => ({
-  version: "0.1.0", releaseSha: identity.releaseSha, bundleHash: "b".repeat(64), cargoLockHash: "c".repeat(64),
+  target: {
+    mode: "candidate", version: "0.1.0", commit: identity.releaseSha, preflight_run_id: identity.runId,
+  },
+  bundleHash: "b".repeat(64), cargoLockHash: "c".repeat(64),
   toolchainVersion: "1.99.0",
   sourceLocks: { eudi_sources_sha256: "d".repeat(64), eudi_legal_sources_sha256: "e".repeat(64), eudi_publications_sha256: "f".repeat(64) },
   checks: derivePreflightChecks(jobs(), identity).checks, createdAt: "2026-11-12T00:00:00.000Z",
@@ -130,30 +133,52 @@ test("manifest and component attestation bind the same exact candidate and bytes
   assert.equal(deployment.component.commit, attestation.component.source_commit);
   assert.deepEqual(deployment.component, {
     component_id: "wallet", repository: "https://github.com/reallyme/wallet",
-    release_ref: "reallyme-wallet-v0.1.0", commit: identity.releaseSha,
+    commit: identity.releaseSha,
   });
-  assert.equal(deployment.component.release_ref, attestation.release.source_ref);
-  assert.equal(deployment.release_artifact.sha256, attestation.artifacts[0].sha256);
-  assert.equal(attestation.release.source_ref, "reallyme-wallet-v0.1.0");
+  assert.deepEqual(deployment.target, input.target);
+  assert.deepEqual(attestation.target, input.target);
+  assert.equal(deployment.package_bundle.sha256, attestation.artifacts[0].sha256);
+  assert.equal(deployment.package_bundle.artifact_id, "wallet-package-bundle");
   assert.deepEqual(attestation.checks, input.checks);
   assert.deepEqual(deployment.source_locks, input.sourceLocks);
 });
 
-test("release references follow the exact candidate version across release increments", () => {
+test("candidate versions remain publication-neutral across release increments", () => {
   for (const version of ["0.1.1", "0.1.2", "1.0.0", "12.34.56"]) {
-    const input = { ...material(), version };
+    const base = material();
+    const input = { ...base, target: { ...base.target, version } };
     const { deploymentBytes, attestationBytes } = buildEudiDeploymentInputs(input);
     const deployment = JSON.parse(deploymentBytes);
     const attestation = JSON.parse(attestationBytes);
-    assert.equal(deployment.component.release_ref, `reallyme-wallet-v${version}`);
-    assert.equal(deployment.component.release_ref, attestation.release.source_ref);
-    assert.equal(deployment.component.commit, input.releaseSha);
+    assert.equal(deployment.target.version, version);
+    assert.equal(deployment.target.mode, "candidate");
+    assert.equal(Object.hasOwn(deployment.target, "release_ref"), false);
+    assert.deepEqual(deployment.target, attestation.target);
+  }
+});
+
+test("published targets require the exact release identity", () => {
+  const base = material();
+  const target = {
+    ...base.target, mode: "published", release_id: 17, release_ref: "reallyme-wallet-v0.1.0",
+  };
+  const { deploymentBytes, attestationBytes } = buildEudiDeploymentInputs({ ...base, target });
+  assert.deepEqual(JSON.parse(deploymentBytes).target, target);
+  assert.deepEqual(JSON.parse(attestationBytes).target, target);
+  for (const invalid of [
+    { ...target, release_id: 0 },
+    { ...target, release_ref: "reallyme-wallet-v0.1.1" },
+    { ...target, extra: true },
+  ]) {
+    assert.throws(() => buildEudiDeploymentInputs({ ...base, target: invalid }), EudiReleaseEvidenceError);
   }
 });
 
 test("noncanonical or non-release versions cannot become deployment references", () => {
   for (const version of [null, 1, "main", "00.1.0", "0.01.0", "0.1.00", "0.1.2-rc.1"]) {
-    assert.throws(() => buildEudiDeploymentInputs({ ...material(), version }), {
+    const input = material();
+    input.target.version = version;
+    assert.throws(() => buildEudiDeploymentInputs(input), {
       name: "EudiReleaseEvidenceError", code: "invalid_deployment_material",
     });
   }

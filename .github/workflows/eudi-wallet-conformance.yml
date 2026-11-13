@@ -6,6 +6,15 @@ name: EUDI Wallet Conformance
 
 on:
   workflow_dispatch:
+    inputs:
+      target_mode:
+        description: Test the latest commit candidate or the latest published release
+        required: true
+        default: candidate
+        type: choice
+        options:
+          - candidate
+          - published
 
 permissions:
   actions: read
@@ -17,6 +26,13 @@ jobs:
     if: github.repository == 'reallyme/wallet' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-26.04
     timeout-minutes: 30
+    outputs:
+      preflight_run_id: ${{ steps.prepare.outputs.preflight_run_id }}
+      release_id: ${{ steps.prepare.outputs.release_id }}
+      release_ref: ${{ steps.prepare.outputs.release_ref }}
+      target_commit: ${{ steps.prepare.outputs.target_commit }}
+      target_mode: ${{ steps.prepare.outputs.target_mode }}
+      target_version: ${{ steps.prepare.outputs.target_version }}
     steps:
       - name: Checkout Wallet workflow implementation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -29,7 +45,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: reallyme/identity-conformance
-          ref: a5757aff326475e6d9aaad1b08cb62f47fc3a417
+          ref: 62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0
           path: identity-conformance
           persist-credentials: false
 
@@ -43,10 +59,13 @@ jobs:
         with:
           python-version: "3.15.2"
 
-      - name: Verify published release and prepare caller inputs
+      - name: Resolve immutable target and prepare caller inputs
+        id: prepare
         env:
           GH_TOKEN: ${{ github.token }}
-          FRAMEWORK_COMMIT: a5757aff326475e6d9aaad1b08cb62f47fc3a417
+          FRAMEWORK_COMMIT: 62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0
+          TARGET_MODE: ${{ inputs.target_mode }}
+          EUDI_WRITE_GITHUB_OUTPUT: '1'
           EUDI_FRAMEWORK_PATH: ${{ github.workspace }}/identity-conformance
           EUDI_INPUT_DIRECTORY: ${{ runner.temp }}/eudi-wallet-conformance-inputs
         working-directory: wallet
@@ -62,7 +81,14 @@ jobs:
 
   eudi-wallet-conformance:
     needs: release-inputs
-    uses: reallyme/identity-conformance/.github/workflows/eudi-wallet-conformance.yml@a5757aff326475e6d9aaad1b08cb62f47fc3a417
+    uses: reallyme/identity-conformance/.github/workflows/eudi-wallet-conformance.yml@62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0
     with:
-      framework_commit: a5757aff326475e6d9aaad1b08cb62f47fc3a417
+      framework_commit: 62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0
+      conformance_profile: eudi-wallet-engineering-v1
+      target_mode: ${{ needs.release-inputs.outputs.target_mode }}
+      target_commit: ${{ needs.release-inputs.outputs.target_commit }}
+      target_version: ${{ needs.release-inputs.outputs.target_version }}
+      preflight_run_id: ${{ needs.release-inputs.outputs.preflight_run_id }}
       candidate_artifact_name: wallet-eudi-candidate-${{ github.run_id }}
+      release_id: ${{ needs.release-inputs.outputs.release_id }}
+      release_ref: ${{ needs.release-inputs.outputs.release_ref }}

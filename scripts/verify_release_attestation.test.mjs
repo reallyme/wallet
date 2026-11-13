@@ -113,6 +113,25 @@ test("attestation rejects missing or substituted approved crate evidence", () =>
   }
 });
 
+test("historical package policy is explicit and remains strictly validated", () => {
+  const releaseVersion = "0.1.1";
+  const packageNames = policy.authorized_public_packages.slice(0, 2).sort();
+  const historical = attestation({
+    version: releaseVersion,
+    crates: packageNames.map((name) => ({
+      file: `${name}-${releaseVersion}.crate`, sha256: "b".repeat(64), size: 1,
+    })),
+  });
+  const historicalExpected = { ...expected, releaseVersion, packageNames };
+  assert.doesNotThrow(() => verifyAttestationDocument(historical, historicalExpected));
+  for (const invalid of [[], [packageNames[0], packageNames[0]], ["foreign-package"]]) {
+    assert.throws(
+      () => verifyAttestationDocument(historical, { ...historicalExpected, packageNames: invalid }),
+      ReleaseAttestationError,
+    );
+  }
+});
+
 test("reviewed crate bytes must match both size and digest", () => {
   const directory = mkdtempSync(join(tmpdir(), "wallet-attestation-"));
   try {

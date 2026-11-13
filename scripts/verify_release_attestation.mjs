@@ -13,6 +13,7 @@ const FULL_SHA_PATTERN = /^[0-9a-f]{40}$/u;
 const POSITIVE_INTEGER_PATTERN = /^[1-9][0-9]*$/u;
 const NON_NEGATIVE_INTEGER_PATTERN = /^(?:0|[1-9][0-9]*)$/u;
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
+const PUBLIC_PACKAGE_PATTERN = /^reallyme-wallet(?:-[a-z0-9][a-z0-9-]{0,63})?$/u;
 const VERSION_PATTERN = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/u;
 const PREFLIGHT_WORKFLOW = "crates-package-preflight.yml";
 const PREFLIGHT_PATH = `.github/workflows/${PREFLIGHT_WORKFLOW}`;
@@ -143,6 +144,14 @@ export const verifyAttestationDocument = (value, expected) => {
   if (keys.length !== ATTESTATION_KEYS.length || keys.some((key, index) => key !== ATTESTATION_KEYS[index])) {
     fail("invalid-attestation-document");
   }
+  const packageNames = expected.packageNames === undefined
+    ? [...expectedPackages]
+    : expected.packageNames;
+  if (!Array.isArray(packageNames) || packageNames.length === 0 || packageNames.length > 128 ||
+      packageNames.some((name) => typeof name !== "string" || !PUBLIC_PACKAGE_PATTERN.test(name)) ||
+      new Set(packageNames).size !== packageNames.length) {
+    fail("invalid-expected-package-set");
+  }
   if (
     value.schema !== ATTESTATION_SCHEMA ||
     value.repository !== expected.repository ||
@@ -151,11 +160,11 @@ export const verifyAttestationDocument = (value, expected) => {
     value.run_attempt !== 1 ||
     value.release_sha !== expected.releaseSha ||
     value.version !== expected.releaseVersion ||
-    value.version !== policy.release_version
+    (expected.packageNames === undefined && value.version !== policy.release_version)
   ) {
     fail("attestation-input-mismatch");
   }
-  if (!Array.isArray(value.crates) || value.crates.length !== expectedPackages.size) {
+  if (!Array.isArray(value.crates) || value.crates.length !== packageNames.length) {
     fail("invalid-crate-attestation");
   }
   if (
@@ -166,7 +175,7 @@ export const verifyAttestationDocument = (value, expected) => {
   ) {
     fail("invalid-prerequisite-attestation");
   }
-  const expectedFiles = [...expectedPackages]
+  const expectedFiles = [...packageNames]
     .map((name) => `${name}-${expected.releaseVersion}.crate`)
     .sort();
   for (const [index, crate] of value.crates.entries()) {
