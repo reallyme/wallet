@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: reallyme/identity-conformance
-          ref: 62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0
+          ref: 97974ea1ca9b7144bc19fa9337a089118db72924
           path: identity-conformance
           persist-credentials: false
 
@@ -63,7 +63,7 @@ jobs:
         id: prepare
         env:
           GH_TOKEN: ${{ github.token }}
-          FRAMEWORK_COMMIT: 62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0
+          FRAMEWORK_COMMIT: 97974ea1ca9b7144bc19fa9337a089118db72924
           TARGET_MODE: ${{ inputs.target_mode }}
           EUDI_WRITE_GITHUB_OUTPUT: '1'
           EUDI_FRAMEWORK_PATH: ${{ github.workspace }}/identity-conformance
@@ -81,9 +81,9 @@ jobs:
 
   eudi-wallet-conformance:
     needs: release-inputs
-    uses: reallyme/identity-conformance/.github/workflows/eudi-wallet-conformance.yml@62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0
+    uses: reallyme/identity-conformance/.github/workflows/eudi-wallet-conformance.yml@97974ea1ca9b7144bc19fa9337a089118db72924
     with:
-      framework_commit: 62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0
+      framework_commit: 97974ea1ca9b7144bc19fa9337a089118db72924
       conformance_profile: eudi-wallet-engineering-v1
       target_mode: ${{ needs.release-inputs.outputs.target_mode }}
       target_commit: ${{ needs.release-inputs.outputs.target_commit }}

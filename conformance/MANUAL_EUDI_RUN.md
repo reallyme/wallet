@@ -6,9 +6,9 @@ GitHub-hosted Linux runners. It requires no separate machine, deployment
 secret, preinstalled release files, or crates.io publishing token. Release
 preparation and framework execution both use Ubuntu 26.04.
 
-The workflow pins Identity Conformance 0.3.1's reusable workflow and checkout
+The workflow pins Identity Conformance 0.3.2's reusable workflow and checkout
 to the same published release commit,
-[`62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0`](https://github.com/reallyme/identity-conformance/tree/62fa4f6da9b34554e3ac0d2c1544b845c5bd6fc0).
+[`97974ea1ca9b7144bc19fa9337a089118db72924`](https://github.com/reallyme/identity-conformance/tree/97974ea1ca9b7144bc19fa9337a089118db72924).
 Wallet owns its product candidate and release provenance;
 Identity Conformance owns the engineering plan, upstream standards inputs,
 execution, and result validation.
