@@ -6,8 +6,8 @@
 import { createHash } from "node:crypto";
 
 export const MANUAL_EUDI_WORKFLOW_PATH = ".github/workflows/eudi-wallet-conformance.yml";
-const MAX_WORKFLOW_CHARACTERS = 16_384;
-const REVIEWED_WORKFLOW_SHA256 = "c72ecbc5fb09d16f887467148a721f4bbfa3c8220366ad96929b5282adf681d4";
+const MAX_WORKFLOW_CHARACTERS = 32_768;
+const REVIEWED_WORKFLOW_SHA256 = "2267f23463ce26e0d8d5f0956ecd4cc17ddd44f66e06d15e9ac309f7a3040b38";
 
 export class ManualEudiWorkflowError extends Error {
   constructor() {
@@ -26,12 +26,12 @@ export const verifyManualEudiWorkflow = (source) => {
     .filter((line) => line.trim().length !== 0 && !/^\s*#/u.test(line))
     .map((line) => line.replace(/\s+#.*$/u, "").trimEnd())
     .join("\n");
-  const reference = /^    uses: reallyme\/identity-conformance\/\.github\/workflows\/eudi-wallet-conformance\.yml@([0-9a-f]{40})$/mu.exec(executable);
+  const reference = /^        default: (v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*))$/mu.exec(executable);
   if (reference === null) throw new ManualEudiWorkflowError();
   // A whole-workflow contract rejects unreviewed triggers, duplicate YAML keys,
   // extra jobs, secrets and command edits. Actionlint validates the YAML and the
-  // reusable input contract separately. Pin changes require explicit review.
+  // runtime bootstrap separately authenticates the explicitly selected release.
   const digest = createHash("sha256").update(executable).digest("hex");
   if (digest !== REVIEWED_WORKFLOW_SHA256) throw new ManualEudiWorkflowError();
-  return { frameworkCommit: reference[1] };
+  return { frameworkRelease: reference[1] };
 };

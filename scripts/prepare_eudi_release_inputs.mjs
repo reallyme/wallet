@@ -10,7 +10,7 @@ import {
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  verifyAttestationDocument, verifyAttestedCrateArchives, verifyReleaseAttestation, verifyWorkflowRun,
+  verifyAttestationDocument, verifyAttestedCrateArchives, verifyWorkflowRun,
 } from "./verify_release_attestation.mjs";
 import { verifyReleaseTag } from "./verify_release_tag.mjs";
 import {
@@ -28,7 +28,6 @@ const COMMAND_TIMEOUT_MS = 120_000;
 const FULL_SHA = /^[0-9a-f]{40}$/u;
 const VERSION = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/u;
 const PACKAGE_NAME = /^reallyme-wallet(?:-[a-z0-9][a-z0-9-]{0,63})?$/u;
-const POLICY = JSON.parse(readFileSync(new URL("../conformance/features/wallet-package-policy-v1.json", import.meta.url), "utf8"));
 
 const command = (program, args, env = process.env) => {
   const result = spawnSync(program, args, {
@@ -119,25 +118,38 @@ export const prepareEudiReleaseInputs = async ({ env = process.env } = {}) => {
     let target;
     let packageNames;
     if (targetMode === "candidate") {
-      const releaseSha = env.GITHUB_SHA;
-      const version = POLICY.release_version;
-      if (!FULL_SHA.test(releaseSha ?? "") || !VERSION.test(version)) {
+      const releaseSha = env.EUDI_TARGET_COMMIT;
+      if (typeof releaseSha !== "string" || !FULL_SHA.test(releaseSha) || env.EUDI_WALLET_RELEASE) {
         failEudiEvidence("invalid_candidate_identity");
       }
-      const resolved = verifyReleaseAttestation({ env: {
-        ...env, GITHUB_SHA: releaseSha, RELEASE_SHA: releaseSha, RELEASE_VERSION: version,
-        RELEASE_ATTESTATION_RESOLVE_ONLY: "1", RELEASE_ATTESTATION_WAIT_SECONDS: "0",
-      } });
-      const runId = resolved.runId;
+      // A retest may select an older main commit. Its package policy, not the
+      // dispatcher's current policy, defines the version and package inventory.
+      const targetPolicyBytes = releaseSourceBytes(
+        "conformance/features/wallet-package-policy-v1.json", releaseSha, MAX_POLICY_SOURCE_BYTES,
+      );
+      const targetPolicy = decodeJson(targetPolicyBytes.toString("utf8"));
+      const version = isRecord(targetPolicy) ? targetPolicy.release_version : undefined;
+      if (typeof version !== "string" || !VERSION.test(version)) failEudiEvidence("invalid_candidate_identity");
+      packageNames = parseTargetPolicy(targetPolicyBytes, version);
+      if (typeof env.PREFLIGHT_RUN_ID !== "string" || !/^[1-9][0-9]*$/u.test(env.PREFLIGHT_RUN_ID) ||
+          !Number.isSafeInteger(Number(env.PREFLIGHT_RUN_ID))) {
+        failEudiEvidence("invalid_candidate_preflight");
+      }
+      const runId = Number(env.PREFLIGHT_RUN_ID);
       command("gh", ["run", "download", String(runId), "--repo", REPOSITORY,
         "--name", `reallyme-wallet-crates-preflight-${version}-${releaseSha}`, "--dir", scratch]);
       command("gh", ["run", "download", String(runId), "--repo", REPOSITORY,
         "--name", `reallyme-wallet-crate-archives-${version}-${releaseSha}`, "--dir", scratch]);
       target = { mode: "candidate", version, commit: releaseSha, preflight_run_id: runId };
-      packageNames = [...POLICY.authorized_public_packages].sort();
     } else {
-      const release = github(`repos/${REPOSITORY}/releases/latest`);
+      if (env.EUDI_TARGET_COMMIT || env.PREFLIGHT_RUN_ID) failEudiEvidence("published_target_override");
+      if (typeof env.EUDI_WALLET_RELEASE !== "string" ||
+          !/^reallyme-wallet-v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/u.test(env.EUDI_WALLET_RELEASE)) {
+        failEudiEvidence("invalid_published_release_selection");
+      }
+      const release = github(`repos/${REPOSITORY}/releases/tags/${env.EUDI_WALLET_RELEASE}`);
       const { releaseId, releaseRef, version } = parseReleaseVersion(release);
+      if (releaseRef !== env.EUDI_WALLET_RELEASE) failEudiEvidence("published_release_selection_mismatch");
       command("gh", ["release", "download", releaseRef, "--repo", REPOSITORY,
         "--dir", scratch, "--pattern", "crates-preflight.json", "--pattern", "*.crate"]);
       const preliminaryManifest = decodeJson(
@@ -173,9 +185,10 @@ export const prepareEudiReleaseInputs = async ({ env = process.env } = {}) => {
       workflowId: workflow.id, runId: target.preflight_run_id, releaseSha: target.commit,
     });
     if (target.mode === "candidate") {
-      const mainRef = github(`repos/${REPOSITORY}/git/ref/heads/main`);
-      if (!isRecord(mainRef) || !isRecord(mainRef.object) || mainRef.object.sha !== target.commit) {
-        failEudiEvidence("candidate_is_not_current_main");
+      const ancestry = github(`repos/${REPOSITORY}/compare/${target.commit}...main`);
+      if (!isRecord(ancestry) || !["ahead", "identical"].includes(ancestry.status) ||
+          !isRecord(ancestry.merge_base_commit) || ancestry.merge_base_commit.sha !== target.commit) {
+        failEudiEvidence("candidate_is_not_main_ancestor");
       }
     }
     const expectedFiles = [...manifest.crates.map((item) => item.file), "crates-preflight.json"].sort();

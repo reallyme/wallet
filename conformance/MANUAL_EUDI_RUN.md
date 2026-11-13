@@ -6,9 +6,12 @@ GitHub-hosted Linux runners. It requires no separate machine, deployment
 secret, preinstalled release files, or crates.io publishing token. Release
 preparation and framework execution both use Ubuntu 26.04.
 
-The workflow pins Identity Conformance 0.3.2's reusable workflow and checkout
-to the same published release commit,
-[`97974ea1ca9b7144bc19fa9337a089118db72924`](https://github.com/reallyme/identity-conformance/tree/97974ea1ca9b7144bc19fa9337a089118db72924).
+The workflow accepts an explicitly selected published Identity Conformance
+release. Its menu defaults to `v0.3.3` and lists recent releases with the required
+CLI contract (`v0.3.1` through `v0.3.3`); an optional
+release-tag override selects another version without a Wallet commit. GitHub
+Actions cannot populate a dispatch dropdown from live release data, so the menu
+is a snapshot. The override is validated against the live published release.
 Wallet owns its product candidate and release provenance;
 Identity Conformance owns the engineering plan, upstream standards inputs,
 execution, and result validation.
@@ -16,19 +19,42 @@ execution, and result validation.
 ## Run
 
 In GitHub Actions, select **EUDI Wallet Conformance**, choose **Run workflow**,
-and select `main`. Choose `candidate` (the default) to test the dispatch commit,
-or `published` to test the latest published Wallet release. The workflow runs
+and select `main`. Select the framework release, or enter its exact `vX.Y.Z`
+tag in **framework_release_override**. For `candidate` (the default), enter the
+full Wallet SHA in **target_commit** and its exact retained signed package
+preflight in **preflight_run_id**. These inputs are required for candidate runs;
+the dispatcher never silently selects a source revision or evidence run.
+For `published`, enter the exact `reallyme-wallet-vX.Y.Z` tag in **wallet_release**;
+candidate commit and preflight inputs must then be blank. The workflow runs
 only on manual dispatch in `reallyme/wallet`
 from `main`. It is not triggered by pushes, pull requests, schedules, workflow
 completion, or publication, and it is not an ordinary source-CI prerequisite.
 
-Candidate mode uses the dispatch commit and its approved package-policy version,
-with a successful package preflight for that exact commit. Published mode resolves
-the latest release's immutable tag, version and signed package preflight. That
+Candidate mode reads the selected commit's approved package policy and proves
+that the commit is on main's history. It requires a successful first-attempt
+package preflight for that exact commit. Retests reuse its signed package archives;
+they do not build, publish, or upload a new package set. Expired Actions artifacts
+must be restored by a fresh legitimate preflight; no substitute evidence is accepted.
+Published mode resolves
+the selected release's exact tag, version and signed package preflight. That
 release commit may differ from the workflow's commit. Candidate evidence does not
 claim that the packages have been published.
 
-## Verified release preparation
+## Framework authentication
+
+Wallet resolves the selected release to its full commit using GitHub's release
+and tag records. Before executing framework code, its own bootstrap verifies the
+published manifest's SHA-256 from GitHub asset metadata, exact version and commit,
+canonical input ordering, bounded regular files, every listed input digest, and
+the aggregate input digest. Links and path traversal are rejected. The selected
+framework then independently rebuilds and verifies its complete release manifest.
+Missing, draft, prerelease, substituted, or incompatible releases fail closed.
+The bootstrap requires every framework entry point before executing any of them.
+Older releases may reject newer Wallet evidence; selection does not imply
+compatibility with every historical target. Releases before `v0.3.1` lack the
+required CLI contract and are not advertised as menu choices.
+
+## Verified package preparation
 
 The preparation job:
 
@@ -59,15 +85,18 @@ when a newer workflow prepares their evidence. Its check-evidence
 hashes refer to records inside the bundle. Raw process output, credentials, and
 private deployment information are not collected.
 
-Wallet uploads exactly three files as a one-day Actions artifact:
-`deployment.json`, `wallet-release`, and `wallet-attestation.json`.
+Wallet materializes exactly three files in the same job:
+`deployment.json`, `wallet-release`, and `wallet-attestation.json`. There is no
+intermediate upload or cross-run substitution of these derived inputs.
 
 ## Framework execution and results
 
-After preparation succeeds, the pinned reusable framework workflow downloads
-that artifact from the same workflow run. It validates the three-file contract,
-checks out the exact manifest-selected Wallet source, executes
-`reallyme-wallet-conformance`, and validates the result before upload.
+After preparation succeeds, the dispatcher checks out the exact manifest-selected
+Wallet source and invokes the selected framework's code tests, independent probes,
+result validator, package-preflight verifier, and statement builder. It revalidates
+every package signature and, in published mode, the release assets and registry
+checksums before uploading a passing statement. Framework domain checks remain in
+Identity Conformance; Wallet owns target selection and GitHub orchestration.
 
 The result binds the framework version and revision, workflow revision, candidate
 digest, artifact and attestation hashes, source locks, normative ledger digests,
@@ -75,8 +104,10 @@ checks, and plan assertions. The plan independently checks the exclusive
 Wallet Unit Attestation lifetime bound and the Wallet Provider's three
 unregistered-attribute policy choices.
 The result artifact is retained for seven days. Inspect its component identity
-to determine which release was tested; its filename also includes the workflow
-commit and run ID. Treat the result as internal engineering evidence.
+to determine which release was tested; its filename includes the target commit
+and run ID. The dispatcher commit is recorded as `workflow_revision`, separately
+from the target Wallet commit and framework revision. Treat the result as
+internal engineering evidence.
 
 This lane does not execute the complete external EUDI device/testbed suites or
 establish EU or OpenID Foundation certification. Those composed and external
@@ -86,12 +117,12 @@ assessments retain their own plans and accepted execution evidence.
 
 `node --test scripts/*.test.mjs` checks the release-input preparation and the
 manual-workflow contract. Negative cases cover automatic triggers, mutable or
-mismatched pins, write permissions, extra jobs, secret injection, skipped
+mismatched releases, write permissions, extra jobs, secret injection, skipped
 preparation, tampered archives, invalid signatures, wrong candidates, yanked
 versions, and substituted registry checksums or CI results.
 
 `node scripts/check_ci_lane_ownership.mjs` keeps automatic source CI independent
-of Identity Conformance. Actionlint checks the caller and pinned reusable
-workflow together. A local execution must use the exact selected candidate or
+of Identity Conformance. Actionlint checks the dispatcher. A local execution must
+use the exact selected candidate or
 published source and its cryptographically verified package evidence; synthetic fixtures are test inputs,
 not qualification evidence.

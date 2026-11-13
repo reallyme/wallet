@@ -16,7 +16,8 @@ const policy = JSON.parse(readFileSync(new URL("../conformance/features/wallet-p
 const sha = "a".repeat(40);
 const frameworkSha = "b".repeat(40);
 
-const fixture = (scenario = "success", targetMode = "published") => {
+const fixture = (scenario = "success", targetMode = "published", overrides = {}) => {
+  const targetPolicy = { ...policy, release_version: scenario === "historical-candidate" ? "0.1.1" : policy.release_version };
   const root = mkdtempSync(join(tmpdir(), "wallet-eudi-input-test-"));
   try {
     const framework = join(root, "framework");
@@ -27,11 +28,11 @@ const fixture = (scenario = "success", targetMode = "published") => {
     }
     const archives = policy.authorized_public_packages.map((name) => {
       const bytes = Buffer.from(`fixture archive:${name}`);
-      return { file: `${name}-${policy.release_version}.crate`, size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
+      return { file: `${name}-${targetPolicy.release_version}.crate`, size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
     }).sort((a, b) => a.file.localeCompare(b.file));
     const manifest = { schema: "reallyme.wallet.crates_preflight.v3", crates: archives,
       prerequisites: { fuzz: 1, protobuf_ci: 2, rust_ci: 3 }, repository: "reallyme/wallet",
-      workflow: "crates-package-preflight.yml", run_id: 42, run_attempt: 1, release_sha: sha, version: policy.release_version };
+      workflow: "crates-package-preflight.yml", run_id: 42, run_attempt: 1, release_sha: sha, version: targetPolicy.release_version };
     const toolchainSource = readFileSync(new URL("../rust-toolchain.toml", import.meta.url), "utf8");
     const preflightSource = readFileSync(new URL("../.github/workflows/crates-package-preflight.yml", import.meta.url), "utf8");
     const calls = join(root, "calls.json");
@@ -48,7 +49,7 @@ const sha = ${JSON.stringify(sha)};
 const framework = ${JSON.stringify(frameworkSha)};
 const toolchainSource = ${JSON.stringify(toolchainSource)};
 const preflightSource = ${JSON.stringify(preflightSource)};
-const policySource = ${JSON.stringify(JSON.stringify(policy))};
+const policySource = ${JSON.stringify(JSON.stringify(targetPolicy))};
 const calls = [];
 const ok = {status:0,stdout:"",stderr:""};
 const answer = (value) => ({...ok,stdout:JSON.stringify(value)});
@@ -76,7 +77,7 @@ cp.spawnSync = (program,args,options) => {
     const requestedName=args[args.indexOf("--name")+1];
     if(args[0] === "release" || requestedName?.startsWith("reallyme-wallet-crate-archives-")) {
       for(const item of manifest.crates) {
-        const name=item.file.slice(0,-"-${policy.release_version}.crate".length);
+        const name=item.file.slice(0,-"-${targetPolicy.release_version}.crate".length);
         writeFileSync(join(directory,item.file),scenario === "tampered-archive" ? "tampered" : "fixture archive:"+name);
       }
     }
@@ -86,11 +87,12 @@ cp.spawnSync = (program,args,options) => {
     return ok;
   }
   const endpoint=args[1];
-  if(endpoint.includes("releases/latest")) return answer({id:1,tag_name:"reallyme-wallet-v${policy.release_version}",draft:scenario==="draft-release",prerelease:false});
-  if(endpoint.includes("actions/workflows/") && endpoint.includes("/runs?")) return answer({workflow_runs:[{id:42,workflow_id:5,display_title:"Crates package preflight ${policy.release_version} @ "+sha,event:"workflow_dispatch",head_branch:"main",head_sha:sha,path:".github/workflows/crates-package-preflight.yml",status:"completed",conclusion:"success",run_attempt:1}]});
+  if(endpoint.includes("releases/tags/")) return answer({id:1,tag_name:"reallyme-wallet-v${targetPolicy.release_version}",draft:scenario==="draft-release",prerelease:false});
+  if(endpoint.includes("actions/workflows/") && endpoint.includes("/runs?")) return answer({workflow_runs:[{id:42,workflow_id:5,display_title:"Crates package preflight ${targetPolicy.release_version} @ "+sha,event:"workflow_dispatch",head_branch:"main",head_sha:sha,path:".github/workflows/crates-package-preflight.yml",status:"completed",conclusion:"success",run_attempt:1}]});
   if(endpoint.includes("actions/workflows")) return answer({id:5});
   if(endpoint.includes("/jobs?")) return answer({total_count:1,jobs:[{id:9,run_id:42,run_attempt:1,head_sha:sha,name:"Review crates.io packages",status:"completed",conclusion:"success",steps:["Check formatting","Clippy","Test all features","Check protobuf boundaries and generated source","Check dependency policy","Security advisory audit","Inspect normalized crate tarballs and dry-run publication","Check Identity Wasm participant lane"].map((name,index)=>({name,number:index+1,status:"completed",conclusion:scenario==="failed-step" && index===0 ? "failure":"success"}))}]});
   if(endpoint.includes("actions/runs")) return answer({id:42,workflow_id:5,event:"workflow_dispatch",head_branch:"main",head_sha:scenario==="wrong-preflight-commit" ? "f".repeat(40):sha,status:"completed",conclusion:"success",run_attempt:1,path:".github/workflows/crates-package-preflight.yml"});
+  if(endpoint.includes("/compare/")) return answer({status:scenario === "non-main-candidate" ? "diverged" : "ahead",merge_base_commit:{sha:scenario === "wrong-ancestor" ? "f".repeat(40):sha}});
   if(endpoint.includes("git/ref/heads/main")) return answer({object:{sha}});
   if(endpoint.includes("contents/conformance/features/wallet-package-policy-v1.json")) return answer({encoding:"base64",content:Buffer.from(policySource).toString("base64"),size:Buffer.byteLength(policySource)});
   if(endpoint.includes("contents/rust-toolchain.toml")) {
@@ -112,10 +114,10 @@ cp.spawnSync = (program,args,options) => {
 globalThis.fetch = async (url) => {
   if(targetMode === "candidate") throw new Error("candidate mode performed a publication lookup");
   const target=String(url);
-  if(target.startsWith("https://api.github.com/")) return new Response(JSON.stringify({ref:"refs/tags/reallyme-wallet-v${policy.release_version}",object:{type:"commit",sha:scenario==="wrong-tag" ? "f".repeat(40):sha}}));
+  if(target.startsWith("https://api.github.com/")) return new Response(JSON.stringify({ref:"refs/tags/reallyme-wallet-v${targetPolicy.release_version}",object:{type:"commit",sha:scenario==="wrong-tag" ? "f".repeat(40):sha}}));
   const name=target.split("/").at(-2);
-  const archive=manifest.crates.find(item=>item.file===name+"-${policy.release_version}.crate");
-  return new Response(JSON.stringify({version:{crate:name,num:"${policy.release_version}",yanked:scenario==="yanked",checksum:scenario==="registry-mismatch" ? "0".repeat(64):archive.sha256}}));
+  const archive=manifest.crates.find(item=>item.file===name+"-${targetPolicy.release_version}.crate");
+  return new Response(JSON.stringify({version:{crate:name,num:"${targetPolicy.release_version}",yanked:scenario==="yanked",checksum:scenario==="registry-mismatch" ? "0".repeat(64):archive.sha256}}));
 };
 syncBuiltinESMExports();
 `);
@@ -124,8 +126,11 @@ syncBuiltinESMExports();
     const completed = spawnSync(process.execPath, ["--import", pathToFileURL(preload).href, script], {
       encoding: "utf8", timeout: 15_000, env: { ...process.env,
         GITHUB_REPOSITORY: "reallyme/wallet", GH_TOKEN: "fixture-only-not-a-credential",
-        GITHUB_SHA: sha, TARGET_MODE: targetMode, EUDI_WRITE_GITHUB_OUTPUT: "1", GITHUB_OUTPUT: githubOutput,
-        RUNNER_TEMP: root, FRAMEWORK_COMMIT: frameworkSha, EUDI_FRAMEWORK_PATH: framework, EUDI_INPUT_DIRECTORY: output,
+        GITHUB_SHA: sha, TARGET_MODE: targetMode,
+        EUDI_TARGET_COMMIT: targetMode === "candidate" ? sha : "",
+        PREFLIGHT_RUN_ID: targetMode === "candidate" ? "42" : "",
+        EUDI_WALLET_RELEASE: targetMode === "published" ? `reallyme-wallet-v${targetPolicy.release_version}` : "", EUDI_WRITE_GITHUB_OUTPUT: "1", GITHUB_OUTPUT: githubOutput,
+        RUNNER_TEMP: root, FRAMEWORK_COMMIT: frameworkSha, EUDI_FRAMEWORK_PATH: framework, EUDI_INPUT_DIRECTORY: output, ...overrides,
       },
     });
     assert.equal(completed.error, undefined);
@@ -198,6 +203,59 @@ test("candidate mode consumes only the exact current commit preflight", () => {
   assert.equal(result.calls.some((call) => call[0] === "gh" && call[1] === "release"), false);
   assert.equal(result.calls.filter((call) => call[0] === "gh" && call[1] === "run").length, 2);
   assert.equal(result.calls.filter((call) => call[0] === "gh" && call[1] === "attestation").length, 18);
+});
+
+test("historical candidate retests reuse the selected signed preflight and target package version", () => {
+  const result = fixture("historical-candidate", "candidate", {
+    GITHUB_SHA: "f".repeat(40), EUDI_TARGET_COMMIT: sha, PREFLIGHT_RUN_ID: "42",
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(result.deployment.target, { mode: "candidate", version: "0.1.1", commit: sha, preflight_run_id: 42 });
+  assert.ok(result.calls.some((call) => call[2] === `repos/reallyme/wallet/compare/${sha}...main`));
+  assert.ok(result.calls.some((call) => call[2] === `repos/reallyme/wallet/contents/conformance/features/wallet-package-policy-v1.json?ref=${sha}`));
+  assert.equal(result.calls.some((call) => call[2]?.includes("/runs?")), false);
+});
+
+for (const scenario of ["non-main-candidate", "wrong-ancestor"]) {
+  test(`${scenario} is refused despite a successful preflight`, () => {
+    const result = fixture(scenario, "candidate", { EUDI_TARGET_COMMIT: sha, PREFLIGHT_RUN_ID: "42" });
+    assert.equal(result.status, 1);
+    assert.equal(result.deployment, undefined);
+    assert.match(result.stderr, /candidate_is_not_main_ancestor/u);
+  });
+}
+
+for (const preflight of ["0", "-1", "4\n2", "9007199254740992", "43"]) {
+  test(`candidate rejects invalid or substituted explicit preflight ${JSON.stringify(preflight)}`, () => {
+    const result = fixture("success", "candidate", { PREFLIGHT_RUN_ID: preflight });
+    assert.equal(result.status, 1);
+    assert.equal(result.deployment, undefined);
+  });
+}
+
+test("published mode refuses candidate overrides", () => {
+  for (const overrides of [{ EUDI_TARGET_COMMIT: sha }, { PREFLIGHT_RUN_ID: "42" }]) {
+    const result = fixture("success", "published", overrides);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /published_target_override/u);
+  }
+});
+
+test("candidate requires an exact target and evidence run and refuses published identity", () => {
+  for (const overrides of [{ EUDI_TARGET_COMMIT: "" }, { EUDI_TARGET_COMMIT: "main" },
+    { PREFLIGHT_RUN_ID: "" }, { EUDI_WALLET_RELEASE: `reallyme-wallet-v${policy.release_version}` }]) {
+    const result = fixture("success", "candidate", overrides);
+    assert.equal(result.status, 1);
+    assert.equal(result.deployment, undefined);
+  }
+});
+
+test("published mode requires a valid explicit release tag", () => {
+  for (const reference of ["", "latest", "reallyme-wallet-v01.2.3", "reallyme-wallet-v0.1.2\n"]) {
+    const result = fixture("success", "published", { EUDI_WALLET_RELEASE: reference });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /invalid_published_release_selection/u);
+  }
 });
 
 for (const scenario of ["draft-release", "dirty-framework", "tampered-archive", "signature-failure",

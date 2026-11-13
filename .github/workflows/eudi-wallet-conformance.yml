@@ -3,50 +3,68 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
 name: EUDI Wallet Conformance
+run-name: Wallet ${{ inputs.target_mode }} · ${{ inputs.framework_release_override || inputs.framework_release }} · ${{ inputs.target_commit || inputs.wallet_release }}
 
 on:
   workflow_dispatch:
     inputs:
+      framework_release:
+        description: Framework release (menu snapshot; use override for another release)
+        required: true
+        default: v0.3.3
+        type: choice
+        options:
+          - v0.3.3
+          - v0.3.2
+          - v0.3.1
+      framework_release_override:
+        description: Optional published framework release tag, for example v0.3.4
+        required: false
+        type: string
       target_mode:
-        description: Test the latest commit candidate or the latest published release
+        description: Candidate commit or explicitly selected published Wallet release
         required: true
         default: candidate
         type: choice
         options:
           - candidate
           - published
+      target_commit:
+        description: Required candidate full commit SHA (published must be blank)
+        required: false
+        type: string
+      preflight_run_id:
+        description: Required candidate package preflight run ID (published must be blank)
+        required: false
+        type: string
+
+      wallet_release:
+        description: Required in published mode, for example reallyme-wallet-v0.1.2 (candidate must be blank)
+        required: false
+        type: string
 
 permissions:
   actions: read
   attestations: read
   contents: read
 
+concurrency:
+  group: eudi-wallet-conformance-${{ github.run_id }}
+  cancel-in-progress: false
+
 jobs:
-  release-inputs:
+  conformance:
     if: github.repository == 'reallyme/wallet' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-26.04
-    timeout-minutes: 30
-    outputs:
-      preflight_run_id: ${{ steps.prepare.outputs.preflight_run_id }}
-      release_id: ${{ steps.prepare.outputs.release_id }}
-      release_ref: ${{ steps.prepare.outputs.release_ref }}
-      target_commit: ${{ steps.prepare.outputs.target_commit }}
-      target_mode: ${{ steps.prepare.outputs.target_mode }}
-      target_version: ${{ steps.prepare.outputs.target_version }}
+    timeout-minutes: 150
+    env:
+      CONFORMANCE_PROFILE: eudi-wallet-engineering-v1
     steps:
-      - name: Checkout Wallet workflow implementation
+      - name: Checkout Wallet dispatcher
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
           path: wallet
-          persist-credentials: false
-
-      - name: Checkout pinned conformance framework
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: reallyme/identity-conformance
-          ref: 97974ea1ca9b7144bc19fa9337a089118db72924
-          path: identity-conformance
           persist-credentials: false
 
       - name: Install Node
@@ -54,41 +72,298 @@ jobs:
         with:
           node-version: "26"
 
+      - name: Resolve explicit published framework
+        id: framework
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EUDI_FRAMEWORK_REF: ${{ inputs.framework_release }}
+          EUDI_FRAMEWORK_OVERRIDE: ${{ inputs.framework_release_override }}
+        working-directory: wallet
+        run: node scripts/resolve_eudi_framework.mjs
+
+      - name: Checkout selected immutable framework
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: reallyme/identity-conformance
+          ref: ${{ steps.framework.outputs.commit }}
+          path: identity-conformance
+          persist-credentials: false
+
+      - name: Authenticate published framework before executing it
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FRAMEWORK_TAG: ${{ steps.framework.outputs.tag }}
+          FRAMEWORK_COMMIT: ${{ steps.framework.outputs.commit }}
+          FRAMEWORK_MANIFEST_SHA256: ${{ steps.framework.outputs.manifest_sha256 }}
+          EUDI_VERIFY_FRAMEWORK: '1'
+          EUDI_FRAMEWORK_PATH: ${{ github.workspace }}/identity-conformance
+          EUDI_FRAMEWORK_MANIFEST: ${{ runner.temp }}/framework-bootstrap/conformance-framework-release.json
+        working-directory: wallet
+        run: |
+          test "$(git -C ../identity-conformance rev-parse HEAD)" = "${FRAMEWORK_COMMIT}"
+          test -z "$(git -C ../identity-conformance status --porcelain)"
+          mkdir -m 700 "${RUNNER_TEMP}/framework-bootstrap"
+          gh release download "${FRAMEWORK_TAG}" --repo reallyme/identity-conformance \
+            --pattern conformance-framework-release.json --dir "${RUNNER_TEMP}/framework-bootstrap"
+          node scripts/resolve_eudi_framework.mjs
+
       - name: Install Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.15.2"
 
-      - name: Resolve immutable target and prepare caller inputs
+      - name: Verify complete framework release manifest
+        env:
+          FRAMEWORK_COMMIT: ${{ steps.framework.outputs.commit }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          identity-conformance/scripts/prepare_published_framework_release.sh \
+            identity-conformance "${FRAMEWORK_COMMIT}"
+          cmp "${RUNNER_TEMP}/framework-bootstrap/conformance-framework-release.json" \
+            "${RUNNER_TEMP}/identity-conformance-framework-release/conformance-framework-release.json"
+
+      - name: Prepare immutable target from existing signed package evidence
         id: prepare
         env:
           GH_TOKEN: ${{ github.token }}
-          FRAMEWORK_COMMIT: 97974ea1ca9b7144bc19fa9337a089118db72924
+          FRAMEWORK_COMMIT: ${{ steps.framework.outputs.commit }}
           TARGET_MODE: ${{ inputs.target_mode }}
+          EUDI_WALLET_RELEASE: ${{ inputs.wallet_release }}
+          EUDI_TARGET_COMMIT: ${{ inputs.target_commit }}
+          PREFLIGHT_RUN_ID: ${{ inputs.preflight_run_id }}
           EUDI_WRITE_GITHUB_OUTPUT: '1'
           EUDI_FRAMEWORK_PATH: ${{ github.workspace }}/identity-conformance
           EUDI_INPUT_DIRECTORY: ${{ runner.temp }}/eudi-wallet-conformance-inputs
         working-directory: wallet
         run: node scripts/prepare_eudi_release_inputs.mjs
 
-      - name: Upload verified candidate inputs
+      - name: Verify published target identity
+        if: steps.prepare.outputs.target_mode == 'published'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ steps.prepare.outputs.release_id }}
+          RELEASE_REF: ${{ steps.prepare.outputs.release_ref }}
+          TARGET_COMMIT: ${{ steps.prepare.outputs.target_commit }}
+        run: |
+          release_record="${RUNNER_TEMP}/wallet-release-record.json"
+          gh api "repos/reallyme/wallet/releases/${RELEASE_ID}" > "${release_record}"
+          test "$(jq -er '.id | tostring' "${release_record}")" = "${RELEASE_ID}"
+          test "$(jq -er '.tag_name' "${release_record}")" = "${RELEASE_REF}"
+          test "$(jq -er '.draft == false and .prerelease == false' "${release_record}")" = "true"
+          test "$(gh api "repos/reallyme/wallet/commits/${RELEASE_REF}" --jq '.sha')" = "${TARGET_COMMIT}"
+
+      - name: Checkout exact Wallet source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: reallyme/wallet
+          ref: ${{ steps.prepare.outputs.target_commit }}
+          path: components/wallet
+          persist-credentials: false
+
+      - name: Verify Wallet checkout
+        env:
+          TARGET_COMMIT: ${{ steps.prepare.outputs.target_commit }}
+        run: test "$(git -C components/wallet rev-parse HEAD)" = "${TARGET_COMMIT}"
+
+      - name: Install pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: 1.100.0
+
+      - name: Execute selected Wallet conformance profile
+        env:
+          FRAMEWORK_COMMIT: ${{ steps.framework.outputs.commit }}
+          TARGET_COMMIT: ${{ steps.prepare.outputs.target_commit }}
+          TARGET_MODE: ${{ steps.prepare.outputs.target_mode }}
+          TARGET_VERSION: ${{ steps.prepare.outputs.target_version }}
+          PREFLIGHT_RUN_ID: ${{ steps.prepare.outputs.preflight_run_id }}
+        run: |
+          input_dir="${RUNNER_TEMP}/eudi-wallet-conformance-inputs"
+          result="${RUNNER_TEMP}/eudi-wallet-conformance-result.json"
+          python3 identity-conformance/scripts/run_eudi_wallet_conformance.py \
+            --deployment-manifest "${input_dir}/deployment.json" \
+            --source components/wallet \
+            --package-bundle "${input_dir}/wallet-release" \
+            --component-attestation "${input_dir}/wallet-attestation.json" \
+            --framework-revision "${FRAMEWORK_COMMIT}" \
+            --workflow-revision "${GITHUB_SHA}" \
+            --output "${result}"
+          test "$(jq -er .workflow_revision "${result}")" = "${GITHUB_SHA}"
+          test "$(jq -er .framework_revision "${result}")" = "${FRAMEWORK_COMMIT}"
+          test "$(jq -er .component.commit "${result}")" = "${TARGET_COMMIT}"
+          test "$(jq -er .target.commit "${result}")" = "${TARGET_COMMIT}"
+          test "$(jq -er .target.mode "${result}")" = "${TARGET_MODE}"
+          test "$(jq -er .target.version "${result}")" = "${TARGET_VERSION}"
+          test "$(jq -er '.target.preflight_run_id | tostring' "${result}")" = "${PREFLIGHT_RUN_ID}"
+          python3 identity-conformance/scripts/verify_eudi_wallet_execution_result.py \
+            --result "${result}"
+
+      - name: Revalidate exact Wallet package preflight
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_COMMIT: ${{ steps.prepare.outputs.target_commit }}
+          PREFLIGHT_RUN_ID: ${{ steps.prepare.outputs.preflight_run_id }}
+        run: |
+          result="${RUNNER_TEMP}/eudi-wallet-conformance-result.json"
+          test "$(jq -er '.package_evidence.preflight_run_id | tostring' "${result}")" = "${PREFLIGHT_RUN_ID}"
+          job_id="$(jq -er '.package_evidence.preflight_job_id' "${result}")"
+          fuzz_run_id="$(jq -er '.package_evidence.fuzz_run_id' "${result}")"
+          protobuf_ci_run_id="$(jq -er '.package_evidence.protobuf_ci_run_id' "${result}")"
+          rust_ci_run_id="$(jq -er '.package_evidence.rust_ci_run_id' "${result}")"
+          for identifier in "${job_id}" "${fuzz_run_id}" "${protobuf_ci_run_id}" "${rust_ci_run_id}"; do
+            [[ "${identifier}" =~ ^[1-9][0-9]{0,18}$ ]]
+          done
+          gh api "repos/reallyme/wallet/actions/runs/${PREFLIGHT_RUN_ID}" > "${RUNNER_TEMP}/wallet-preflight-run.json"
+          gh api "repos/reallyme/wallet/actions/runs/${PREFLIGHT_RUN_ID}/attempts/1/jobs?per_page=100" > "${RUNNER_TEMP}/wallet-preflight-jobs.json"
+          for prerequisite in fuzz protobuf-ci rust-ci; do
+            case "${prerequisite}" in
+              fuzz) run_id="${fuzz_run_id}" ;;
+              protobuf-ci) run_id="${protobuf_ci_run_id}" ;;
+              rust-ci) run_id="${rust_ci_run_id}" ;;
+            esac
+            gh api "repos/reallyme/wallet/actions/runs/${run_id}" > "${RUNNER_TEMP}/wallet-${prerequisite}-run.json"
+            gh api "repos/reallyme/wallet/actions/runs/${run_id}/attempts/1/jobs?per_page=100" > "${RUNNER_TEMP}/wallet-${prerequisite}-jobs.json"
+          done
+          python3 identity-conformance/scripts/verify_wallet_package_preflight.py \
+            --result "${result}" \
+            --run "${RUNNER_TEMP}/wallet-preflight-run.json" \
+            --jobs "${RUNNER_TEMP}/wallet-preflight-jobs.json" \
+            --fuzz-run "${RUNNER_TEMP}/wallet-fuzz-run.json" \
+            --fuzz-jobs "${RUNNER_TEMP}/wallet-fuzz-jobs.json" \
+            --protobuf-ci-run "${RUNNER_TEMP}/wallet-protobuf-ci-run.json" \
+            --protobuf-ci-jobs "${RUNNER_TEMP}/wallet-protobuf-ci-jobs.json" \
+            --rust-ci-run "${RUNNER_TEMP}/wallet-rust-ci-run.json" \
+            --rust-ci-jobs "${RUNNER_TEMP}/wallet-rust-ci-jobs.json" \
+            --expected-commit "${TARGET_COMMIT}"
+
+      - name: Verify provenance for every package subject
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_COMMIT: ${{ steps.prepare.outputs.target_commit }}
+        run: |
+          input_dir="${RUNNER_TEMP}/eudi-wallet-conformance-inputs"
+          result="${RUNNER_TEMP}/eudi-wallet-conformance-result.json"
+          subject_dir="${RUNNER_TEMP}/wallet-attestation-subjects"
+          python3 identity-conformance/scripts/materialize_wallet_attestation_subjects.py \
+            --bundle "${input_dir}/wallet-release" \
+            --result "${result}" \
+            --output "${subject_dir}"
+          subject_count="$(find "${subject_dir}" -maxdepth 1 -type f | wc -l | tr -d ' ')"
+          crate_count="$(jq -er '.package_evidence.crate_count' "${result}")"
+          test "${subject_count}" -eq "$((crate_count + 1))"
+          while IFS= read -r -d '' subject; do
+            gh attestation verify "${subject}" \
+              --repo reallyme/wallet \
+              --signer-workflow reallyme/wallet/.github/workflows/crates-package-preflight.yml \
+              --source-digest "${TARGET_COMMIT}" \
+              --deny-self-hosted-runners >/dev/null
+          done < <(find "${subject_dir}" -maxdepth 1 -type f -print0)
+
+      - name: Verify published release assets and crates.io records
+        if: steps.prepare.outputs.target_mode == 'published'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REF: ${{ steps.prepare.outputs.release_ref }}
+        run: |
+          result="${RUNNER_TEMP}/eudi-wallet-conformance-result.json"
+          assets_dir="${RUNNER_TEMP}/wallet-published-assets"
+          records="${RUNNER_TEMP}/wallet-registry-records.json"
+          mkdir -m 700 "${assets_dir}"
+          gh release download "${RELEASE_REF}" \
+            --repo reallyme/wallet \
+            --dir "${assets_dir}"
+          records_directory="${RUNNER_TEMP}/wallet-registry-records"
+          mkdir -m 700 "${records_directory}"
+          while IFS=$'\t' read -r package version; do
+            [[ "${package}" =~ ^reallyme-wallet(-[a-z0-9][a-z0-9-]{0,63})?$ ]]
+            [[ "${version}" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+            response="${records_directory}/${package}.json"
+            curl --fail-with-body --location --proto '=https' --tlsv1.2 \
+              --retry 5 --retry-all-errors \
+              "https://crates.io/api/v1/crates/${package}/${version}" \
+              --output "${response}"
+            jq -ce --arg expected_name "${package}" --arg expected_version "${version}" '
+              .version
+              | select(.crate == $expected_name and .num == $expected_version)
+              | {name: .crate, version: .num, checksum: .checksum, yanked: .yanked}
+            ' "${response}" > "${records_directory}/${package}.normalized.json"
+          done < <(jq -r '.package_evidence.crates[] | [.name, .version] | @tsv' "${result}")
+          jq -s 'sort_by(.name)' "${records_directory}"/*.normalized.json > "${records}"
+          python3 identity-conformance/scripts/verify_wallet_published_target.py \
+            --result "${result}" \
+            --release-record "${RUNNER_TEMP}/wallet-release-record.json" \
+            --assets-directory "${assets_dir}" \
+            --registry-records "${records}" \
+            --output "${RUNNER_TEMP}/wallet-publication-evidence.json"
+
+      - name: Build Wallet conformance statement
+        env:
+          CONFORMANCE_PROFILE: ${{ env.CONFORMANCE_PROFILE }}
+          WORKFLOW_REPOSITORY: ${{ github.repository }}
+          WORKFLOW_REVISION: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          FRAMEWORK_RELEASE_TAG: ${{ steps.framework.outputs.tag }}
+          TARGET_MODE: ${{ steps.prepare.outputs.target_mode }}
+          TARGET_VERSION: ${{ steps.prepare.outputs.target_version }}
+          TARGET_COMMIT: ${{ steps.prepare.outputs.target_commit }}
+        run: |
+          result="${RUNNER_TEMP}/eudi-wallet-conformance-result.json"
+          statement="${RUNNER_TEMP}/wallet-conformance-statement.json"
+          publication_args=()
+          if [[ -f "${RUNNER_TEMP}/wallet-publication-evidence.json" ]]; then
+            publication_args=(
+              --publication-evidence
+              "${RUNNER_TEMP}/wallet-publication-evidence.json"
+            )
+          fi
+          python3 identity-conformance/scripts/build_wallet_conformance_statement.py \
+            --framework-selection "${RUNNER_TEMP}/identity-conformance-framework-release/selection.json" \
+            --result "${result}" \
+            --profile "${CONFORMANCE_PROFILE}" \
+            --workflow-repository "${WORKFLOW_REPOSITORY}" \
+            --workflow-revision "${WORKFLOW_REVISION}" \
+            --run-id "${RUN_ID}" \
+            --run-attempt "${RUN_ATTEMPT}" \
+            "${publication_args[@]}" \
+            --output "${statement}"
+          discovered="$(jq -er '.test_execution.discovered_test_count' "${result}")"
+          passed="$(jq -er '.test_execution.passed_test_count' "${result}")"
+          printf '## EU Wallet Engineering passed\n\nTarget: **%s %s @ %s**\n\nIdentity Conformance: **%s**\n\nWorkspace tests: **%s/%s**\n' \
+            "${TARGET_MODE}" "${TARGET_VERSION}" "${TARGET_COMMIT}" \
+            "${FRAMEWORK_RELEASE_TAG}" "${passed}" "${discovered}" >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload Wallet conformance evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: wallet-eudi-candidate-${{ github.run_id }}
-          path: ${{ runner.temp }}/eudi-wallet-conformance-inputs
+          name: eudi-wallet-conformance-${{ steps.prepare.outputs.target_commit }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/eudi-wallet-conformance-result.json
+            ${{ runner.temp }}/wallet-conformance-statement.json
+            ${{ runner.temp }}/wallet-publication-evidence.json
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
 
-  eudi-wallet-conformance:
-    needs: release-inputs
-    uses: reallyme/identity-conformance/.github/workflows/eudi-wallet-conformance.yml@97974ea1ca9b7144bc19fa9337a089118db72924
-    with:
-      framework_commit: 97974ea1ca9b7144bc19fa9337a089118db72924
-      conformance_profile: eudi-wallet-engineering-v1
-      target_mode: ${{ needs.release-inputs.outputs.target_mode }}
-      target_commit: ${{ needs.release-inputs.outputs.target_commit }}
-      target_version: ${{ needs.release-inputs.outputs.target_version }}
-      preflight_run_id: ${{ needs.release-inputs.outputs.preflight_run_id }}
-      candidate_artifact_name: wallet-eudi-candidate-${{ github.run_id }}
-      release_id: ${{ needs.release-inputs.outputs.release_id }}
-      release_ref: ${{ needs.release-inputs.outputs.release_ref }}
+      - name: Remove working material
+        if: always()
+        run: |
+          rm -rf -- "${RUNNER_TEMP:?}/eudi-wallet-conformance-inputs" \
+            "${RUNNER_TEMP:?}/eudi-wallet-conformance-result.json" \
+            "${RUNNER_TEMP:?}/wallet-conformance-statement.json" \
+            "${RUNNER_TEMP:?}/wallet-attestation-subjects" \
+            "${RUNNER_TEMP:?}/wallet-published-assets" \
+            "${RUNNER_TEMP:?}/wallet-registry-records" \
+            "${RUNNER_TEMP:?}/wallet-registry-records.json" \
+            "${RUNNER_TEMP:?}/wallet-publication-evidence.json" \
+            "${RUNNER_TEMP:?}/wallet-release-record.json" \
+            "${RUNNER_TEMP:?}/wallet-preflight-run.json" \
+            "${RUNNER_TEMP:?}/wallet-preflight-jobs.json" \
+            "${RUNNER_TEMP:?}/wallet-fuzz-run.json" \
+            "${RUNNER_TEMP:?}/wallet-fuzz-jobs.json" \
+            "${RUNNER_TEMP:?}/wallet-protobuf-ci-run.json" \
+            "${RUNNER_TEMP:?}/wallet-protobuf-ci-jobs.json" \
+            "${RUNNER_TEMP:?}/wallet-rust-ci-run.json" \
+            "${RUNNER_TEMP:?}/wallet-rust-ci-jobs.json" \
+            "${RUNNER_TEMP:?}/identity-conformance-framework-release" \
+            "${RUNNER_TEMP:?}/framework-bootstrap" \
+            "${GITHUB_WORKSPACE:?}/components"
