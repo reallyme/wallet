@@ -52,11 +52,22 @@ const policySource = ${JSON.stringify(JSON.stringify(policy))};
 const calls = [];
 const ok = {status:0,stdout:"",stderr:""};
 const answer = (value) => ({...ok,stdout:JSON.stringify(value)});
-cp.spawnSync = (program,args) => {
+const realSpawnSync = cp.spawnSync.bind(cp);
+cp.spawnSync = (program,args,options) => {
+  if(program === "tar" && options?.env?.COPYFILE_DISABLE !== "1") return {...ok,status:98};
   calls.push([program,...args]);
   writeFileSync(${JSON.stringify(calls)},JSON.stringify(calls));
   if(program === "git") return {...ok,stdout: args.includes("rev-parse") ? framework : scenario === "dirty-framework" ? " M changed" : ""};
-  if(program === "tar") {writeFileSync(args[1],"fixture bundle"); return ok;}
+  if(program === "tar") {
+    if(scenario === "archive-members") {
+      if(process.platform === "darwin") {
+        const metadata=realSpawnSync("xattr",["-w","user.wallet_bundle_test","public-fixture",join(args[args.indexOf("-C")+1],manifest.crates[0].file)],{encoding:"utf8"});
+        if(metadata.status !== 0) return metadata;
+      }
+      return realSpawnSync(program,args,options);
+    }
+    writeFileSync(args[1],"fixture bundle"); return ok;
+  }
   if(program === "python3") return ok;
   if(program !== "gh") return {...ok,status:99};
   if(args[0] === "attestation") return scenario === "signature-failure" ? {...ok,status:1} : ok;
@@ -118,7 +129,19 @@ syncBuiltinESMExports();
       },
     });
     assert.equal(completed.error, undefined);
+    let archiveMembers;
+    let archiveTypes;
+    if (scenario === "archive-members" && completed.status === 0) {
+      const bundle = join(output, "wallet-release");
+      const names = spawnSync("tar", ["-tf", bundle], { encoding: "utf8", timeout: 15_000 });
+      const entries = spawnSync("tar", ["-tvf", bundle], { encoding: "utf8", timeout: 15_000 });
+      assert.equal(names.status, 0, names.stderr);
+      assert.equal(entries.status, 0, entries.stderr);
+      archiveMembers = names.stdout.trim().split("\n");
+      archiveTypes = entries.stdout.trim().split("\n").map((line) => line[0]);
+    }
     return { ...completed, calls: existsSync(calls) ? JSON.parse(readFileSync(calls, "utf8")) : [],
+      archiveMembers, archiveTypes,
       deployment: existsSync(join(output, "deployment.json")) ? JSON.parse(readFileSync(join(output, "deployment.json"), "utf8")) : undefined,
       attestation: existsSync(join(output, "wallet-attestation.json")) ? JSON.parse(readFileSync(join(output, "wallet-attestation.json"), "utf8")) : undefined,
       githubOutput: existsSync(githubOutput) ? readFileSync(githubOutput, "utf8") : undefined };
@@ -146,6 +169,20 @@ test("hosted input preparation verifies all 18 signatures before binding real CI
   assert.deepEqual(result.attestation.toolchain, { identifier: "rust", version: "1.100.0" });
   assert.equal(result.calls.some((call) => call[0] === "cargo"), false);
   assert.ok(result.calls.findIndex((call) => call[1] === "attestation") < result.calls.findIndex((call) => call[0] === "tar"));
+});
+
+test("native tar emits exactly the reviewed regular members without metadata sidecars", () => {
+  const expectedMembers = ["crates-preflight.json",
+    ...policy.authorized_public_packages.map((name) => `${name}-${policy.release_version}.crate`),
+    ...["format", "lint", "unit", "integration", "vector", "security", "build"]
+      .map((category) => `evidence-${category}.json`)].sort();
+  for (const mode of ["candidate", "published"]) {
+    const result = fixture("archive-members", mode);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(result.archiveMembers.sort(), expectedMembers);
+    assert.equal(result.archiveTypes.length, expectedMembers.length);
+    assert.ok(result.archiveTypes.every((type) => type === "-"));
+  }
 });
 
 test("candidate mode consumes only the exact current commit preflight", () => {

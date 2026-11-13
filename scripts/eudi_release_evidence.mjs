@@ -94,14 +94,14 @@ export const derivePreflightChecks = (value, { runId, releaseSha }) => {
       return { name, number: matching[0].number, status: "completed", conclusion: "success" };
     });
     const record = {
-      schema: "reallyme.wallet.eudi_release_check_evidence.v1",
+      schema: "reallyme.wallet.eudi_package_check_evidence.v1",
       repository: "reallyme/wallet", release_sha: releaseSha,
       run_id: runId, run_attempt: 1, job_id: job.id, category, steps,
     };
     const bytes = `${JSON.stringify(record, null, 2)}\n`;
     evidence.push({ file: `evidence-${category}.json`, bytes });
     return {
-      check_id: `release-preflight-${category}`, category,
+      check_id: `package-preflight-${category}`, category,
       result: "passed", evidence_sha256: sha256(bytes),
     };
   });
@@ -137,7 +137,7 @@ export const buildEudiDeploymentInputs = ({
   const categories = new Set();
   for (const check of checks) {
     if (!isRecord(check) || !Object.hasOwn(REQUIRED_STEPS, check.category) ||
-        check.check_id !== `release-preflight-${check.category}` || check.result !== "passed" ||
+        check.check_id !== `package-preflight-${check.category}` || check.result !== "passed" ||
         typeof check.evidence_sha256 !== "string" || !SHA256.test(check.evidence_sha256) ||
         categories.has(check.category)) failEudiEvidence("invalid_deployment_material");
     categories.add(check.category);

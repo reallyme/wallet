@@ -30,9 +30,10 @@ const VERSION = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/u;
 const PACKAGE_NAME = /^reallyme-wallet(?:-[a-z0-9][a-z0-9-]{0,63})?$/u;
 const POLICY = JSON.parse(readFileSync(new URL("../conformance/features/wallet-package-policy-v1.json", import.meta.url), "utf8"));
 
-const command = (program, args) => {
+const command = (program, args, env = process.env) => {
   const result = spawnSync(program, args, {
     encoding: "utf8", maxBuffer: MAX_COMMAND_BYTES, timeout: COMMAND_TIMEOUT_MS,
+    env,
     stdio: ["ignore", "pipe", "pipe"],
   });
   if (result.error !== undefined || result.status !== 0) failEudiEvidence("release_evidence_command_failed");
@@ -238,7 +239,9 @@ export const prepareEudiReleaseInputs = async ({ env = process.env } = {}) => {
     // New output directories prevent stale inputs from a prior candidate being reused.
     mkdirSync(output, { mode: 0o700 });
     const bundle = join(output, "wallet-release");
-    command("tar", ["-cf", bundle, "-C", scratch, "--", ...expectedFiles, ...evidence.map((item) => item.file)]);
+    // macOS metadata sidecars would add unreviewed members to the exact bundle.
+    command("tar", ["-cf", bundle, "-C", scratch, "--", ...expectedFiles, ...evidence.map((item) => item.file)],
+      { ...env, COPYFILE_DISABLE: "1" });
     const { attestationBytes, deploymentBytes } = buildEudiDeploymentInputs({
       target, bundleHash: sha256(regularBytes(bundle, MAX_ARCHIVE_BYTES * 2)),
       cargoLockHash: sha256(lockBytes), sourceLocks, checks, createdAt: new Date().toISOString(), toolchainVersion,

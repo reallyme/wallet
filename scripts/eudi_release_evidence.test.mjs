@@ -30,6 +30,8 @@ test("only actual successful steps become component check claims and reproducibl
     assert.ok(evidence);
     assert.equal(check.evidence_sha256, createHash("sha256").update(evidence.bytes).digest("hex"));
     const record = JSON.parse(evidence.bytes);
+    assert.equal(check.check_id, `package-preflight-${check.category}`);
+    assert.equal(record.schema, "reallyme.wallet.eudi_package_check_evidence.v1");
     assert.equal(record.run_id, identity.runId);
     assert.equal(record.release_sha, identity.releaseSha);
     assert.ok(record.steps.every((step) => step.conclusion === "success"));
@@ -194,5 +196,15 @@ test("missing, duplicated, failed or invented check categories cannot form an at
   ]) {
     const input = material(); mutate(input.checks);
     assert.throws(() => buildEudiDeploymentInputs(input), EudiReleaseEvidenceError);
+  }
+});
+
+test("obsolete release-prefixed checks cannot enter the package evidence contract", () => {
+  for (let index = 0; index < material().checks.length; index += 1) {
+    const input = material();
+    input.checks[index].check_id = `release-preflight-${input.checks[index].category}`;
+    assert.throws(() => buildEudiDeploymentInputs(input), {
+      name: "EudiReleaseEvidenceError", code: "invalid_deployment_material",
+    });
   }
 });
