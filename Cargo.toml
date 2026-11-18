@@ -55,7 +55,7 @@ zeroize = { version = "1.9", features = ["derive"] }
 reallyme-openid-oauth = { version = "=0.6.2", default-features = false }
 reallyme-disclosure-policy = { version = "=0.6.2" }
 reallyme-credential-status = { version = "=0.6.2", default-features = false }
-reallyme-vp-core = { version = "=0.6.2" }
+reallyme-vp-core = { version = "=0.7.0" }
 reallyme-ssi-proto = { version = "=0.6.2", default-features = false }
 reallyme-etsi-eaa-conformance = { version = "=0.6.2", default-features = false }
 reallyme-trust-x509 = { version = "=0.6.2", default-features = false }
