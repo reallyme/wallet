@@ -52,7 +52,7 @@ tokio = "1.53"
 tower = "0.5"
 url = "2.5"
 zeroize = { version = "1.9", features = ["derive"] }
-reallyme-openid-oauth = { version = "=0.6.2", default-features = false }
+reallyme-openid-oauth = { version = "=0.7.0", default-features = false }
 reallyme-disclosure-policy = { version = "=0.6.2" }
 reallyme-credential-status = { version = "=0.6.2", default-features = false }
 reallyme-vp-core = { version = "=0.6.2" }

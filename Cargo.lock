@@ -2202,8 +2202,8 @@ dependencies = [
  "reallyme-codec",
  "reallyme-cose",
  "reallyme-crypto",
- "reallyme-ssi-proto",
- "reallyme-trust-x509",
+ "reallyme-ssi-proto 0.6.2",
+ "reallyme-trust-x509 0.6.2",
  "serde",
  "serde_json",
  "thiserror",
@@ -2222,7 +2222,26 @@ dependencies = [
  "reallyme-cose",
  "reallyme-crypto",
  "reallyme-jose",
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "url",
+ "zeroize",
+]
+
+[[package]]
+name = "reallyme-credential-status"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ed4dcfea457172697b0fd26062ccd638fd9c9e940ca25249f26196d2b220c86"
+dependencies = [
+ "flate2",
+ "reallyme-codec",
+ "reallyme-cose",
+ "reallyme-crypto",
+ "reallyme-jose",
+ "reallyme-ssi-proto 0.7.0",
  "serde",
  "serde_json",
  "thiserror",
@@ -2788,7 +2807,7 @@ checksum = "8d5495bf4295ea54c7831ab6ffa96d836cce433685ca77c5beee987eff4fcfea"
 dependencies = [
  "reallyme-credential-claims",
  "reallyme-ssi-core",
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
  "reallyme-vp-core",
  "serde",
  "thiserror",
@@ -2833,7 +2852,7 @@ dependencies = [
  "reallyme-codec",
  "reallyme-cose",
  "reallyme-crypto",
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
  "serde",
  "serde_json",
  "thiserror",
@@ -2852,8 +2871,28 @@ dependencies = [
  "percent-encoding",
  "reallyme-codec",
  "reallyme-crypto",
- "reallyme-ssi-proto",
- "reallyme-trust-core",
+ "reallyme-ssi-proto 0.6.2",
+ "reallyme-trust-core 0.6.2",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "url",
+ "zeroize",
+]
+
+[[package]]
+name = "reallyme-openid-oauth"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e5b3aa19d07d775b3ae34769d84f6743b9422542c8f1d38e4c7d82fb85909d8"
+dependencies = [
+ "buffa",
+ "percent-encoding",
+ "reallyme-codec",
+ "reallyme-crypto",
+ "reallyme-ssi-proto 0.7.0",
+ "reallyme-trust-core 0.7.0",
  "secrecy",
  "serde",
  "serde_json",
@@ -2906,7 +2945,7 @@ dependencies = [
  "reallyme-codec",
  "reallyme-crypto",
  "reallyme-jose",
- "reallyme-openid-oauth",
+ "reallyme-openid-oauth 0.6.2",
  "reallyme-openid4vci-types",
  "secrecy",
  "serde",
@@ -3025,9 +3064,24 @@ version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "537bcea205c0f7011a94eb5c452a08ef419741302dffae21d817f5ee45a1f808"
 dependencies = [
- "reallyme-credential-status",
- "reallyme-ssi-proto",
- "reallyme-trust-x509",
+ "reallyme-credential-status 0.6.2",
+ "reallyme-ssi-proto 0.6.2",
+ "reallyme-trust-x509 0.6.2",
+ "serde",
+ "thiserror",
+ "time",
+ "zeroize",
+]
+
+[[package]]
+name = "reallyme-revocation"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5fed23b6516c4545367ff08a383926a0cbedd1e6058c9832f2dd1a0a06bdd191"
+dependencies = [
+ "reallyme-credential-status 0.7.0",
+ "reallyme-ssi-proto 0.7.0",
+ "reallyme-trust-x509 0.7.0",
  "serde",
  "thiserror",
  "time",
@@ -3043,7 +3097,7 @@ dependencies = [
  "reallyme-codec",
  "reallyme-crypto",
  "reallyme-jose",
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
  "serde_json",
  "thiserror",
  "zeroize",
@@ -3055,7 +3109,7 @@ version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf88cbbe17f70b60d275e660aaebd5c1fc142c7d5d1f9b4d8ee3ed4b8fd5cd0b"
 dependencies = [
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
  "serde",
  "serde_json",
  "thiserror",
@@ -3076,14 +3130,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "reallyme-ssi-proto"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "712d626a559c7a4503d19e0bd86ed2051579cb4156b33cdf6fc3df1f86eef416"
+dependencies = [
+ "buffa",
+ "buffa-types",
+ "reallyme-crypto-proto",
+ "serde",
+ "zeroize",
+]
+
+[[package]]
 name = "reallyme-trust-core"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9a80f9ccf41518abc5385b20d78f34563d5cdecf3433acab1201eedf9cdbadc8"
 dependencies = [
- "reallyme-revocation",
- "reallyme-ssi-proto",
- "reallyme-trust-x509",
+ "reallyme-revocation 0.6.2",
+ "reallyme-ssi-proto 0.6.2",
+ "reallyme-trust-x509 0.6.2",
+ "thiserror",
+ "time",
+]
+
+[[package]]
+name = "reallyme-trust-core"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f9a4775174627971a389b19121a56919dfd3dc25227c2c389776837b59b1abd0"
+dependencies = [
+ "reallyme-revocation 0.7.0",
+ "reallyme-ssi-proto 0.7.0",
+ "reallyme-trust-x509 0.7.0",
  "thiserror",
  "time",
 ]
@@ -3099,7 +3179,26 @@ dependencies = [
  "pem",
  "reallyme-codec",
  "reallyme-crypto",
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
+ "sha1",
+ "thiserror",
+ "time",
+ "x509-parser",
+ "zeroize",
+]
+
+[[package]]
+name = "reallyme-trust-x509"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c09c59b5ef880d00bc8cde8b659d0784f559818dbbe7432882b62bc67ebf03ce"
+dependencies = [
+ "asn1-rs",
+ "oid-registry",
+ "pem",
+ "reallyme-codec",
+ "reallyme-crypto",
+ "reallyme-ssi-proto 0.7.0",
  "sha1",
  "thiserror",
  "time",
@@ -3113,7 +3212,7 @@ version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f672ce6b8362da1b1c72b9da53f9f5b7e7863727b920c467fcd0cc8395e82385"
 dependencies = [
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
  "serde",
  "thiserror",
  "zeroize",
@@ -3124,7 +3223,7 @@ name = "reallyme-wallet"
 version = "0.1.2"
 dependencies = [
  "buffa",
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
  "reallyme-wallet-attestation",
  "reallyme-wallet-consent",
  "reallyme-wallet-flows",
@@ -3159,13 +3258,13 @@ name = "reallyme-wallet-conformance"
 version = "0.1.2"
 dependencies = [
  "openid4vci-profiles",
- "reallyme-credential-status",
+ "reallyme-credential-status 0.6.2",
  "reallyme-crypto-sha2-256",
- "reallyme-openid-oauth",
+ "reallyme-openid-oauth 0.7.0",
  "reallyme-openid4vci-types",
  "reallyme-openid4vci-wallet",
- "reallyme-ssi-proto",
- "reallyme-trust-x509",
+ "reallyme-ssi-proto 0.6.2",
+ "reallyme-trust-x509 0.6.2",
  "reallyme-wallet",
  "reallyme-wallet-zk",
  "reallyme-zk-api",
@@ -3186,8 +3285,8 @@ dependencies = [
  "reallyme-jose",
  "reallyme-openid4vp-types",
  "reallyme-openid4vp-wallet",
- "reallyme-trust-core",
- "reallyme-trust-x509",
+ "reallyme-trust-core 0.6.2",
+ "reallyme-trust-x509 0.6.2",
  "reallyme-vp-core",
  "reallyme-wallet-storage",
  "reallyme-wallet-types",
@@ -3212,7 +3311,7 @@ dependencies = [
  "reallyme-crypto-sha2-256",
  "reallyme-disclosure-policy",
  "reallyme-etsi-eaa-conformance",
- "reallyme-openid-oauth",
+ "reallyme-openid-oauth 0.7.0",
  "reallyme-openid4vci-proto",
  "reallyme-openid4vci-types",
  "reallyme-openid4vci-wallet",
@@ -3260,7 +3359,7 @@ dependencies = [
 name = "reallyme-wallet-inventory"
 version = "0.1.2"
 dependencies = [
- "reallyme-credential-status",
+ "reallyme-credential-status 0.6.2",
  "reallyme-wallet-storage",
  "reallyme-wallet-types",
  "thiserror",
@@ -3305,7 +3404,7 @@ dependencies = [
  "reallyme-crypto-proto",
  "reallyme-openid4vci-proto",
  "reallyme-openid4vp-proto",
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
  "serde",
  "serde_json",
  "zeroize",
@@ -3320,7 +3419,7 @@ dependencies = [
  "reallyme-crypto-proto",
  "reallyme-crypto-sha2-256",
  "reallyme-openid4vci-proto",
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
  "reallyme-wallet-attestation",
  "reallyme-wallet-keystore",
  "reallyme-wallet-lifecycle",
@@ -3371,7 +3470,7 @@ dependencies = [
  "buffa",
  "reallyme-crypto-sha2-256",
  "reallyme-openid4vci-proto",
- "reallyme-ssi-proto",
+ "reallyme-ssi-proto 0.6.2",
  "reallyme-wallet-lifecycle",
  "reallyme-wallet-log",
  "reallyme-wallet-proto",
