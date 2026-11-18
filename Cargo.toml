@@ -41,7 +41,7 @@ crypto_core = { package = "reallyme-crypto-core", version = "=0.3.17", default-f
 crypto_hmac = { package = "reallyme-crypto-hmac", version = "=0.3.17", default-features = false }
 crypto_sha2_256 = { package = "reallyme-crypto-sha2-256", version = "=0.3.17", default-features = false }
 reallyme-crypto-proto = { version = "=0.3.17", default-features = false }
-reallyme-codec = { version = "=0.3.2", default-features = false, features = ["base64url"] }
+reallyme-codec = { version = "=0.4.2", default-features = false, features = ["base64url"] }
 secrecy = "0.10.3"
 subtle = "2.6.1"
 serde = "1.0"
