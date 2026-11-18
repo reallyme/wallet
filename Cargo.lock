@@ -2796,9 +2796,9 @@ dependencies = [
 
 [[package]]
 name = "reallyme-etsi-eaa-conformance"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e8f8e96f2b0fbc0a00fb79573a2155e73b1fd930a3fd011c318d13ddd0f4d6a"
+checksum = "a679fd7fd72bea7c217e1a2d47da3b8ad3f43f2695d1de95476937c544a027d8"
 dependencies = [
  "email_address",
  "serde",
